@@ -1,0 +1,66 @@
+// Gerado por scripts/build-tokens.mjs a partir de tokens/tokens.json. Não edite à mão: rode `pnpm tokens`.
+// Estilos de texto como mixins: @use "../../styles/typography" as *  →  @include text-body
+
+// Títulos de página de apresentação e capas.
+@mixin text-display-xl
+  font-family: var(--font-display)
+  font-size: 44px
+  line-height: 48px
+  font-weight: 700
+
+// Nome do Cenário no banner, títulos de configurações, nome do personagem na ficha.
+@mixin text-display
+  font-family: var(--font-display)
+  font-size: 24px
+  line-height: 30px
+  font-weight: 700
+
+// Títulos de painéis e de diálogos.
+@mixin text-title
+  font-family: var(--font-display)
+  font-size: 18px
+  line-height: 24px
+  font-weight: 700
+
+// Modificadores de atributo e total de rolagem.
+@mixin text-number-xl
+  font-family: var(--font-display)
+  font-size: 28px
+  line-height: 30px
+  font-weight: 700
+
+// Mensagens do chat e texto corrido.
+@mixin text-body
+  font-family: var(--font-sans)
+  font-size: 15px
+  line-height: 22px
+  font-weight: 400
+
+// Linhas de canal, itens de lista, botões.
+@mixin text-body-sm
+  font-family: var(--font-sans)
+  font-size: 14px
+  line-height: 20px
+  font-weight: 500
+
+// Botões compactos, chips, rótulos de campos.
+@mixin text-label
+  font-family: var(--font-sans)
+  font-size: 13px
+  line-height: 18px
+  font-weight: 600
+
+// Horários, subtítulos, contadores.
+@mixin text-caption
+  font-family: var(--font-sans)
+  font-size: 12px
+  line-height: 16px
+  font-weight: 400
+
+// Rótulos de categoria em caixa alta, sempre text-faint.
+@mixin text-overline
+  font-family: var(--font-sans)
+  font-size: 11px
+  line-height: 14px
+  font-weight: 600
+  letter-spacing: 0.07em

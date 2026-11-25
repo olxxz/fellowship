@@ -1,0 +1,35 @@
+@use "../../styles/mixins" as *
+
+// Só aparece depois de ~200ms, para carregamentos rápidos não piscarem.
+@keyframes appear
+  to
+    opacity: 1
+
+// Pulsa entre 50% e 100% de opacidade em 1.4s.
+@keyframes pulse
+  0%, 100%
+    opacity: 0.5
+  50%
+    opacity: 1
+
+.block
+  display: block
+  flex-shrink: 0
+  background: var(--bg-input)
+  border-radius: var(--radius-sm)
+  opacity: 0
+  animation: pulse 1.4s ease-in-out 200ms infinite both
+  @include reduced-motion
+    animation: appear 0s linear 200ms forwards
+
+.circle
+  border-radius: var(--radius-full)
+
+.text
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  width: 100%
+
+.hidden
+  @include visually-hidden

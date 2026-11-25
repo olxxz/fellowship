@@ -1,0 +1,130 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.row
+  position: relative
+  display: flex
+  align-items: center
+  min-height: 36px
+  border-radius: var(--radius-md)
+  color: var(--text-muted)
+  @include mobile
+    min-height: var(--size-touch)
+  @media (hover: hover)
+    &:hover
+      background: color-mix(in srgb, var(--bg-raised) 50%, transparent)
+      color: var(--text)
+
+.active, .active:hover
+  background: var(--bg-raised)
+  color: var(--text)
+
+.unread
+  color: var(--text)
+  .name
+    font-weight: 600
+
+.main
+  @include reset-interactive
+  flex: 1
+  min-width: 0
+  align-self: stretch
+  display: flex
+  align-items: center
+  gap: 10px
+  padding: 0 10px
+  border-radius: inherit
+  @include text-body-sm
+  &:focus-visible
+    @include focus-ring
+
+.name
+  flex: 1
+  min-width: 0
+  @include truncate
+
+.meta
+  flex-shrink: 0
+  @include text-caption
+  color: var(--text-faint)
+
+.metaMesa
+  color: var(--mesa-text)
+
+.dot
+  flex-shrink: 0
+  width: 8px
+  height: 8px
+  border-radius: var(--radius-full)
+  background: var(--text)
+
+// A engrenagem aparece só no hover ou com foco dentro da linha.
+.settings
+  @include reset-interactive
+  display: none
+  flex-shrink: 0
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  margin-right: var(--space-1)
+  border-radius: var(--radius-sm)
+  color: var(--text-muted)
+  &:hover
+    color: var(--text)
+  &:focus-visible
+    display: flex
+    @include focus-ring
+
+.row:hover .settings, .row:focus-within .settings
+  display: flex
+
+.hidden
+  @include visually-hidden
+
+// Categoria
+.category
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.categoryHeader
+  @include reset-interactive
+  display: flex
+  align-items: center
+  gap: var(--space-1)
+  min-height: 28px
+  padding: 0 10px
+  border-radius: var(--radius-sm)
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)
+  &:hover
+    color: var(--text-muted)
+  &:focus-visible
+    @include focus-ring
+
+.chevron
+  transition: transform 120ms ease-out
+  @include reduced-motion
+    transition: none
+
+.collapsed .chevron
+  transform: rotate(-90deg)
+
+.list
+  display: flex
+  flex-direction: column
+  gap: 2px
+  margin: 0
+  padding: 0
+  list-style: none
+
+.skeleton
+  display: flex
+  align-items: center
+  gap: 10px
+  min-height: 36px
+  padding: 0 10px
+  @include mobile
+    min-height: var(--size-touch)

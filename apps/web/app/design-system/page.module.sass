@@ -1,0 +1,87 @@
+@use "@fellowship/ui/styles/typography" as *
+@use "@fellowship/ui/styles/mixins" as *
+
+.page
+  min-height: 100dvh
+  background: var(--bg-rail)
+
+.header
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  padding: var(--space-8) var(--space-5) var(--space-6)
+  @include desktop
+    padding-inline: var(--space-12)
+
+.title
+  @include text-display
+
+.lead
+  max-width: 640px
+  color: var(--text-muted)
+
+.themes
+  display: grid
+  grid-template-columns: 1fr
+  @media (min-width: 1100px)
+    grid-template-columns: 1fr 1fr
+
+// Cada coluna força um tema com data-theme; as variáveis são redefinidas no próprio elemento.
+.theme
+  display: flex
+  flex-direction: column
+  gap: var(--space-8)
+  min-width: 0
+  padding: var(--space-6) var(--space-4)
+  background: var(--bg-content)
+  color: var(--text)
+  @include desktop
+    padding: var(--space-8)
+
+.themeName
+  @include text-title
+
+.section
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+
+.overline
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)
+
+.row
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-3)
+  align-items: flex-start
+
+.sidebar
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  width: 100%
+  max-width: var(--size-sidebar)
+  padding: var(--space-3) var(--space-2)
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+
+.participants
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))
+  gap: var(--space-3)
+
+.chat
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  padding: var(--space-4)
+  border-radius: var(--radius-lg)
+  background: var(--chat-ingame)
+
+.skeletons
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  max-width: 340px

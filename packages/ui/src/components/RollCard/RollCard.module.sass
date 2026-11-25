@@ -1,0 +1,106 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.card
+  @include reset-interactive
+  display: block
+  width: 100%
+  max-width: 340px
+  padding: var(--space-3) 14px
+  border: 1px solid var(--mesa-border)
+  border-radius: var(--radius-lg)
+  background: var(--mesa-surface)
+  color: var(--text)
+
+button.card
+  @media (hover: hover)
+    &:hover
+      border-color: var(--mesa-gold)
+  &:focus-visible
+    @include focus-ring
+
+// Oculta: borda tracejada, sem a superfície da Mesa.
+.hiddenRoll
+  border: 1px dashed var(--border-strong)
+  background: transparent
+
+.header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: var(--space-2)
+  @include text-caption
+  color: var(--text-muted)
+
+.tag
+  padding: 1px 6px
+  border: 1px dashed var(--border-strong)
+  border-radius: var(--radius-sm)
+  @include text-caption
+  color: var(--text-muted)
+
+.body
+  display: flex
+  align-items: baseline
+  justify-content: space-between
+  gap: var(--space-3)
+  margin-top: var(--space-1)
+
+.formula
+  font-family: var(--font-display)
+  font-size: 14px
+  line-height: 20px
+  color: var(--text)
+  overflow-wrap: anywhere
+
+.secret
+  @include text-body-sm
+  font-weight: 400
+  color: var(--text-muted)
+
+.discarded
+  color: var(--text-faint)
+  text-decoration: line-through
+
+.result
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  flex-shrink: 0
+
+.total
+  @include text-number-xl
+  color: var(--player-color, var(--text))
+
+.totalUnknown
+  color: var(--text-faint)
+
+.critSuccess
+  color: var(--success)
+
+.critFailure
+  color: var(--danger)
+
+.critLabel
+  @include text-caption
+  font-weight: 600
+
+.critSuccess .critLabel, .critFailure .critLabel
+  color: inherit
+
+.hidden
+  @include visually-hidden
+
+.skeleton
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  max-width: 340px
+  padding: var(--space-3) 14px
+  border: 1px solid var(--mesa-border)
+  border-radius: var(--radius-lg)
+
+.skeletonBody
+  display: flex
+  align-items: center
+  justify-content: space-between

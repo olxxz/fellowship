@@ -1,0 +1,53 @@
+@use "@fellowship/ui/styles/typography" as *
+
+.page
+  display: grid
+  place-items: center
+  min-height: 100dvh
+  padding: var(--space-5)
+  background: var(--bg-rail)
+
+.card
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+  width: 100%
+  max-width: 480px
+  padding: var(--space-8) var(--space-6)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-content)
+
+.mark
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 56px
+  height: 56px
+  border-radius: var(--radius-lg)
+  background: var(--mesa-gold)
+  color: var(--mesa-ink)
+
+.title
+  @include text-display-xl
+
+.lead
+  color: var(--text-muted)
+
+.links
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+  margin-top: var(--space-2)
+
+.link
+  display: inline-flex
+  align-items: center
+  min-height: var(--size-touch)
+  padding: 0 var(--space-4)
+  border-radius: var(--radius-md)
+  background: var(--bg-raised)
+  color: var(--text)
+  @include text-body-sm
+  font-weight: 600
+  text-decoration: none

@@ -1,0 +1,88 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.button
+  --button-bg: var(--bg-raised)
+  --button-fg: var(--text)
+  @include reset-interactive
+  position: relative
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  padding: 0 var(--space-4)
+  border-radius: var(--radius-md)
+  background: var(--button-bg)
+  color: var(--button-fg)
+  @include text-body-sm
+  font-weight: 600
+  white-space: nowrap
+  transition: filter 120ms ease-out
+  @media (hover: hover)
+    &:hover:not(:disabled, [aria-busy="true"])
+      filter: brightness(1.08)
+  &:active:not(:disabled, [aria-busy="true"])
+    filter: brightness(0.94)
+  &:focus-visible
+    @include focus-ring
+  &:disabled
+    --button-bg: var(--bg-raised)
+    --button-fg: var(--text-faint)
+    opacity: 0.6
+    cursor: not-allowed
+  &[aria-busy="true"]
+    cursor: progress
+
+.primary
+  --button-bg: var(--accent)
+  --button-fg: var(--on-accent)
+
+.secondary
+  --button-bg: var(--bg-raised)
+  --button-fg: var(--text)
+
+.mesa
+  --button-bg: var(--mesa-gold)
+  --button-fg: var(--mesa-ink)
+  font-weight: 700
+
+.danger
+  --button-bg: var(--danger)
+  // O token danger pede texto branco nos dois temas.
+  --button-fg: #ffffff
+  font-weight: 700
+
+.iconOnly
+  width: var(--size-touch)
+  padding: 0
+  border-radius: var(--radius-full)
+
+// Carregando: o conteúdo fica invisível (mantém a largura) e um esqueleto do mesmo tamanho ocupa o lugar do rótulo.
+.content
+  display: inline-flex
+  align-items: center
+  gap: inherit
+
+.loading .content
+  // opacity em vez de visibility: o rótulo continua sendo o nome do botão para leitores de tela.
+  opacity: 0
+
+.loadingBar
+  position: absolute
+  inset: 50% var(--space-4) auto
+  height: 12px
+  transform: translateY(-50%)
+  border-radius: var(--radius-sm)
+  background: currentColor
+  opacity: 0.35
+
+.iconOnly .loadingBar
+  inset: 50% 12px auto
+
+.hidden
+  @include visually-hidden
+
+.skeleton
+  min-height: var(--size-touch)
+  border-radius: var(--radius-md)
