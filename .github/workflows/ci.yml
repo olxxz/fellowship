@@ -4,21 +4,61 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+
+# Só leitura: o CI não escreve nada no repositório.
+permissions:
+  contents: read
+
+# Um push novo na mesma branch ou PR cancela a execução anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   check:
+    name: Tokens, lint, typecheck, testes e build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+
+      # Versão do pnpm vem do campo packageManager do package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
+
+      - name: Cache do Turborepo e do Next.js
+        uses: actions/cache@v6
+        with:
+          path: |
+            .turbo/cache
+            apps/web/.next/cache
+          key: build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            build-${{ runner.os }}-
+
       - run: pnpm install --frozen-lockfile
+
       - name: Tokens gerados estão em dia
         run: pnpm --filter @fellowship/ui tokens:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Testes
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
