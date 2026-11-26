@@ -135,3 +135,39 @@
 // Com a engrenagem no canto, o nome não passa por baixo dela.
 .bannerWithAction .bannerName, .bannerWithAction .bannerSub
   padding-right: calc(var(--size-touch) + var(--space-1))
+
+// Criar canal: + pequeno ao lado do nome da categoria e uma linha no fim da lista.
+.addChannel
+  @include reset-interactive
+  display: grid
+  place-items: center
+  width: 24px
+  height: 24px
+  border-radius: var(--radius-sm)
+  color: var(--text-faint)
+  &:hover
+    color: var(--text)
+    background: color-mix(in srgb, var(--bg-raised) 50%, transparent)
+  &:focus-visible
+    @include focus-ring
+  @include mobile
+    width: 36px
+    height: 36px
+
+.addChannelRow
+  @include reset-interactive
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  width: calc(100% - var(--space-2) * 2)
+  min-height: 36px
+  margin: var(--space-2) var(--space-2) 0
+  padding: 0 10px
+  border-radius: var(--radius-md)
+  @include text-body-sm
+  color: var(--text-muted)
+  &:hover
+    color: var(--text)
+    background: color-mix(in srgb, var(--bg-raised) 50%, transparent)
+  &:focus-visible
+    @include focus-ring

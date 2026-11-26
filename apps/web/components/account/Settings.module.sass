@@ -180,3 +180,39 @@
 
 .srOnly
   @include visually-hidden
+
+// Tipo do canal: lista de opções com ícone e uma linha explicando.
+.kinds
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  margin: 0
+  padding: 0
+  border: 0
+
+.kind
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-2) var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  cursor: pointer
+  color: var(--text-muted)
+  &:has(input:checked)
+    border-color: var(--accent)
+    background: color-mix(in srgb, var(--accent) 8%, transparent)
+    color: var(--text)
+  &:has(input:focus-visible)
+    @include focus-ring
+  input
+    @include visually-hidden
+
+.kindText
+  display: flex
+  flex-direction: column
+  min-width: 0
+  strong
+    @include text-body-sm
+    font-weight: 600
+    color: var(--text)

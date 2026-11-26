@@ -104,3 +104,37 @@ export async function updateProfileAction(_prev: FormState, form: FormData): Pro
   revalidatePath("/", "layout");
   return { saved: true };
 }
+
+// ───────── Canais ─────────
+
+const CHANNEL_KINDS = ["texto", "anuncios", "voz", "galeria", "funcional"] as const;
+export type NewChannelKind = (typeof CHANNEL_KINDS)[number];
+
+/** Cria um canal (e, se pedido, uma categoria nova para ele) e abre o canal criado. */
+export async function createChannelAction(input: {
+  spaceId: string;
+  kind: NewChannelKind;
+  name: string;
+  topic?: string;
+  categoryId: string | null;
+  newCategory?: string;
+}): Promise<{ error?: string }> {
+  const { supabase } = await requireAccount();
+  if (!CHANNEL_KINDS.includes(input.kind)) return { error: "Tipo de canal inválido." };
+  let categoryId = input.categoryId;
+  if (input.newCategory?.trim()) {
+    const { data, error } = await supabase.rpc("create_category", { p_space: input.spaceId, p_name: input.newCategory });
+    if (error || typeof data !== "string") return { error: dbMessage(error, "Não foi possível criar a categoria agora.") };
+    categoryId = data;
+  }
+  const { data: channelId, error } = await supabase.rpc("create_channel", {
+    p_space: input.spaceId,
+    p_category: categoryId,
+    p_kind: input.kind,
+    p_name: input.name,
+    p_topic: input.topic ?? null,
+  });
+  if (error || typeof channelId !== "string") return { error: dbMessage(error, "Não foi possível criar o canal agora.") };
+  revalidatePath(`/c/${input.spaceId}`, "layout");
+  redirect(appSpaceHref(input.spaceId, channelId));
+}

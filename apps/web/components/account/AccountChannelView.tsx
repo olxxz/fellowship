@@ -9,10 +9,9 @@ import { MembersList, type MemberEntry } from "@/components/shell/MembersList";
 import { channelIcon, isChatChannel } from "@/lib/app/channels";
 import type { SpaceMemberView } from "@/lib/app/queries";
 import { LiveChat } from "./LiveChat";
+import { VoiceRoom } from "./VoiceRoom";
 
 const PLACEHOLDER = {
-  voz: { title: "Salas de voz chegam em breve", text: "Por enquanto, a voz está só na Mesa do protótipo." },
-  voz_dinamica: { title: "Salas de voz chegam em breve", text: "Por enquanto, a voz está só na Mesa do protótipo." },
   galeria: { title: "A galeria chega na fase 1", text: "Um mural de imagens em colunas, com descrição, tags e comentários." },
   funcional: { title: "Ferramenta em construção", text: "Este canal vai virar uma ferramenta: regras da casa, agenda de sessões, enquete de data." },
 } as const;
@@ -53,6 +52,8 @@ export function AccountChannelView({ space, channel, roles, members, initialMess
         <main className={styles.main}>
           {isChatChannel(channel.kind) ? (
             <LiveChat key={channel.id} channel={channel} initialMessages={initialMessages} authors={authors} me={me} canSend={canSend} readOnlyReason={readOnlyReason} />
+          ) : channel.kind === "voz" || channel.kind === "voz_dinamica" ? (
+            <VoiceRoom channel={channel} profiles={authors} />
           ) : (
             <EmptyState icon={channelIcon(channel)} title={PLACEHOLDER[channel.kind as keyof typeof PLACEHOLDER].title}>
               {PLACEHOLDER[channel.kind as keyof typeof PLACEHOLDER].text}

@@ -1,0 +1,143 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.room
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.lobby
+  flex: 1
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--space-3)
+  padding: var(--space-6) var(--space-4)
+  text-align: center
+
+.lobbyIcon
+  display: grid
+  place-items: center
+  width: 64px
+  height: 64px
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  color: var(--text-muted)
+
+.lobbyTitle
+  @include text-title
+  color: var(--text)
+
+.lobbyText
+  @include text-body-sm
+  color: var(--text-muted)
+  max-width: 40ch
+
+.present
+  display: flex
+  flex-wrap: wrap
+  justify-content: center
+  gap: var(--space-2)
+  margin: 0
+  padding: 0
+  list-style: none
+
+.presentItem
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  padding: 4px var(--space-3) 4px 4px
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  @include text-body-sm
+  color: var(--text)
+
+.error
+  @include text-body-sm
+  color: var(--danger)
+  max-width: 48ch
+
+.grid
+  flex: 1
+  min-height: 0
+  overflow-y: auto
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))
+  align-content: center
+  gap: var(--space-3)
+  padding: var(--space-4)
+  margin: 0
+  list-style: none
+  @include mobile
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+    align-content: start
+
+.tile
+  position: relative
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--space-2)
+  aspect-ratio: 4 / 3
+  overflow: hidden
+  border: 3px solid transparent
+  border-radius: var(--radius-xl)
+  background: var(--bg-sidebar)
+  transition: border-color 120ms ease-out
+  @include reduced-motion
+    transition: none
+
+.speaking
+  border-color: var(--player-color, var(--accent))
+
+.video
+  position: absolute
+  inset: 0
+  width: 100%
+  height: 100%
+  object-fit: cover
+
+.tileName
+  @include text-label
+  @include truncate
+  max-width: calc(100% - var(--space-4))
+  color: var(--text)
+
+.hasVideo .tileName
+  position: absolute
+  left: var(--space-2)
+  bottom: var(--space-2)
+  padding: 2px var(--space-2)
+  border-radius: var(--radius-md)
+  background: var(--bg-overlay)
+  color: #fff
+
+.mutedBadge
+  position: absolute
+  top: var(--space-2)
+  right: var(--space-2)
+  display: grid
+  place-items: center
+  width: 28px
+  height: 28px
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  color: var(--danger)
+
+.controls
+  display: flex
+  justify-content: center
+  align-items: center
+  gap: var(--space-2)
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom))
+  border-top: 1px solid var(--border)
+  background: var(--bg-content)
+
+.controlsError
+  @include text-caption
+  color: var(--danger)
+  text-align: center
+  padding: 0 var(--space-4) var(--space-2)
