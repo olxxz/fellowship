@@ -6,10 +6,12 @@ import type { ReactNode } from "react";
  */
 export const icons = {
   // Tipos de canal
+  // Megafone: anúncios.
   announcement: (
     <>
-      <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
-      <path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12" />
+      <path d="M4 10v4a1 1 0 0 0 1 1h2l10 5V4L7 9H5a1 1 0 0 0-1 1z" />
+      <path d="m7.5 15 1.5 5h2.5l-1.4-4.4" />
+      <path d="M20 10a2.5 2.5 0 0 1 0 4" />
     </>
   ),
   rules: (
@@ -139,6 +141,12 @@ export const icons = {
     </>
   ),
   send: <path d="M4 12 20 4l-4 16-4-7zM12 13l8-9" />,
+  screen: (
+    <>
+      <rect x="3" y="4" width="18" height="12" rx="2" />
+      <path d="M8 20h8M12 16v4" />
+    </>
+  ),
   camera: (
     <>
       <rect x="3" y="6" width="13" height="12" rx="2" />

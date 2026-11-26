@@ -3,7 +3,7 @@
 import { Avatar, Button, Icon, IconButton } from "@fellowship/ui";
 import type { Channel } from "@fellowship/db";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
 import type { VoiceProfile } from "./VoiceTiles";
 import styles from "./VoiceRoom.module.sass";
@@ -16,16 +16,18 @@ interface Present {
 }
 
 /** Quem já está na sala, para quem ainda não entrou (atualiza a cada 10 s enquanto a aba está visível). */
-function usePresent(channelId: string, active: boolean) {
+const noop = () => () => {};
+
+function usePresent(spaceId: string, channelId: string, active: boolean) {
   const [present, setPresent] = useState<Present[]>([]);
   useEffect(() => {
     if (!active) return;
     let stop = false;
     const load = async () => {
       if (document.visibilityState !== "visible") return;
-      const res = await fetch(`/api/livekit/canal?canal=${channelId}`).catch(() => null);
-      const data = (await res?.json().catch(() => null)) as { participants?: Present[] } | null;
-      if (!stop && data?.participants) setPresent(data.participants);
+      const res = await fetch(`/api/livekit/canal?space=${spaceId}`).catch(() => null);
+      const data = (await res?.json().catch(() => null)) as { rooms?: Record<string, Present[]> } | null;
+      if (!stop && data?.rooms) setPresent(data.rooms[channelId] ?? []);
     };
     void load();
     const timer = setInterval(() => void load(), 10_000);
@@ -33,7 +35,7 @@ function usePresent(channelId: string, active: boolean) {
       stop = true;
       clearInterval(timer);
     };
-  }, [channelId, active]);
+  }, [spaceId, channelId, active]);
   return present;
 }
 
@@ -41,13 +43,19 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
   const voice = useVoice();
   const here = voice.current?.id === channel.id;
   const connected = here && voice.status === "on" && voice.room;
-  const present = usePresent(channel.id, voice.enabled && !connected);
+  const present = usePresent(channel.space_id, channel.id, voice.enabled && !connected);
+  // Celulares (iOS, a maioria dos Android) não compartilham tela pelo navegador.
+  const canShareScreen = useSyncExternalStore(
+    noop,
+    () => typeof navigator.mediaDevices?.getDisplayMedia === "function",
+    () => false,
+  );
 
   if (!voice.enabled) {
     return (
       <div className={styles.lobby}>
         <span className={styles.lobbyIcon}>
-          <Icon name="voice" size={30} />
+          <Icon name="mic" size={30} />
         </span>
         <h2 className={styles.lobbyTitle}>Voz indisponível</h2>
         <p className={styles.lobbyText}>O servidor de voz não está configurado neste endereço.</p>
@@ -79,7 +87,17 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
               icon={voice.cameraOn ? "camera" : "cameraOff"}
               label={voice.cameraOn ? "Desligar câmera" : "Ligar câmera"}
               aria-pressed={voice.cameraOn}
+              variant={voice.cameraOn ? "primary" : "secondary"}
               onClick={voice.toggleCamera}
+            />
+          )}
+          {voice.canSpeak && canShareScreen && (
+            <IconButton
+              icon="screen"
+              label={voice.screenOn ? "Parar de compartilhar a tela" : "Compartilhar a tela"}
+              aria-pressed={voice.screenOn}
+              variant={voice.screenOn ? "primary" : "secondary"}
+              onClick={voice.toggleScreen}
             />
           )}
           <Button variant="danger" icon="leave" onClick={voice.leave}>
@@ -94,7 +112,7 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
   return (
     <div className={styles.lobby}>
       <span className={styles.lobbyIcon}>
-        <Icon name="voice" size={30} />
+        <Icon name="mic" size={30} />
       </span>
       <h2 className={styles.lobbyTitle}>{channel.name}</h2>
       <p className={styles.lobbyText}>
@@ -116,10 +134,10 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
       )}
       <Button
         variant="primary"
-        icon="voice"
+        icon="mic"
         loading={here && voice.status === "connecting"}
         loadingLabel="Entrando…"
-        onClick={() => void voice.join({ id: channel.id, name: channel.name, spaceId: channel.space_id })}
+        onClick={() => voice.requestJoin({ id: channel.id, name: channel.name, spaceId: channel.space_id })}
       >
         Entrar na sala
       </Button>

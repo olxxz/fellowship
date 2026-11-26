@@ -230,7 +230,7 @@ export const spaces: DemoSpace[] = [
       { id: "agenda", name: "Agenda", icon: "calendar", kind: "funcional", topic: "Próximas sessões e enquetes de data.", meta: "qui 20h", metaTone: "mesa" },
       { id: "geral", name: "Geral", icon: "chat", kind: "texto", topic: "Conversa do grupo fora do jogo." },
       { id: "arte", name: "Arte e fichas", icon: "gallery", kind: "galeria", topic: "Retratos, mapas e handouts." },
-      { id: "taverna", name: "Taverna", icon: "voice", kind: "voz", topic: "Sala de voz para conversar.", meta: "2 na sala" },
+      { id: "taverna", name: "Taverna", icon: "mic", kind: "voz", topic: "Sala de voz para conversar.", meta: "2 na sala" },
     ],
     campaigns: [
       {

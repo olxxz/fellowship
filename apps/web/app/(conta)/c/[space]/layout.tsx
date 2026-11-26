@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { AccountSpaceSidebar } from "@/components/account/AccountSpaceSidebar";
 import { toRailSpaces } from "@/components/account/railSpaces";
 import { AppShell } from "@/components/shell/AppShell";
-import { VoiceProvider } from "@/lib/livekit/VoiceProvider";
 import { Rail } from "@/components/shell/Rail";
 import { getMySpaces, getSpaceView, requireAccount } from "@/lib/app/queries";
 import { appHomeHref, createSpaceHref } from "@/lib/routes";
@@ -21,7 +20,7 @@ export default async function SpaceLayout({
     getSpaceView(supabase, spaceId),
   ]);
   return (
-    <VoiceProvider>
+    <>
       <AppShell
         rail={
           <Rail
@@ -43,6 +42,6 @@ export default async function SpaceLayout({
       >
         {children}
       </AppShell>
-    </VoiceProvider>
+    </>
   );
 }

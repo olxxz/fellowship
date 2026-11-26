@@ -14,6 +14,8 @@ import { appSpaceHref, campaignHref } from "@/lib/routes";
 import { AccountPanel, type AccountProfile } from "./AccountPanel";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
+import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
+import { useVoice } from "@/lib/livekit/VoiceProvider";
 
 /** Barra do Cenário real: só os canais que a conta pode ver (o banco já filtra pelo RLS). */
 export function AccountSpaceSidebar({
@@ -44,9 +46,39 @@ export function AccountSpaceSidebar({
     </button>
   );
 
-  const row = (c: Channel) => (
-    <ChannelRow key={c.id} icon={channelIcon(c)} name={c.name} active={c.id === activeId} href={appSpaceHref(space.id, c.id)} linkAs={PendingLink} onClick={closeDrawer} />
-  );
+  const voice = useVoice();
+  const presence = useSpaceVoicePresence(space.id, voice.enabled);
+
+  const row = (c: Channel) => {
+    const isVoice = c.kind === "voz" || c.kind === "voz_dinamica";
+    const link = (
+      <ChannelRow
+        key={c.id}
+        icon={channelIcon(c)}
+        name={c.name}
+        active={c.id === activeId}
+        href={appSpaceHref(space.id, c.id)}
+        linkAs={PendingLink}
+        onClick={(e) => {
+          // Voz como no Discord: o primeiro clique entra na sala sem sair da página; com a sala já conectada, abre a sala.
+          if (isVoice && voice.enabled && voice.current?.id !== c.id) {
+            e.preventDefault();
+            voice.requestJoin({ id: c.id, name: c.name, spaceId: space.id });
+            return;
+          }
+          closeDrawer();
+        }}
+      />
+    );
+    if (!isVoice) return link;
+    const people = voice.current?.id === c.id && voice.status === "on" ? voice.people : (presence[c.id] ?? []);
+    return (
+      <div key={c.id}>
+        {link}
+        <VoicePeople people={people} />
+      </div>
+    );
+  };
   const loose = channels.filter((c) => !c.category_id);
   const groups = categories.map((cat) => ({ cat, items: channels.filter((c) => c.category_id === cat.id) })).filter((g) => g.items.length > 0 || canManageChannels);
 

@@ -58,14 +58,14 @@ export const channelRoomName = (channelId: string) => `canal-${channelId}`;
  * que ela vê o canal; `canPublish` vem da permissão Falar.
  */
 export async function createChannelToken(
-  { channelId, userId, name, canPublish }: { channelId: string; userId: string; name: string; canPublish: boolean },
+  { channelId, userId, name, avatarUrl, color, canPublish }: { channelId: string; userId: string; name: string; avatarUrl: string; color: string; canPublish: boolean },
   env: TokenEnv,
 ) {
   if (!env.LIVEKIT_API_KEY || !env.LIVEKIT_API_SECRET) {
     throw new TokenRequestError("Voz indisponível: faltam LIVEKIT_API_KEY e LIVEKIT_API_SECRET no servidor.", 503);
   }
   const identity = `${userId}-${crypto.randomUUID().slice(0, 6)}`;
-  const token = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, { identity, name, ttl: "2h", attributes: { userId } });
+  const token = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, { identity, name, ttl: "2h", attributes: { userId, avatarUrl, color } });
   token.addGrant({ room: channelRoomName(channelId), roomJoin: true, canPublish, canSubscribe: true, canPublishData: false });
   return { token: await token.toJwt(), identity };
 }

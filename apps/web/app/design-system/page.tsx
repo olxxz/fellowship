@@ -61,7 +61,7 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
           <ChannelCategory name="Conversa">
             <ChannelRow icon="chat" name="Geral" active />
             <ChannelRow icon="gallery" name="Arte e fichas" />
-            <ChannelRow icon="voice" name="Taverna" meta="2 na sala" />
+            <ChannelRow icon="mic" name="Taverna" meta="2 na sala" />
           </ChannelCategory>
           <ChannelCategory name="Campanhas">
             <CampaignCard name="A Maldição de Vel" live={{ session: 12, participants: party }} />
