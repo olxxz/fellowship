@@ -86,6 +86,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const [pendingSwitch, setPendingSwitch] = useState<VoiceChannelRef | null>(null);
   const [muted, setMuted] = useFlag("mutado", false);
   const roomRef = useRef<Room | null>(null);
+  // Sala em que a pessoa quer estar (para reconectar sozinho se cair); null depois de "Sair".
+  const wantedRef = useRef<VoiceChannelRef | null>(null);
+  const joinRef = useRef<((channel: VoiceChannelRef) => Promise<void>) | null>(null);
 
   const reset = useCallback(() => {
     roomRef.current = null;
@@ -98,6 +101,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const leave = useCallback(() => {
+    wantedRef.current = null;
     const r = roomRef.current;
     reset();
     void r?.disconnect();
@@ -112,6 +116,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       }
       setRoom(null);
       setPeople([]);
+      wantedRef.current = channel;
       setCurrent(channel);
       setStatus("connecting");
       setError(null);
@@ -123,6 +128,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         if (!res.ok || !data.token) throw new Error(data.error ?? "Não foi possível entrar na voz agora.");
         const { Room, RoomEvent, VideoPresets, ScreenSharePresets } = await import("livekit-client");
         const next = new Room({
+          // No celular, trocar de app dispara "pagehide": sem isto o LiveKit derruba a chamada sozinho.
+          disconnectOnPageLeave: false,
           adaptiveStream: true,
           dynacast: true,
           // Câmera em 720p com camadas menores para quadros pequenos; tela nítida para texto (fichas, mapas).
@@ -154,7 +161,17 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           sync();
         });
         next.on(RoomEvent.Disconnected, () => {
-          if (roomRef.current === next) reset();
+          if (roomRef.current !== next) return;
+          // Caiu sem a pessoa pedir (rede, celular em segundo plano): volta para a mesma sala.
+          // Com a aba escondida, espera ela voltar.
+          reset();
+          wantedRef.current = channel;
+          const rejoin = () => {
+            if (wantedRef.current?.id !== channel.id) return;
+            if (document.visibilityState === "visible") void joinRef.current?.(channel);
+            else document.addEventListener("visibilitychange", rejoin, { once: true });
+          };
+          setTimeout(rejoin, 1000);
         });
         try {
           await next.connect(data.url || process.env.NEXT_PUBLIC_LIVEKIT_URL!, data.token);
@@ -167,7 +184,12 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         setRoom(next);
         setStatus("on");
         sync();
+        // Aparece como mídia tocando (tela de bloqueio/central de controle): ajuda o sistema a manter o áudio vivo.
+        if ("mediaSession" in navigator && typeof MediaMetadata !== "undefined") {
+          navigator.mediaSession.metadata = new MediaMetadata({ title: channel.name, artist: "Sala de voz" });
+        }
       } catch (e) {
+        wantedRef.current = null;
         setCurrent(null);
         setStatus("off");
         setError(describe(e));
@@ -215,7 +237,31 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     room.localParticipant.setMicrophoneEnabled(!muted).catch((e: unknown) => setError(describe(e)));
   }, [room, muted, canSpeak]);
 
-  useEffect(() => () => void roomRef.current?.disconnect(), []);
+  useEffect(() => {
+    joinRef.current = join;
+  }, [join]);
+
+  // Em segundo plano o celular corta a câmera: desligamos nós mesmos (fica só a voz) e a pessoa religa ao voltar.
+  useEffect(() => {
+    const onVisibility = () => {
+      const r = roomRef.current;
+      if (document.visibilityState !== "hidden" || !r || !cameraOn) return;
+      void r.localParticipant.setCameraEnabled(false);
+      setCameraOn(false);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [cameraOn]);
+
+  // Fechar a aba ou sair do app de vez: desconecta (o pagehide do LiveKit está desligado).
+  useEffect(() => {
+    const onUnload = () => void roomRef.current?.disconnect();
+    window.addEventListener("beforeunload", onUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+      void roomRef.current?.disconnect();
+    };
+  }, []);
 
   const value = useMemo<VoiceState>(
     () => ({
