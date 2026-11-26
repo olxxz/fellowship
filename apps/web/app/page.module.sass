@@ -106,56 +106,112 @@
     flex: 1 1 100%
 
 .demo
+  align-self: flex-start
   @include text-body-sm
-  color: var(--text-muted)
-  a
-    color: var(--accent-text)
-    &:focus-visible
-      @include focus-ring
+  color: var(--accent-text)
+  &:focus-visible
+    @include focus-ring
 
-// Palco: a Mesa montada com os componentes de verdade, só para mostrar.
-.stage
-  position: relative
-  display: grid
-  grid-template-columns: repeat(2, minmax(0, 1fr))
-  gap: var(--space-3)
-  max-height: 100%
+// Palco: os quatro personagens numa mesa vista meio de lado, com os dados na frente.
+.scene
   min-height: 0
-  padding: var(--space-4)
-  border: 1px solid var(--border)
-  border-radius: var(--radius-2xl)
-  background: color-mix(in srgb, var(--bg-content) 85%, transparent)
-  box-shadow: var(--shadow-popover)
+  max-height: 100%
+  perspective: 1600px
   @include mobile
     display: none
   @media (max-height: 620px)
     display: none
 
-.roll
-  position: absolute
-  right: calc(-1 * var(--space-6))
-  bottom: calc(-1 * var(--space-12))
-  width: min(310px, 72%)
+.stage
+  position: relative
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: var(--space-3)
+  padding: var(--space-3)
+  border-radius: var(--radius-2xl)
+  background: color-mix(in srgb, var(--bg-content) 70%, transparent)
   box-shadow: var(--shadow-popover)
-  border-radius: var(--radius-lg)
+  transform: rotateY(-18deg) rotateX(6deg)
+  transform-style: preserve-3d
 
-.features
+.portrait
+  display: block
+  width: 100%
+  height: auto
+  max-height: calc((100dvh - 300px) / 2)
+  aspect-ratio: 4 / 5
+  object-fit: cover
+  border-radius: var(--radius-xl)
+
+.dice
+  position: absolute
+  right: calc(-1 * var(--space-8))
+  bottom: calc(-1 * var(--space-8))
   display: flex
-  flex-wrap: wrap
-  justify-content: center
-  gap: var(--space-2) var(--space-5)
+  align-items: flex-end
+  gap: var(--space-2)
+  padding: var(--space-3) var(--space-4)
+  border-radius: var(--radius-xl)
+  background: var(--bg-content)
+  box-shadow: var(--shadow-popover)
+  transform: translateZ(60px)
+  svg:nth-child(1)
+    transform: rotate(-8deg)
+  svg:nth-child(3)
+    transform: rotate(10deg)
+
+// Rodapé em carrossel contínuo (para no hover; sem movimento para quem pediu menos movimento).
+.features
+  position: relative
   width: 100%
   max-width: 1200px
   margin: 0 auto
-  padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom))
-  @include text-caption
+  padding: var(--space-4) 0 calc(var(--space-5) + env(safe-area-inset-bottom))
+  overflow: hidden
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)
+  @include text-body-sm
   color: var(--text-muted)
   @media (max-height: 560px)
     display: none
+
+.srOnly
+  @include visually-hidden
+
+.marquee
+  display: flex
+  width: max-content
+  animation: marquee 40s linear infinite
+  &:hover
+    animation-play-state: paused
+  @include reduced-motion
+    animation: none
+    width: 100%
+    justify-content: center
+    flex-wrap: wrap
+    ul + ul
+      display: none
+
+.track
+  display: flex
+  flex-shrink: 0
+  gap: var(--space-8)
+  margin: 0
+  padding: 0 var(--space-8) 0 0
+  list-style: none
+  @include reduced-motion
+    flex-wrap: wrap
+    justify-content: center
+    gap: var(--space-2) var(--space-5)
+    padding: 0 var(--space-5)
 
 .feature
   display: inline-flex
   align-items: center
   gap: var(--space-2)
+  white-space: nowrap
   svg
     color: var(--mesa-text)
+
+@keyframes marquee
+  to
+    transform: translateX(-50%)

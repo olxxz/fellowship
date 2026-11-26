@@ -1,16 +1,30 @@
-import { ButtonLink, Icon, ParticipantCard, RollCard, type IconName } from "@fellowship/ui";
+import { ButtonLink, Icon, type IconName } from "@fellowship/ui";
+import Image from "next/image";
 import Link from "next/link";
-import { DwarfArt, ElfArt, FelineArt, OgreArt } from "@/components/landing/Portraits";
+import dragao from "@/components/landing/art/dragao.webp";
+import elfa from "@/components/landing/art/elfa.webp";
+import mago from "@/components/landing/art/mago.webp";
+import orc from "@/components/landing/art/orc.webp";
+import { D20, D4, D6 } from "@/components/landing/Dice";
 import { APP_NAME } from "@/lib/brand";
 import { campaignHref, spaceHref } from "@/lib/routes";
 import { authEnabled } from "@/lib/supabase/config";
 import styles from "./page.module.sass";
 
 const FEATURES: Array<[IconName, string]> = [
-  ["voice", "Voz com o retrato de cada personagem"],
-  ["sheet", "Ficha modular do seu sistema"],
-  ["dice", "Dados que todos veem, inclusive os ocultos do mestre"],
-  ["book", "Memória da campanha, sessão a sessão"],
+  ["mic", "Voz com o rosto do personagem"],
+  ["sheet", "Ficha do seu sistema"],
+  ["dice", "Dados à vista de todos"],
+  ["eye", "Rolagens ocultas do mestre"],
+  ["book", "Memória da campanha"],
+  ["userPlus", "Convite por link"],
+];
+
+const PORTRAITS = [
+  { src: elfa, alt: "Elfa" },
+  { src: mago, alt: "Mago" },
+  { src: orc, alt: "Orc" },
+  { src: dragao, alt: "Dragão" },
 ];
 
 export default function Home() {
@@ -23,24 +37,15 @@ export default function Home() {
           </span>
           {APP_NAME}
         </Link>
-        {authEnabled ? (
-          <Link className={styles.headerLink} href="/entrar">
-            Entrar
-          </Link>
-        ) : (
-          <Link className={styles.headerLink} href="/design-system">
-            Design system
-          </Link>
-        )}
+        <Link className={styles.headerLink} href={authEnabled ? "/entrar" : "/design-system"}>
+          {authEnabled ? "Entrar" : "Design system"}
+        </Link>
       </header>
 
       <main className={styles.hero}>
         <div className={styles.copy}>
-          <p className={styles.overline}>RPG de mesa, online ou presencial</p>
           <h1 className={styles.title}>Sua mesa de RPG, inteira num lugar só.</h1>
-          <p className={styles.lead}>
-            Chamada de voz com a cara dos personagens, ficha, dados e a memória da campanha. Sem pular entre Discord, planilha e rolador.
-          </p>
+          <p className={styles.lead}>Voz, fichas e dados para jogar com o seu grupo.</p>
           <div className={styles.ctas}>
             {authEnabled ? (
               <>
@@ -62,44 +67,41 @@ export default function Home() {
               </>
             )}
           </div>
-          <p className={styles.demo}>
-            {authEnabled ? (
-              <>
-                Só quer olhar? <Link href={campaignHref("vel", "maldicao")}>Veja a Mesa sem conta</Link>.
-              </>
-            ) : (
-              "Demonstração com dados de exemplo, que ficam só no seu navegador."
-            )}
-          </p>
+          {authEnabled && (
+            <Link className={styles.demo} href={campaignHref("vel", "maldicao")}>
+              Ver a Mesa sem conta
+            </Link>
+          )}
         </div>
 
-        <div className={styles.stage} aria-hidden="true" inert>
-          <ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking portraitArt={<ElfArt />} />
-          <ParticipantCard variant="portrait" characterName="Brom" playerName="Bruno" color={2} portraitArt={<DwarfArt />} />
-          <ParticipantCard variant="portrait" characterName="Morg" playerName="Carla" color={3} muted portraitArt={<OgreArt />} />
-          <ParticipantCard variant="portrait" characterName="Sasha" playerName="Dani" color={5} portraitArt={<FelineArt />} />
-          <div className={styles.roll}>
-            <RollCard
-              roller="Kael"
-              label="Percepção"
-              formula="2d20kh1 + 5"
-              dice={[{ value: 20 }, { value: 9, discarded: true }]}
-              modifier={5}
-              total={25}
-              color={1}
-              critical={{ kind: "success", label: "20 natural" }}
-            />
+        <div className={styles.scene} aria-hidden="true">
+          <div className={styles.stage}>
+            {PORTRAITS.map((p, i) => (
+              <Image key={p.alt} className={styles.portrait} src={p.src} alt="" sizes="(max-width: 1200px) 22vw, 260px" priority={i < 2} />
+            ))}
+            <div className={styles.dice}>
+              <D20 />
+              <D6 />
+              <D4 />
+            </div>
           </div>
         </div>
       </main>
 
       <footer className={styles.features}>
-        {FEATURES.map(([icon, text]) => (
-          <span key={text} className={styles.feature}>
-            <Icon name={icon} size={16} />
-            {text}
-          </span>
-        ))}
+        <span className={styles.srOnly}>{FEATURES.map(([, text]) => text).join(". ")}.</span>
+        <div className={styles.marquee} aria-hidden="true">
+          {[0, 1].map((copy) => (
+            <ul key={copy} className={styles.track}>
+              {FEATURES.map(([icon, text]) => (
+                <li key={text} className={styles.feature}>
+                  <Icon name={icon} size={16} />
+                  {text}
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
       </footer>
     </div>
   );
