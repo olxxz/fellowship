@@ -4,9 +4,10 @@ import Link from "next/link";
 import { Greeting } from "@/components/common/Greeting";
 import { ContentHeader } from "@/components/shell/ContentHeader";
 import { spaces } from "@/lib/demo/data";
+import { spaceHref } from "@/lib/routes";
 import styles from "./page.module.sass";
 
-export const metadata: Metadata = { title: "Início" };
+export const metadata: Metadata = { title: "Início · protótipo" };
 
 export default function InicioPage() {
   return (
@@ -30,7 +31,7 @@ export default function InicioPage() {
           <h3 className={styles.overline}>Seus Cenários</h3>
           <div className={styles.grid}>
             {spaces.map((s) => (
-              <Link key={s.id} href={`/s/${s.id}/geral`} className={styles.space} style={playerColorStyle(s.color)}>
+              <Link key={s.id} href={spaceHref(s.id, "geral")} className={styles.space} style={playerColorStyle(s.color)}>
                 <span className={styles.spaceName}>{s.name}</span>
                 <span className={styles.spaceText}>{s.description}</span>
                 <span className={styles.spaceText}>

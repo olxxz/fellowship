@@ -4,15 +4,14 @@ import { Avatar, IconButton, Menu } from "@fellowship/ui";
 import Link from "next/link";
 import { characters } from "@/lib/demo/data";
 import { selectableUsers, useDemo } from "@/lib/demo/store";
-import { useFlag, usePref } from "@/lib/prefs";
-import { applyTheme, type ThemeChoice } from "@/lib/theme";
+import { useFlag } from "@/lib/prefs";
+import { ThemeMenuGroup } from "./ThemeMenuGroup";
 import styles from "./UserPanel.module.sass";
 
 /** Painel do usuário no rodapé da barra lateral: quem sou, microfone e configurações. */
 export function UserPanel() {
   const { me, myCharacter, viewer, meId, setMeId } = useDemo();
   const [muted, setMuted] = useFlag("mutado", false);
-  const [theme, setTheme] = usePref<ThemeChoice>("tema", "system");
 
   return (
     <div className={styles.panel}>
@@ -31,19 +30,7 @@ export function UserPanel() {
       <Menu.Root>
         <Menu.Trigger render={<IconButton icon="settings" label="Configurações" />} />
         <Menu.Popup side="top" align="end">
-          <Menu.Group label="Aparência">
-            <Menu.RadioGroup
-              value={theme}
-              onValueChange={(value: ThemeChoice) => {
-                setTheme(value);
-                applyTheme(value);
-              }}
-            >
-              <Menu.RadioItem value="dark">Escuro</Menu.RadioItem>
-              <Menu.RadioItem value="light">Claro</Menu.RadioItem>
-              <Menu.RadioItem value="system">Seguir o sistema</Menu.RadioItem>
-            </Menu.RadioGroup>
-          </Menu.Group>
+          <ThemeMenuGroup />
           <Menu.Separator />
           <Menu.Group label="Você é">
             <Menu.RadioGroup value={meId} onValueChange={(value: string) => setMeId(value)}>

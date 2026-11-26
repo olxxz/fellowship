@@ -3,7 +3,7 @@
 import { ChannelCategory, ChannelRow } from "@fellowship/ui";
 import type { ReactNode } from "react";
 import { AppShell } from "./AppShell";
-import { Rail } from "./Rail";
+import { DemoRail } from "./DemoRail";
 import styles from "./Sidebar.module.sass";
 import { UserPanel } from "./UserPanel";
 
@@ -11,7 +11,7 @@ import { UserPanel } from "./UserPanel";
 export function HomeShell({ children }: { children: ReactNode }) {
   return (
     <AppShell
-      rail={<Rail />}
+      rail={<DemoRail />}
       sidebar={
         <div className={styles.sidebar}>
           <div className={styles.scroll}>

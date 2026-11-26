@@ -8,8 +8,10 @@ export interface MemberEntry {
   /** Nome em destaque: o personagem na campanha, o jogador no Cenário. */
   name: string;
   color: PlayerColor;
-  status: PresenceStatus;
+  /** Sem status (ainda não há presença em tempo real no app com login), o ponto não aparece. */
+  status?: PresenceStatus;
   sub?: string;
+  avatarUrl?: string;
   /** Na campanha, o personagem vem antes do jogador (retrato com anel, nome na cor dele). */
   asCharacter?: boolean;
 }
@@ -27,11 +29,11 @@ export function MembersList({ groups, label }: { groups: Array<{ title: string; 
             <ul className={styles.list}>
               {group.members.map((m) => (
                 <li key={m.id} className={cx(styles.member, m.status === "offline" && styles.offline)} style={playerColorStyle(m.color)}>
-                  <Avatar name={m.name} color={m.color} size={32} status={m.status} appearance={m.asCharacter ? "ring" : "fill"} />
+                  <Avatar name={m.name} src={m.avatarUrl} color={m.color} size={32} status={m.status} appearance={m.asCharacter ? "ring" : "fill"} />
                   <span className={styles.text}>
                     <span className={cx(styles.name, m.asCharacter && styles.characterName)}>
                       {m.name}
-                      <span className={styles.hidden}>, {STATUS[m.status]}</span>
+                      {m.status && <span className={styles.hidden}>, {STATUS[m.status]}</span>}
                     </span>
                     {m.sub && <span className={styles.sub}>{m.sub}</span>}
                   </span>

@@ -14,3 +14,5 @@ export type ChannelType = (typeof CHANNEL_TYPES)[number];
 
 export const CAMPAIGN_ROLES = ["mestre", "jogador", "espectador"] as const;
 export type CampaignRole = (typeof CAMPAIGN_ROLES)[number];
+
+export * from "./permissions";

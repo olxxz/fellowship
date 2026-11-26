@@ -1,5 +1,5 @@
 export { Avatar, type AvatarProps, type PresenceStatus } from "./components/Avatar/Avatar";
-export { Button, IconButton, type ButtonProps, type ButtonVariant, type IconButtonProps } from "./components/Button/Button";
+export { Button, ButtonLink, IconButton, type ButtonLinkProps, type ButtonProps, type ButtonVariant, type IconButtonProps } from "./components/Button/Button";
 export { CampaignCard, type CampaignCardProps, type CampaignParticipant } from "./components/CampaignCard/CampaignCard";
 export { ChannelCategory, type ChannelCategoryProps } from "./components/ChannelRow/ChannelCategory";
 export { ChannelRow, type ChannelRowProps } from "./components/ChannelRow/ChannelRow";

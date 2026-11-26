@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ElementType, ReactNode } from "react";
 import { cx } from "../../cx";
 import { Icon } from "../Icon/Icon";
 import type { IconName } from "../Icon/icons";
@@ -71,5 +71,26 @@ export function IconButton({ variant = "secondary", icon, label, loading, classN
       </span>
       {loading && <span aria-hidden="true" className={styles.loadingBar} />}
     </button>
+  );
+}
+
+export interface ButtonLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  variant?: ButtonVariant;
+  icon?: IconName;
+  /** Componente de link (ex.: `Link` do Next.js). Padrão: `<a>`. */
+  linkAs?: ElementType;
+  children: ReactNode;
+}
+
+/** Link com cara de botão, para ações que navegam ("Criar Cenário"). Nunca um botão dentro de um link. */
+export function ButtonLink({ variant = "secondary", icon, linkAs: LinkAs = "a", className, children, ...rest }: ButtonLinkProps) {
+  return (
+    <LinkAs className={cx(styles.button, styles[variant], className)} {...rest}>
+      <span className={styles.content}>
+        {icon && <Icon name={icon} />}
+        {children}
+      </span>
+    </LinkAs>
   );
 }

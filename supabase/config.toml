@@ -1,0 +1,3 @@
+# Configuração mínima do Supabase CLI e da integração com o GitHub.
+# As migrações ficam em supabase/migrations e são aplicadas pela integração a cada push na main.
+project_id = "fellowship"

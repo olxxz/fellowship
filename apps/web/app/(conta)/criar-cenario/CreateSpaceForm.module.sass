@@ -1,0 +1,182 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.page
+  flex: 1
+  overflow-y: auto
+  padding: var(--space-6) var(--space-5) var(--space-12)
+
+.layout
+  display: grid
+  grid-template-columns: minmax(0, 1fr) 280px
+  gap: var(--space-8)
+  max-width: 900px
+  @media (max-width: 900px)
+    grid-template-columns: minmax(0, 1fr)
+
+.form
+  display: flex
+  flex-direction: column
+  gap: var(--space-6)
+
+.title
+  @include text-display
+
+.lead
+  color: var(--text-muted)
+
+.field
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  border: none
+  margin: 0
+  padding: 0
+  min-width: 0
+
+.label
+  @include text-label
+  color: var(--text)
+  padding: 0
+
+.help
+  @include text-caption
+  color: var(--text-muted)
+
+.input, .textarea
+  width: 100%
+  min-height: var(--size-touch)
+  padding: 10px var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text)
+  @include text-body
+  &:focus-visible
+    @include focus-ring
+
+.textarea
+  min-height: 88px
+  resize: vertical
+
+.colors
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+
+.swatch
+  position: relative
+  cursor: pointer
+  input
+    position: absolute
+    opacity: 0
+    pointer-events: none
+  span
+    display: block
+    width: 44px
+    height: 44px
+    border-radius: var(--radius-full)
+    background: var(--player-color)
+    box-shadow: inset 0 0 0 3px transparent
+  input:checked + span
+    box-shadow: 0 0 0 3px var(--bg-content), 0 0 0 5px var(--player-color)
+  input:focus-visible + span
+    outline: 2px solid var(--focus-ring)
+    outline-offset: 6px
+
+.templates
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))
+  gap: var(--space-3)
+
+.template
+  position: relative
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  cursor: pointer
+  input
+    position: absolute
+    opacity: 0
+  &:has(input:checked)
+    border-color: var(--accent-text)
+    background: color-mix(in srgb, var(--accent) 10%, transparent)
+  &:has(input:focus-visible)
+    @include focus-ring
+
+.templateName
+  @include text-body-sm
+  font-weight: 600
+
+.error
+  padding: var(--space-3)
+  border-radius: var(--radius-md)
+  background: var(--danger-soft)
+  @include text-body-sm
+
+.actions
+  display: flex
+  gap: var(--space-2)
+
+// Prévia: ícone na barra de Cenários e banner.
+.preview
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  align-self: start
+  position: sticky
+  top: 0
+
+.previewCard
+  overflow: hidden
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-sidebar)
+
+.previewBanner
+  display: flex
+  align-items: flex-end
+  gap: var(--space-3)
+  min-height: 96px
+  padding: var(--space-4)
+  background: linear-gradient(160deg, color-mix(in srgb, var(--player-color) 45%, var(--bg-sidebar)) 0%, var(--bg-sidebar) 85%)
+
+.previewIcon
+  display: flex
+  flex-shrink: 0
+  align-items: center
+  justify-content: center
+  width: 48px
+  height: 48px
+  border-radius: var(--radius-xl)
+  background: var(--player-color)
+  color: #0e0f12
+  font-family: var(--font-display)
+  font-weight: 700
+
+.previewName
+  @include text-title
+  overflow-wrap: anywhere
+
+.previewChannels
+  margin: 0
+  padding: var(--space-3) var(--space-4) var(--space-4)
+  list-style: none
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  @include text-body-sm
+  color: var(--text-muted)
+  li
+    display: flex
+    align-items: center
+    gap: var(--space-2)
+
+.previewCategory
+  margin-top: var(--space-2)
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)

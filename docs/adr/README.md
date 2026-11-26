@@ -19,10 +19,11 @@ se a decisão mudar, uma nova ADR a substitui e a antiga ganha o status "Substit
 | [0011](0011-testes.md) | Vitest e Playwright | Aceita |
 | [0012](0012-hospedagem.md) | Vercel + Supabase Cloud + LiveKit Cloud | Aceita |
 | [0013](0013-token-de-voz-sem-login.md) | Token de voz sem login até o Supabase | Aceita |
+| [0014](0014-conflito-de-cargos.md) | Conflito de permissões entre cargos | Aceita |
+| [0015](0015-app-na-vercel-prototipo-no-pages.md) | App com login na Vercel, protótipo no GitHub Pages | Aceita |
 
 **Pendentes**
 
-- Conflito de permissões entre dois cargos (antes do schema de permissões).
 - Mapa: react-konva ou PixiJS (fase 3, depois de um teste rápido).
 - Desktop: Tauri 2 ou Electron (depende do WebRTC no webview do Tauri).
 - Transcrição e LLM: interfaces `Transcriber` e `Summarizer` (fase 4).

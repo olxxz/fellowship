@@ -14,18 +14,46 @@ apps/
   web/            Next.js (App Router): protótipo navegável com dados de exemplo e /design-system
 packages/
   ui/             Tokens (tokens.json → Sass e CSS) e componentes em Sass indentado + CSS Modules
-  core/           Regras de domínio sem React nem banco (ficha, fórmulas, permissões)
-  db/             Schema, migrações e Row Level Security do Supabase (ainda vazio)
+  core/           Regras de domínio sem React nem banco (permissões em bitmask; ficha e fórmulas depois)
+  db/             Tipos do banco e testes das regras de acesso (RLS) num Postgres em memória
+supabase/
+  migrations/     Schema do Postgres com RLS, aplicado pela integração do Supabase com o GitHub
 docs/
   especificacao.md
   design-system/
   adr/
 ```
 
-## Protótipo
+## App com login (Vercel)
 
-O app web hoje é um **protótipo navegável com dados de exemplo**, sem servidor: tudo vive no navegador e some ao recarregar.
-Ele serve de wireframe da Mesa e da estrutura do app antes do Supabase e do LiveKit.
+Na Vercel o app tem conta de verdade, com dados no Supabase:
+
+- **Entrar com Google** (`/entrar`). Na primeira vez, o perfil é criado com nome e foto do Google.
+- **Início** (`/inicio`) com os Cenários da conta e **Criar Cenário** (`/criar-cenario`): nome, descrição, cor e canais iniciais.
+- **Cenário** (`/c/...`): só os canais que a conta pode ver, chat em tempo real nos canais de texto e membros agrupados por cargo.
+- **Cada conta vê só o que pode:** quem decide é o Row Level Security do Postgres, não a interface. Regras em `supabase/migrations` e testes em `packages/db/test`.
+
+### Configurar o login com Google (uma vez)
+
+1. **Google Cloud Console** → APIs e serviços → Tela de consentimento OAuth (externo, nome Fellowship). Depois, Credenciais → Criar ID do cliente OAuth → Aplicativo da Web:
+   - Origens JavaScript autorizadas: o domínio da Vercel (ex.: `https://fellowship.vercel.app`) e `http://localhost:3000`.
+   - URI de redirecionamento autorizado: `https://<ref-do-projeto>.supabase.co/auth/v1/callback` (aparece na tela do provedor Google no Supabase).
+2. **Supabase** → Authentication → Sign In / Providers → Google: ative e cole o Client ID e o Client Secret.
+3. **Supabase** → Authentication → URL Configuration:
+   - Site URL: o domínio da Vercel.
+   - Redirect URLs: `https://<domínio-da-vercel>/auth/callback`, `http://localhost:3000/auth/callback` e, para as prévias da Vercel, `https://*-<sua-conta>.vercel.app/auth/callback`.
+4. **Vercel** → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (a integração Supabase da Vercel pode criar com o nome antigo, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, que também funciona). Faça um novo deploy depois de mudar variáveis.
+
+A senha do banco não vai em lugar nenhum do app: guarde no seu gerenciador de senhas.
+
+### Banco de dados
+
+As migrações ficam em `supabase/migrations` e a **integração do Supabase com o GitHub** aplica cada uma ao dar push na `main`. Para mudar o banco, crie um arquivo novo (nunca edite uma migração já aplicada). Os testes de RLS rodam num Postgres em memória (PGlite) com `pnpm --filter @fellowship/db test`.
+
+## Protótipo (`/demo`)
+
+Além do app com login, há um **protótipo navegável com dados de exemplo** em `/demo` (também publicado no GitHub Pages). Tudo nele vive no navegador e some ao recarregar.
+Ele serve de wireframe da Mesa até as campanhas reais (fase 1).
 
 - **Estrutura em 4 colunas:** barra de Cenários, barra do Cenário (canais e campanhas) ou da campanha (com voltar), conteúdo e membros recolhíveis. No celular, a navegação vira gaveta.
 - **Canais de texto** com envio otimista, mensagens agrupadas por autor e `/r 1d20+5` para rolar dados. Anúncios só o Narrador escreve.
@@ -64,11 +92,14 @@ pnpm dev          # http://localhost:3000
 | `pnpm build` | Build de produção |
 | `pnpm lint` | ESLint em todos os pacotes |
 | `pnpm typecheck` | TypeScript em todos os pacotes |
-| `pnpm test` | Vitest (componentes e contraste da paleta) |
+| `pnpm test` | Vitest (componentes, contraste da paleta, regras de acesso do banco, rolador e token) |
 | `pnpm check` | lint + typecheck + test |
 | `pnpm tokens` | Regera os arquivos de tokens a partir de `packages/ui/tokens/tokens.json` |
 
-**Deploy:** cada push na `main` publica o app como site estático no GitHub Pages (`.github/workflows/pages.yml`), em https://olxxz.github.io/fellowship/. Para gerar o mesmo build localmente: `STATIC_EXPORT=1 PAGES_BASE_PATH=/fellowship pnpm --filter @fellowship/web build` (sai em `apps/web/out`).
+**Deploy:**
+- **Vercel** (app com login e voz): cada push na `main` publica. Root Directory `apps/web`.
+- **GitHub Pages** (protótipo e design system, estático): `.github/workflows/pages.yml`, em https://olxxz.github.io/fellowship/. O workflow remove `app/(conta)` antes do build ([ADR 0015](docs/adr/0015-app-na-vercel-prototipo-no-pages.md)).
+- **Supabase**: a integração com o GitHub aplica `supabase/migrations` a cada push na `main`.
 
 ## Convenções
 
@@ -86,4 +117,6 @@ Fase 0, começando. Próximos passos da especificação:
 - [x] Criar o monorepo, o README e os primeiros ADRs
 - [x] Wireframe da Mesa no desktop e no celular (protótipo navegável)
 - [ ] Teste técnico do LiveKit (chamada + detecção de quem fala): código pronto, falta testar com o grupo
-- [ ] Schema do banco com as regras de Row Level Security
+- [x] Schema do banco com as regras de Row Level Security (fase 0: Cenários, cargos, canais, mensagens)
+- [x] Login com Google e criar Cenário
+- [ ] Convites por link para o grupo entrar nos Cenários

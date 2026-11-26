@@ -15,11 +15,15 @@
     "@fellowship/core": "workspace:*",
     "@fellowship/ui": "workspace:*",
     "@livekit/components-react": "^2.9.26",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.2",
     "livekit-client": "^2.25.0",
     "livekit-server-sdk": "^2.20.1",
     "next": "^16.4.6",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "@fellowship/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

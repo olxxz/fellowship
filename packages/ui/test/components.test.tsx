@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Button, CampaignCard, ChannelCategory, ChannelRow, IconButton, ParticipantCard, RollCard, SkeletonRegion } from "../src";
+import { Button, ButtonLink, CampaignCard, ChannelCategory, ChannelRow, IconButton, ParticipantCard, RollCard, SkeletonRegion } from "../src";
 
 describe("Button", () => {
   it("dispara o clique e usa a variante", async () => {
@@ -176,5 +176,19 @@ describe("ParticipantCard portrait", () => {
   it("mutado entra no rótulo", () => {
     render(<ParticipantCard variant="portrait" characterName="Lia" playerName="Carla" color={3} muted />);
     expect(screen.getByRole("article", { name: "Lia, jogado por Carla, mutado" })).toBeInTheDocument();
+  });
+});
+
+describe("ButtonLink", () => {
+  it("é um link (não um botão dentro de link) com a variante", () => {
+    render(
+      <ButtonLink href="/criar-cenario" variant="primary" icon="plus">
+        Criar Cenário
+      </ButtonLink>,
+    );
+    const link = screen.getByRole("link", { name: "Criar Cenário" });
+    expect(link).toHaveAttribute("href", "/criar-cenario");
+    expect(link).toHaveClass("primary");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

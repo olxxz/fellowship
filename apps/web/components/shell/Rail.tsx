@@ -1,20 +1,35 @@
 "use client";
 
-import { cx, Icon, playerColorStyle } from "@fellowship/ui";
+import { cx, Icon, playerColorStyle, type PlayerColor } from "@fellowship/ui";
 import Link from "next/link";
-import { spaces } from "@/lib/demo/data";
-import { spaceHref } from "@/lib/routes";
 import styles from "./Rail.module.sass";
 import { useShell } from "./ShellContext";
 
+export interface RailSpace {
+  id: string;
+  name: string;
+  short: string;
+  color: PlayerColor;
+  href: string;
+}
+
+export interface RailProps {
+  homeHref: string;
+  spaces: RailSpace[];
+  /** Cenário aberto agora. Sem ele, o Início fica ativo. */
+  activeSpaceId?: string;
+  /** Página de criar Cenário. Sem ela, o botão fica desabilitado. */
+  createHref?: string;
+}
+
 /** Barra de Cenários: Início, um ícone por Cenário e o botão de criar. */
-export function Rail({ activeSpaceId }: { activeSpaceId?: string }) {
+export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps) {
   const { closeDrawer } = useShell();
   return (
     <div className={styles.rail}>
       <ul className={styles.list}>
         <li className={cx(styles.item, !activeSpaceId && styles.active)}>
-          <Link href="/inicio" className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={closeDrawer}>
+          <Link href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={closeDrawer}>
             <Icon name="home" size={22} />
           </Link>
         </li>
@@ -26,7 +41,7 @@ export function Rail({ activeSpaceId }: { activeSpaceId?: string }) {
           return (
             <li key={space.id} className={cx(styles.item, active && styles.active)}>
               <Link
-                href={spaceHref(space.id, "geral")}
+                href={space.href}
                 className={styles.icon}
                 style={playerColorStyle(space.color)}
                 aria-label={space.name}
@@ -40,9 +55,15 @@ export function Rail({ activeSpaceId }: { activeSpaceId?: string }) {
           );
         })}
       </ul>
-      <button type="button" className={styles.add} aria-label="Criar Cenário (em breve)" title="Criar Cenário (em breve)" disabled>
-        <Icon name="plus" size={22} />
-      </button>
+      {createHref ? (
+        <Link href={createHref} className={styles.add} aria-label="Criar Cenário" title="Criar Cenário" onClick={closeDrawer}>
+          <Icon name="plus" size={22} />
+        </Link>
+      ) : (
+        <button type="button" className={styles.add} aria-label="Criar Cenário (só no app com login)" title="Criar Cenário (só no app com login)" disabled>
+          <Icon name="plus" size={22} />
+        </button>
+      )}
     </div>
   );
 }

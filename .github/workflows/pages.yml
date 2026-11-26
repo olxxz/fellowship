@@ -40,6 +40,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # O Pages é estático: publica só o protótipo (/demo), o design system e a página inicial.
+      # O app com login (app/(conta)) precisa de servidor e fica na Vercel.
+      - name: Remover as rotas que precisam de servidor
+        run: rm -rf "apps/web/app/(conta)"
+
       - name: Build do app web como site estático
         run: pnpm --filter @fellowship/web build
         env:
