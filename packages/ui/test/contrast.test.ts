@@ -51,6 +51,8 @@ const pairs: Array<[string, string, number]> = [
   ["mesa-ink", "mesa-gold", TEXT],
   ["mesa-text", "mesa-surface", TEXT],
   ["mesa-text", "bg-sidebar", TEXT],
+  // Ícone dourado da campanha ao vivo, sobre o quadrado em mesa-border.
+  ["mesa-text", "mesa-border", LARGE_OR_UI],
   ["warning", "bg-content", TEXT],
   ["focus-ring", "bg-content", LARGE_OR_UI],
   ["focus-ring", "bg-sidebar", LARGE_OR_UI],

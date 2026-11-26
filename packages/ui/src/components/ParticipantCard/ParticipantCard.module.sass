@@ -107,6 +107,37 @@
   background: var(--danger-soft)
   color: var(--text)
 
+// Variante só com o retrato: o card é o próprio palco, e a borda acende nele.
+.portraitOnly
+  gap: 0
+  padding: 0
+  overflow: hidden
+  .stage
+    border-radius: calc(var(--radius-xl) - 3px)
+
+// Selo de status sobre o retrato (variante portrait): nunca só a cor da borda.
+.badge
+  position: absolute
+  top: var(--space-2)
+  left: var(--space-2)
+  z-index: 1
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border-radius: var(--radius-full)
+  box-shadow: 0 0 0 2px var(--bg-sidebar)
+
+.badgeSpeaking
+  background: var(--player-color)
+  // Ícone escuro fixo: as cores de personagem são claras o bastante nos dois temas.
+  color: #0e0f12
+
+.badgeMuted
+  background: var(--danger-soft)
+  color: var(--text)
+
 .hidden
   @include visually-hidden
 

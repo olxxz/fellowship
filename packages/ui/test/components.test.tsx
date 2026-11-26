@@ -155,3 +155,18 @@ describe("SkeletonRegion", () => {
     expect(screen.getByText("Conteúdo")).toBeInTheDocument();
   });
 });
+
+describe("ParticipantCard portrait", () => {
+  it("só o retrato: sem nomes visíveis, mas com rótulo acessível e anúncio de fala", () => {
+    render(<ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />);
+    expect(screen.getByRole("article", { name: "Kael, jogado por Ana" })).toBeInTheDocument();
+    expect(screen.queryByText("Ana")).not.toBeInTheDocument();
+    expect(screen.queryByText("falando")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Kael está falando");
+  });
+
+  it("mutado entra no rótulo", () => {
+    render(<ParticipantCard variant="portrait" characterName="Lia" playerName="Carla" color={3} muted />);
+    expect(screen.getByRole("article", { name: "Lia, jogado por Carla, mutado" })).toBeInTheDocument();
+  });
+});

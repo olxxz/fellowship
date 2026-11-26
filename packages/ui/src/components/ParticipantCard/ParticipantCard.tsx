@@ -18,6 +18,11 @@ export interface ParticipantCardProps {
   muted?: boolean;
   /** Vídeo da câmera (ex.: o <video> do LiveKit). Com câmera, o retrato vai para o canto. */
   video?: ReactNode;
+  /**
+   * `full`: retrato, nomes e status. `portrait`: só o retrato, para grades densas e o celular;
+   * o status vira um selo sobre a imagem e o nome fica no rótulo acessível e na dica ao passar o mouse.
+   */
+  variant?: "full" | "portrait";
 }
 
 function Portrait({ url, name }: { url?: string; name: string }) {
@@ -33,14 +38,24 @@ function ParticipantCardBase({
   speaking,
   muted,
   video,
+  variant = "full",
 }: ParticipantCardProps) {
+  const portraitOnly = variant === "portrait";
+  const label = `${characterName}, jogado por ${playerName}${muted ? ", mutado" : ""}`;
+
   return (
     <article
-      className={cx(styles.card, speaking && styles.speaking)}
+      className={cx(styles.card, portraitOnly && styles.portraitOnly, speaking && !muted && styles.speaking)}
       style={playerColorStyle(color)}
-      aria-label={`${characterName}, jogado por ${playerName}`}
+      aria-label={label}
+      title={portraitOnly ? label : undefined}
     >
       <div className={styles.stage}>
+        {portraitOnly && (muted || speaking) && (
+          <span aria-hidden="true" className={cx(styles.badge, muted ? styles.badgeMuted : styles.badgeSpeaking)}>
+            <Icon name={muted ? "micOff" : "wave"} size={14} />
+          </span>
+        )}
         {video ? <div className={styles.media}>{video}</div> : <Portrait url={portraitUrl} name={characterName} />}
         {video ? (
           <span aria-hidden="true" className={cx(styles.corner, styles.cornerCharacter)}>
@@ -52,25 +67,27 @@ function ParticipantCardBase({
           </span>
         )}
       </div>
-      <div className={styles.footer}>
-        <div className={styles.names}>
-          <div className={styles.character}>{characterName}</div>
-          <div className={styles.player}>{playerName}</div>
-        </div>
-        {muted ? (
-          <span className={cx(styles.status, styles.statusMuted)}>
-            <Icon name="micOff" size={14} />
-            mutado
-          </span>
-        ) : (
-          speaking && (
-            <span className={cx(styles.status, styles.statusSpeaking)} aria-hidden="true">
-              <Icon name="wave" size={14} />
-              falando
+      {!portraitOnly && (
+        <div className={styles.footer}>
+          <div className={styles.names}>
+            <div className={styles.character}>{characterName}</div>
+            <div className={styles.player}>{playerName}</div>
+          </div>
+          {muted ? (
+            <span className={cx(styles.status, styles.statusMuted)}>
+              <Icon name="micOff" size={14} />
+              mutado
             </span>
-          )
-        )}
-      </div>
+          ) : (
+            speaking && (
+              <span className={cx(styles.status, styles.statusSpeaking)} aria-hidden="true">
+                <Icon name="wave" size={14} />
+                falando
+              </span>
+            )
+          )}
+        </div>
+      )}
       <span role="status" className={styles.hidden}>
         {speaking && !muted ? `${characterName} está falando` : ""}
       </span>
@@ -78,14 +95,17 @@ function ParticipantCardBase({
   );
 }
 
-function ParticipantCardSkeleton() {
+function ParticipantCardSkeleton({ variant = "full" }: Pick<ParticipantCardProps, "variant">) {
+  const portraitOnly = variant === "portrait";
   return (
-    <div className={styles.card} aria-hidden="true">
+    <div className={cx(styles.card, portraitOnly && styles.portraitOnly)} aria-hidden="true">
       <Skeleton height="auto" style={{ aspectRatio: "3 / 2", borderRadius: "var(--radius-lg)" }} />
-      <span className={styles.skeletonFooter}>
-        <Skeleton width="45%" height={14} />
-        <Skeleton width="30%" height={10} />
-      </span>
+      {!portraitOnly && (
+        <span className={styles.skeletonFooter}>
+          <Skeleton width="45%" height={14} />
+          <Skeleton width="30%" height={10} />
+        </span>
+      )}
     </div>
   );
 }

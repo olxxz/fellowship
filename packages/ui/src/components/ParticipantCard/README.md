@@ -18,4 +18,11 @@ Card de cada participante na Mesa: retrato do personagem grande, avatar do jogad
 <ParticipantCard.Skeleton />
 ```
 
+**Só o retrato** (`variant="portrait"`): o card vira só o palco, para grades densas e o celular. A borda continua acendendo na cor do personagem, e o status aparece num selo no canto superior esquerdo (onda sonora ao falar, microfone riscado quando mutado). O nome não aparece na tela: fica no rótulo acessível e na dica ao passar o mouse.
+
+```tsx
+<ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />
+<ParticipantCard.Skeleton variant="portrait" />
+```
+
 `color` padrão: 4 (a do Narrador). A fala é anunciada por uma região `role="status"` e mostrada com ícone de onda sonora, não só pela borda.

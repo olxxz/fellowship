@@ -69,6 +69,17 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
       </div>
 
       <div className={styles.section}>
+        <h3 className={styles.overline}>ParticipantCard só com o retrato</h3>
+        <div className={styles.portraits}>
+          <ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />
+          <ParticipantCard variant="portrait" characterName="Brom" playerName="Bruno" color={2} />
+          <ParticipantCard variant="portrait" characterName="Lia" playerName="Carla" color={3} muted />
+          <ParticipantCard variant="portrait" characterName="Narrador" playerName="Luiz" />
+          <ParticipantCard.Skeleton variant="portrait" />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h3 className={styles.overline}>RollCard no chat ingame</h3>
         <div className={styles.chat}>
           <RollCard roller="Brom" label="Atletismo" formula="1d20 + 4" dice={[{ value: 15 }]} modifier={4} total={19} color={2} />

@@ -16,7 +16,7 @@ export interface CampaignCardProps {
   name: string;
   /** Ícone da campanha. Padrão: d20. */
   icon?: IconName;
-  /** Cor do ícone fora de sessão. Ao vivo, o ícone usa mesa-gold. */
+  /** Cor do ícone fora de sessão. Ao vivo, o ícone usa mesa-text. */
   color?: PlayerColor;
   /** Sessão ao vivo: superfície da Mesa, ponto verde e quem está na Mesa. */
   live?: { session: number; participants?: CampaignParticipant[] };
