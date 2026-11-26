@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "next typegen && tsc"
+    "typecheck": "next typegen && tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fellowship/core": "workspace:*",
@@ -21,6 +22,8 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
-    "sass": "^1.108.2"
+    "sass": "^1.108.2",
+    "vitest": "^5.1.2",
+    "vite": "^8.0.0"
   }
 }

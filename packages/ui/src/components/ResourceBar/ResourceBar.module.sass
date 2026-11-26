@@ -1,0 +1,58 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.bar
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+
+.main
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+
+.labelRow
+  display: flex
+  align-items: baseline
+  justify-content: space-between
+  gap: var(--space-2)
+
+.label
+  @include text-label
+  color: var(--text-muted)
+
+.value
+  font-family: var(--font-display)
+  font-size: 16px
+  line-height: 20px
+  font-weight: 700
+  color: var(--text)
+
+.max
+  color: var(--text-muted)
+  font-weight: 500
+
+.track
+  height: 10px
+  overflow: hidden
+  border-radius: var(--radius-full)
+  background: var(--bg-input)
+
+.fill
+  height: 100%
+  border-radius: inherit
+  background: var(--bar-color)
+  transition: width 200ms ease-out
+  @include reduced-motion
+    transition: none
+
+.hp
+  --bar-color: var(--vital-hp)
+
+.mana
+  --bar-color: var(--vital-mana)
+
+.player
+  --bar-color: var(--player-color)

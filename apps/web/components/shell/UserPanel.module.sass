@@ -1,0 +1,26 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.panel
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  padding: var(--space-2)
+  background: color-mix(in srgb, var(--bg-rail) 55%, var(--bg-sidebar))
+  --avatar-cutout: color-mix(in srgb, var(--bg-rail) 55%, var(--bg-sidebar))
+
+.who
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+
+.name
+  @include text-body-sm
+  font-weight: 600
+  @include truncate
+
+.status
+  @include text-caption
+  color: var(--text-muted)
+  @include truncate

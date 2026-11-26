@@ -1,0 +1,88 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.tray
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+
+.dice
+  display: grid
+  grid-template-columns: repeat(4, 1fr)
+  gap: var(--space-2)
+
+.die
+  @include reset-interactive
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 2px
+  min-height: 56px
+  border: 1px solid var(--mesa-border)
+  border-radius: var(--radius-lg)
+  background: var(--mesa-surface)
+  font-family: var(--font-display)
+  font-weight: 700
+  color: var(--text)
+  &:hover
+    border-color: var(--mesa-gold)
+  &:focus-visible
+    @include focus-ring
+
+.dieIcon
+  color: var(--mesa-text)
+
+.row
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+
+.label
+  @include text-label
+  color: var(--text-muted)
+
+.modifier
+  flex: 1
+  display: flex
+  align-items: center
+  justify-content: flex-end
+  gap: var(--space-2)
+
+.modValue
+  min-width: 40px
+  text-align: center
+  @include text-number-xl
+
+.formula
+  flex: 1
+  min-width: 0
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text)
+  font-family: var(--font-display)
+  font-size: 15px
+  &:focus-visible
+    @include focus-ring
+
+.check
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  @include text-body-sm
+  input
+    width: 18px
+    height: 18px
+    accent-color: var(--accent)
+
+.error
+  @include text-caption
+  color: var(--vital-hp)
+
+.note
+  @include text-caption
+  color: var(--text-muted)

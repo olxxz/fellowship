@@ -1,0 +1,94 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.message
+  display: grid
+  grid-template-columns: var(--size-avatar) 1fr
+  column-gap: var(--space-3)
+  padding: var(--space-1) var(--space-5)
+  @media (hover: hover)
+    &:hover
+      background: color-mix(in srgb, var(--bg-raised) 40%, transparent)
+
+.first
+  margin-top: var(--space-3)
+
+.avatarCol
+  grid-row: span 2
+  padding-top: 2px
+
+.header
+  display: flex
+  align-items: baseline
+  gap: var(--space-2)
+  min-width: 0
+
+.name
+  @include text-body-sm
+  font-weight: 600
+  color: var(--text)
+
+// Ingame: nome do personagem na cor dele e na fonte de títulos.
+.ingame .name
+  font-family: var(--font-display)
+  font-weight: 700
+  color: var(--player-color, var(--text))
+
+.subtitle, .time
+  @include text-caption
+  color: var(--text-muted)
+
+.whisper
+  display: inline-flex
+  align-items: center
+  gap: var(--space-1)
+  @include text-caption
+  color: var(--accent-text)
+
+.body
+  grid-column: 2
+  @include text-body
+  color: var(--text)
+  overflow-wrap: anywhere
+  > * + *
+    margin-top: var(--space-2)
+
+// Narração do mestre: itálico, como texto de livro.
+.narration .body
+  font-style: italic
+
+.pending
+  opacity: 0.55
+
+.hidden
+  @include visually-hidden
+
+// Aviso de sistema: cena nova, pedido de teste, alguém entrou.
+.notice
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: var(--space-2)
+  margin: var(--space-3) var(--space-5)
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  @include text-caption
+  color: var(--text-muted)
+  text-align: center
+
+.noticeMesa
+  border: 1px solid var(--mesa-border)
+  background: var(--mesa-surface)
+  color: var(--mesa-text)
+  font-weight: 600
+
+.skeleton
+  display: flex
+  gap: var(--space-3)
+  padding: var(--space-3) var(--space-5)
+
+.skeletonText
+  flex: 1
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)

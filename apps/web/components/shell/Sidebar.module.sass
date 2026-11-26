@@ -1,0 +1,85 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.sidebar
+  display: flex
+  flex-direction: column
+  width: var(--size-sidebar)
+  min-width: 0
+  flex: 1
+  min-height: 0
+  background: var(--bg-sidebar)
+  @include desktop
+    flex: none
+    border-top-left-radius: var(--radius-xl)
+
+// Banner: área delimitada de personalização (cor do Cenário ou da campanha).
+.banner
+  position: relative
+  display: flex
+  flex-direction: column
+  justify-content: flex-end
+  gap: 2px
+  min-height: 96px
+  padding: var(--space-4)
+  background: linear-gradient(160deg, color-mix(in srgb, var(--player-color) 45%, var(--bg-sidebar)) 0%, var(--bg-sidebar) 85%)
+  @include desktop
+    border-top-left-radius: var(--radius-xl)
+
+.bannerName
+  @include text-title
+  color: var(--text)
+
+.bannerSub
+  display: flex
+  align-items: center
+  gap: 6px
+  @include text-caption
+  color: var(--text-muted)
+
+.live
+  color: var(--mesa-text)
+  font-weight: 600
+
+.liveDot
+  width: 7px
+  height: 7px
+  border-radius: var(--radius-full)
+  background: var(--success)
+
+.back
+  @include reset-interactive
+  display: inline-flex
+  align-items: center
+  gap: var(--space-1)
+  align-self: flex-start
+  min-height: 32px
+  margin-bottom: var(--space-2)
+  padding: 0 var(--space-2) 0 var(--space-1)
+  border-radius: var(--radius-md)
+  background: color-mix(in srgb, var(--bg-rail) 55%, transparent)
+  @include text-label
+  color: var(--text)
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+
+.scroll
+  flex: 1
+  min-height: 0
+  overflow-y: auto
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+  padding: var(--space-3) var(--space-2)
+
+.campaigns
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+
+.note
+  padding: 0 10px
+  @include text-caption
+  color: var(--text-muted)

@@ -1,0 +1,31 @@
+@use "@fellowship/ui/styles/typography" as *
+
+.grid
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))
+  align-content: start
+  gap: var(--space-3)
+  padding: var(--space-5)
+  overflow-y: auto
+
+.card
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-sidebar)
+
+.identity
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+
+.name
+  @include text-title
+  color: var(--player-color)
+
+.sub, .note
+  @include text-caption
+  color: var(--text-muted)

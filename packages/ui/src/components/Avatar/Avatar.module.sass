@@ -1,0 +1,60 @@
+@use "../../styles/mixins" as *
+
+.avatar
+  position: relative
+  display: inline-flex
+  flex-shrink: 0
+  align-items: center
+  justify-content: center
+  width: var(--avatar-size)
+  height: var(--avatar-size)
+  border-radius: var(--radius-full)
+  background: var(--player-color, var(--bg-input))
+  // Inicial escura sobre a cor de perfil; sobre bg-input, texto normal.
+  color: #0e0f12
+  font-family: var(--font-display)
+  font-size: calc(var(--avatar-size) * 0.42)
+  font-weight: 700
+  line-height: 1
+  user-select: none
+
+.neutral
+  color: var(--text)
+
+// Anel na cor do personagem (retrato no chat ingame).
+.ring
+  background: var(--bg-raised)
+  color: var(--player-color)
+  box-shadow: inset 0 0 0 2px var(--player-color)
+
+.image
+  width: 100%
+  height: 100%
+  border-radius: inherit
+  object-fit: cover
+
+.status
+  position: absolute
+  right: -2px
+  bottom: -2px
+  width: calc(var(--avatar-size) * 0.32)
+  min-width: 10px
+  height: calc(var(--avatar-size) * 0.32)
+  min-height: 10px
+  border: 2px solid var(--avatar-cutout, var(--bg-sidebar))
+  border-radius: var(--radius-full)
+
+.online
+  background: var(--success)
+
+.ausente
+  background: var(--warning)
+
+.em-sessao
+  background: var(--mesa-gold)
+
+.offline
+  background: var(--text-faint)
+
+.hidden
+  @include visually-hidden

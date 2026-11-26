@@ -1,0 +1,123 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.chat
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+// Ingame tem textura: fundo levemente quente.
+.ingame
+  background: var(--chat-ingame)
+
+.log
+  flex: 1
+  min-height: 0
+  overflow-y: auto
+  margin: 0
+  padding: var(--space-2) 0 var(--space-4)
+  list-style: none
+  overscroll-behavior: contain
+
+.intro
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  padding: var(--space-6) var(--space-5) var(--space-2)
+
+.introTitle
+  @include text-display
+
+.introText
+  color: var(--text-muted)
+
+.roll
+  // Alinha o cartão com o texto das mensagens (avatar + gap).
+  padding: var(--space-1) var(--space-5) var(--space-1) calc(var(--space-5) + var(--size-avatar) + var(--space-3))
+  margin-top: var(--space-2)
+  @include mobile
+    padding-left: var(--space-5)
+
+.composer
+  padding: 0 var(--space-4) var(--space-4)
+
+.box
+  display: flex
+  align-items: flex-end
+  gap: var(--space-2)
+  padding: var(--space-1)
+  border: 1px solid transparent
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  &:focus-within
+    border-color: var(--focus-ring)
+
+.as
+  flex-shrink: 0
+
+.asChip
+  @include reset-interactive
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  min-height: var(--size-touch)
+  padding: 0 var(--space-2)
+  border-radius: var(--radius-md)
+  @include text-label
+  color: var(--text-muted)
+  white-space: nowrap
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+  &:disabled
+    cursor: default
+    &:hover
+      background: none
+
+.asName
+  font-family: var(--font-display)
+  font-weight: 700
+  color: var(--player-color)
+
+.input
+  flex: 1
+  min-width: 0
+  min-height: var(--size-touch)
+  max-height: 160px
+  padding: 11px var(--space-2)
+  border: none
+  background: none
+  color: var(--text)
+  @include text-body
+  resize: none
+  outline: none
+  &::placeholder
+    color: var(--text-muted)
+
+.hint, .error, .readOnly
+  margin-top: var(--space-1)
+  padding: 0 var(--space-2)
+  @include text-caption
+  color: var(--text-muted)
+
+.error
+  color: var(--vital-hp)
+
+.readOnly
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  margin: 0
+  padding: 0 var(--space-3)
+  border-radius: var(--radius-lg)
+  background: var(--bg-raised)
+
+.hidden
+  @include visually-hidden
+
+.hint kbd
+  font-family: var(--font-display)
+  font-size: 12px

@@ -1,0 +1,27 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.positioner
+  z-index: 50
+  outline: none
+
+.popup
+  width: min(360px, calc(100vw - 2 * var(--space-4)))
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-content)
+  color: var(--text)
+  box-shadow: var(--shadow-popover)
+  outline: none
+  transform-origin: var(--transform-origin)
+  transition: opacity 140ms ease-out, transform 140ms ease-out
+  &[data-starting-style], &[data-ending-style]
+    opacity: 0
+    transform: scale(0.97)
+  @include reduced-motion
+    transition: none
+
+.title
+  @include text-title
+  margin-bottom: var(--space-3)

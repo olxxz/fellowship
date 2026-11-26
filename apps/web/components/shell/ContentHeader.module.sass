@@ -1,0 +1,47 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.header
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: 56px
+  padding: 0 var(--space-2) 0 var(--space-4)
+  border-bottom: 1px solid var(--border)
+  @include mobile
+    padding-left: var(--space-1)
+
+.menu
+  @include desktop
+    display: none
+
+.icon
+  flex-shrink: 0
+  color: var(--text-muted)
+
+.titles
+  flex: 1
+  min-width: 0
+  display: flex
+  align-items: baseline
+  gap: var(--space-3)
+
+.title
+  @include text-body-sm
+  font-weight: 600
+  font-size: 16px
+  @include truncate
+
+.topic
+  min-width: 0
+  @include text-caption
+  color: var(--text-muted)
+  @include truncate
+  @include mobile
+    display: none
+
+.actions
+  display: flex
+  flex-shrink: 0
+  align-items: center
+  gap: var(--space-1)

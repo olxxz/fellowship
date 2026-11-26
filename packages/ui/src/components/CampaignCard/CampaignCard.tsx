@@ -1,4 +1,4 @@
-import type { MouseEventHandler } from "react";
+import type { ElementType, MouseEventHandler } from "react";
 import { cx } from "../../cx";
 import { playerColorStyle, type PlayerColor } from "../../player-color";
 import { Icon } from "../Icon/Icon";
@@ -23,6 +23,10 @@ export interface CampaignCardProps {
   /** Fora de sessão: data da próxima sessão ("sáb 15h"). */
   nextSession?: string;
   href?: string;
+  /** Componente de link (ex.: `Link` do Next.js). Padrão: `<a>`. */
+  linkAs?: ElementType;
+  /** Campanha aberta agora. */
+  active?: boolean;
   onClick?: MouseEventHandler<HTMLElement>;
 }
 
@@ -34,7 +38,7 @@ function listNames(names: string[], extra: number) {
   return `${names.slice(0, -1).join(", ")} e ${names.at(-1)}`;
 }
 
-function CampaignCardBase({ name, icon = "dice", color, live, nextSession, href, onClick }: CampaignCardProps) {
+function CampaignCardBase({ name, icon = "dice", color, live, nextSession, href, linkAs: LinkAs = "a", active, onClick }: CampaignCardProps) {
   const participants = live?.participants ?? [];
   const shown = participants.slice(0, MAX_AVATARS);
   const extra = participants.length - shown.length;
@@ -79,9 +83,9 @@ function CampaignCardBase({ name, icon = "dice", color, live, nextSession, href,
 
   const className = cx(styles.card, live && styles.live);
   return href ? (
-    <a className={className} href={href} onClick={onClick}>
+    <LinkAs className={className} href={href} aria-current={active ? "page" : undefined} onClick={onClick}>
       {body}
-    </a>
+    </LinkAs>
   ) : (
     <button type="button" className={className} onClick={onClick}>
       {body}

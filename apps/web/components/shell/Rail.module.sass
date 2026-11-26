@@ -1,0 +1,102 @@
+@use "@fellowship/ui/styles/mixins" as *
+
+.rail
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-2)
+  width: var(--size-rail)
+  flex-shrink: 0
+  padding: var(--space-3) 0
+  overflow-y: auto
+  background: var(--bg-rail)
+
+.list
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-2)
+  margin: 0
+  padding: 0
+  list-style: none
+
+.item
+  position: relative
+  display: flex
+  justify-content: center
+  width: var(--size-rail)
+
+// Indicador à esquerda: ponto no hover, barra alta no ativo.
+.item::before
+  content: ""
+  position: absolute
+  left: 0
+  top: 50%
+  width: 4px
+  height: 0
+  border-radius: 0 4px 4px 0
+  background: var(--text)
+  transform: translateY(-50%)
+  transition: height 150ms ease-out
+
+.item:hover::before
+  height: 16px
+
+.active::before, .active:hover::before
+  height: 36px
+
+.icon
+  @include reset-interactive
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 48px
+  height: 48px
+  border-radius: var(--radius-full)
+  background: var(--bg-sidebar)
+  color: var(--text)
+  font-family: var(--font-display)
+  font-size: 16px
+  font-weight: 700
+  transition: border-radius 150ms ease-out, background 150ms ease-out
+  @include reduced-motion
+    transition: none
+  &:hover
+    border-radius: var(--radius-xl)
+  &:focus-visible
+    @include focus-ring
+
+.active .icon
+  border-radius: var(--radius-xl)
+  background: var(--player-color, var(--accent))
+  color: #0e0f12
+
+.home
+  color: var(--text)
+
+.active .home
+  background: var(--accent)
+  color: var(--on-accent)
+
+.separator
+  width: 32px
+  height: 2px
+  border-radius: 1px
+  background: var(--border)
+
+.add
+  @include reset-interactive
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 48px
+  height: 48px
+  border: 1px dashed var(--border-strong)
+  border-radius: var(--radius-full)
+  color: var(--success)
+  &:hover
+    border-radius: var(--radius-xl)
+  &:focus-visible
+    @include focus-ring
+  &:disabled
+    cursor: not-allowed

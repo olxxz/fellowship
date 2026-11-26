@@ -1,0 +1,42 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.list
+  display: flex
+  gap: var(--space-1)
+  padding: 0 var(--space-3)
+  border-bottom: 1px solid var(--border)
+
+.tab
+  @include reset-interactive
+  position: relative
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  @include text-label
+  color: var(--text-muted)
+  &:hover
+    color: var(--text)
+  &[data-active]
+    color: var(--text)
+    &::after
+      content: ""
+      position: absolute
+      left: var(--space-2)
+      right: var(--space-2)
+      bottom: -1px
+      height: 2px
+      border-radius: 2px
+      background: var(--tab-accent, var(--accent))
+  &:focus-visible
+    @include focus-ring
+    outline-offset: -2px
+
+.panel
+  min-height: 0
+  outline: none
+  &:focus-visible
+    @include focus-ring
+    outline-offset: -2px

@@ -1,0 +1,67 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.members
+  flex-shrink: 0
+  width: var(--size-members)
+  overflow-y: auto
+  padding: var(--space-4) var(--space-2)
+  background: var(--bg-sidebar)
+  --avatar-cutout: var(--bg-sidebar)
+  @include mobile
+    position: fixed
+    z-index: 30
+    top: 56px
+    right: 0
+    bottom: 0
+    width: min(280px, 85vw)
+    box-shadow: var(--shadow-popover)
+
+.group + .group
+  margin-top: var(--space-4)
+
+.groupTitle
+  padding: 0 var(--space-2) var(--space-1)
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)
+
+.list
+  margin: 0
+  padding: 0
+  list-style: none
+
+.member
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  min-height: 44px
+  padding: var(--space-1) var(--space-2)
+  border-radius: var(--radius-md)
+  &:hover
+    background: color-mix(in srgb, var(--bg-raised) 50%, transparent)
+
+.offline
+  opacity: 0.55
+
+.text
+  min-width: 0
+  display: flex
+  flex-direction: column
+
+.name
+  @include text-body-sm
+  @include truncate
+
+.characterName
+  font-family: var(--font-display)
+  font-weight: 700
+  color: var(--player-color)
+
+.sub
+  @include text-caption
+  color: var(--text-muted)
+  @include truncate
+
+.hidden
+  @include visually-hidden

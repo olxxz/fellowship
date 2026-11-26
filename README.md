@@ -11,7 +11,7 @@ ficha modular, dados e voz, online ou presencial. Substitui a combinação Disco
 
 ```
 apps/
-  web/            Next.js (App Router). /design-system mostra os componentes nos dois temas.
+  web/            Next.js (App Router): protótipo navegável com dados de exemplo e /design-system
 packages/
   ui/             Tokens (tokens.json → Sass e CSS) e componentes em Sass indentado + CSS Modules
   core/           Regras de domínio sem React nem banco (ficha, fórmulas, permissões)
@@ -21,6 +21,19 @@ docs/
   design-system/
   adr/
 ```
+
+## Protótipo
+
+O app web hoje é um **protótipo navegável com dados de exemplo**, sem servidor: tudo vive no navegador e some ao recarregar.
+Ele serve de wireframe da Mesa e da estrutura do app antes do Supabase e do LiveKit.
+
+- **Estrutura em 4 colunas:** barra de Cenários, barra do Cenário (canais e campanhas) ou da campanha (com voltar), conteúdo e membros recolhíveis. No celular, a navegação vira gaveta.
+- **Canais de texto** com envio otimista, mensagens agrupadas por autor e `/r 1d20+5` para rolar dados. Anúncios só o Narrador escreve.
+- **Mesa:** participantes com simulação de quem fala, cena atual, chat ingame e outgame lado a lado, bandeja de dados, ficha em gaveta e, no modo mestre, pedir teste, rolagem oculta e próxima cena. No celular, abas Mesa, Chat e Ficha.
+- **Ver como jogador ou mestre** e **tema escuro, claro ou sistema** pelo menu de configurações (engrenagem no painel do usuário).
+- **Sem metagame:** sussurros de outros jogadores e rolagens ocultas não aparecem para o jogador.
+
+Os dados de exemplo ficam em `apps/web/lib/demo`. O rolador de dados do protótipo roda no navegador; no app de verdade, o servidor rola ([ADR 0008](docs/adr/0008-dados-no-servidor.md)).
 
 ## Como rodar
 
@@ -57,6 +70,6 @@ Fase 0, começando. Próximos passos da especificação:
 
 - [x] Definir nome, paleta, tipografia e tokens
 - [x] Criar o monorepo, o README e os primeiros ADRs
-- [ ] Wireframe da Mesa no desktop e no celular
+- [x] Wireframe da Mesa no desktop e no celular (protótipo navegável)
 - [ ] Teste técnico do LiveKit (chamada + detecção de quem fala)
 - [ ] Schema do banco com as regras de Row Level Security

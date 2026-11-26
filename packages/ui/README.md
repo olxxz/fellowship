@@ -30,9 +30,18 @@ O CI roda `pnpm --filter @fellowship/ui tokens:check` e falha se os arquivos ger
 | [ParticipantCard](src/components/ParticipantCard/README.md) | Mesa | Não |
 | [RollCard](src/components/RollCard/README.md) | Mesa | Não |
 | [Skeleton](src/components/Skeleton/README.md) / SkeletonText / SkeletonRegion | Feedback | Não |
+| Avatar | Identidade | Não |
+| ChatMessage / ChatNotice | Chat | Não |
+| ResourceBar | Ficha | Não |
+| Sheet (Base UI Dialog) | Sobre Base UI | Sim |
+| Tabs (Base UI Tabs) | Sobre Base UI | Sim |
+| Menu (Base UI Menu) | Sobre Base UI | Sim |
+| Popover (Base UI Popover) | Sobre Base UI | Sim |
 | Icon | Sistema | Não |
 
 Todo componente com conteúdo assíncrono exporta `Componente.Skeleton` com as mesmas dimensões.
+`Tabs`, `Menu` e `Popover` são objetos com as partes (`Tabs.Root`, `Menu.Popup`…): por serem client, use-os dentro de componentes client.
+Links: `ChannelRow` e `CampaignCard` aceitam `linkAs={Link}` para navegar com o `Link` do Next.js (necessário com `basePath`, como no GitHub Pages).
 Os componentes sem estado funcionam em Server Components; por isso `Componente.Skeleton` pode ser usado direto numa página do App Router.
 
 ## Testes

@@ -1,4 +1,4 @@
-import type { MouseEventHandler, ReactNode } from "react";
+import type { ElementType, MouseEventHandler, ReactNode } from "react";
 import { cx } from "../../cx";
 import { Icon } from "../Icon/Icon";
 import type { IconName } from "../Icon/icons";
@@ -19,12 +19,14 @@ export interface ChannelRowProps {
   metaTone?: "faint" | "mesa";
   /** Com href, a linha é um link; sem, é um botão. */
   href?: string;
+  /** Componente de link (ex.: `Link` do Next.js). Padrão: `<a>`. */
+  linkAs?: ElementType;
   onClick?: MouseEventHandler<HTMLElement>;
   /** Mostra a engrenagem de configurações no hover. */
   onSettings?: () => void;
 }
 
-function ChannelRowBase({ icon, name, active, unread, meta, metaTone = "faint", href, onClick, onSettings }: ChannelRowProps) {
+function ChannelRowBase({ icon, name, active, unread, meta, metaTone = "faint", href, linkAs: LinkAs = "a", onClick, onSettings }: ChannelRowProps) {
   const content = (
     <>
       <Icon name={icon} />
@@ -42,9 +44,9 @@ function ChannelRowBase({ icon, name, active, unread, meta, metaTone = "faint", 
   return (
     <div className={cx(styles.row, active && styles.active, unread && !active && styles.unread)}>
       {href ? (
-        <a className={styles.main} href={href} aria-current={active ? "page" : undefined} onClick={onClick}>
+        <LinkAs className={styles.main} href={href} aria-current={active ? "page" : undefined} onClick={onClick}>
           {content}
-        </a>
+        </LinkAs>
       ) : (
         <button type="button" className={styles.main} aria-current={active ? "page" : undefined} onClick={onClick}>
           {content}

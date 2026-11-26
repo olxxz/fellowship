@@ -1,4 +1,4 @@
-import { Button, CampaignCard, ChannelCategory, ChannelRow, IconButton, ParticipantCard, RollCard } from "@fellowship/ui";
+import { Avatar, Button, CampaignCard, ChannelCategory, ChannelRow, ChatMessage, ChatNotice, IconButton, ParticipantCard, ResourceBar, RollCard } from "@fellowship/ui";
 import type { Metadata } from "next";
 import styles from "./page.module.sass";
 
@@ -64,7 +64,7 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
           <ParticipantCard characterName="Kael" playerName="Ana" color={1} speaking />
           <ParticipantCard characterName="Brom" playerName="Bruno" color={2} />
           <ParticipantCard characterName="Lia" playerName="Carla" color={3} muted />
-          <ParticipantCard characterName="Narrador" playerName="Luiz" />
+          <ParticipantCard characterName="Narrador" playerName="Rafa" />
         </div>
       </div>
 
@@ -74,7 +74,7 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
           <ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />
           <ParticipantCard variant="portrait" characterName="Brom" playerName="Bruno" color={2} />
           <ParticipantCard variant="portrait" characterName="Lia" playerName="Carla" color={3} muted />
-          <ParticipantCard variant="portrait" characterName="Narrador" playerName="Luiz" />
+          <ParticipantCard variant="portrait" characterName="Narrador" playerName="Rafa" />
           <ParticipantCard.Skeleton variant="portrait" />
         </div>
       </div>
@@ -95,6 +95,52 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
           />
           <RollCard roller="Narrador" formula="1d20 + 2" dice={[{ value: 11 }]} modifier={2} total={13} hidden />
           <RollCard roller="Narrador" formula="1d20 + 2" dice={[{ value: 11 }]} modifier={2} total={13} hidden viewerIsMaster color={4} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.overline}>ChatMessage: ingame e outgame</h3>
+        <div className={styles.chat} style={{ padding: "var(--space-2) 0" }}>
+          <ChatNotice tone="mesa" icon="dice">
+            Sessão 12 · Cena 1: A ponte de Vel
+          </ChatNotice>
+          <ChatMessage scope="ingame" author={{ name: "Narrador", color: 4 }} subtitle="mestre" time="20:03" kind="narration">
+            <p>A névoa sobe do rio e engole metade da ponte.</p>
+          </ChatMessage>
+          <ChatMessage scope="ingame" author={{ name: "Kael", color: 1 }} subtitle="Ana" time="20:04">
+            <p>Ninguém atravessa ainda.</p>
+          </ChatMessage>
+          <ChatMessage scope="ingame" author={{ name: "Kael", color: 1 }} time="20:04" continuation>
+            <p>Tem alguma coisa errada com essa luz.</p>
+          </ChatMessage>
+        </div>
+        <div style={{ padding: "var(--space-2) 0" }}>
+          <ChatMessage scope="outgame" author={{ name: "Dani", color: 5 }} time="20:01">
+            <p>Gente, desculpa o atraso, a internet caiu.</p>
+          </ChatMessage>
+          <ChatMessage scope="outgame" author={{ name: "Ana", color: 1 }} time="agora" pending>
+            <p>Mensagem enviando (envio otimista).</p>
+          </ChatMessage>
+          <ChatMessage scope="ingame" author={{ name: "Nyx", color: 5 }} subtitle="Dani" time="20:09" whisperTo="Narrador">
+            <p>A Nyx quer pegar a lanterna sem ninguém ver.</p>
+          </ChatMessage>
+          <ChatMessage.Skeleton seed={1} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.overline}>Avatar e ResourceBar</h3>
+        <div className={styles.row} style={{ alignItems: "center" }}>
+          <Avatar name="Ana" color={1} status="em-sessao" />
+          <Avatar name="Edu" color={6} status="online" />
+          <Avatar name="Fê" color={3} status="ausente" />
+          <Avatar name="Gabi" color={2} status="offline" />
+          <Avatar name="Kael" color={1} appearance="ring" />
+          <Avatar name="Visitante" />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxWidth: 360 }}>
+          <ResourceBar label="Vida" tone="hp" value={14} max={18} />
+          <ResourceBar label="Mana" tone="mana" value={6} max={8} />
         </div>
       </div>
 

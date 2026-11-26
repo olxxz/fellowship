@@ -1,0 +1,119 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.sheet
+  display: flex
+  flex-direction: column
+  gap: var(--space-6)
+
+.picker
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+
+.pick
+  @include reset-interactive
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: 36px
+  padding: 0 var(--space-3) 0 var(--space-1)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-full)
+  @include text-label
+  &[aria-pressed="true"]
+    border-color: var(--player-color)
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+
+.identity
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+
+.name
+  @include text-display
+  color: var(--text)
+
+.title
+  @include text-caption
+  color: var(--text-muted)
+
+.section
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+
+.sectionTitle
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)
+
+.attributes
+  display: grid
+  grid-template-columns: repeat(5, minmax(0, 1fr))
+  gap: var(--space-2)
+
+.attribute
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-1)
+  padding: var(--space-3) var(--space-1)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+
+.attrLabel
+  @include text-caption
+  color: var(--text-muted)
+  @include truncate
+  max-width: 100%
+
+.attrValue
+  @include text-number-xl
+  color: var(--text)
+
+.skills
+  margin: 0
+  padding: 0
+  list-style: none
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+
+.skill
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-1) 0 var(--space-1) var(--space-3)
+  border-radius: var(--radius-md)
+  &:hover
+    background: color-mix(in srgb, var(--bg-raised) 50%, transparent)
+
+.skillText
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+
+.skillName
+  @include text-body-sm
+
+.skillFormula
+  font-family: var(--font-display)
+  font-size: 12px
+  line-height: 16px
+  color: var(--text-muted)
+
+.inventory
+  margin: 0
+  padding-left: var(--space-5)
+  color: var(--text)
+  li + li
+    margin-top: var(--space-1)
+
+.note
+  @include text-caption
+  color: var(--text-muted)
