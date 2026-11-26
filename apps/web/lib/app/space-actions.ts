@@ -71,6 +71,7 @@ export async function updateSpaceAction(spaceId: string, _prev: FormState, form:
   const short = String(form.get("short") ?? "").trim().toUpperCase();
   const description = String(form.get("description") ?? "").trim();
   const color = String(form.get("color") ?? "").trim().toLowerCase();
+  const is_public = form.get("is_public") === "on";
   if (name.length < 2 || name.length > 60) return { error: "O nome precisa ter entre 2 e 60 caracteres." };
   if (short.length < 1 || short.length > 3) return { error: "As iniciais do ícone têm de 1 a 3 caracteres." };
   if (description.length > 300) return { error: "A descrição vai até 300 caracteres." };
@@ -78,7 +79,7 @@ export async function updateSpaceAction(spaceId: string, _prev: FormState, form:
 
   const { data, error } = await supabase
     .from("spaces")
-    .update({ name, short, description: description || null, color })
+    .update({ name, short, description: description || null, color, is_public })
     .eq("id", spaceId)
     .select("id");
   if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
@@ -95,11 +96,14 @@ export async function updateProfileAction(_prev: FormState, form: FormData): Pro
   const display_name = String(form.get("display_name") ?? "").trim();
   const bio = String(form.get("bio") ?? "").trim();
   const color = String(form.get("color") ?? "").trim().toLowerCase();
+  const username = String(form.get("username") ?? "").trim().toLowerCase().replace(/^@/, "");
   if (display_name.length < 1 || display_name.length > 60) return { error: "O nome precisa ter de 1 a 60 caracteres." };
+  if (!/^[a-z0-9_.]{3,20}$/.test(username)) return { error: "O nick tem de 3 a 20 caracteres: letras minúsculas, números, ponto e sublinhado." };
   if (bio.length > 300) return { error: "A bio vai até 300 caracteres." };
   if (!HEX.test(color)) return { error: "Escolha uma cor válida." };
 
-  const { error } = await supabase.from("profiles").update({ display_name, bio: bio || null, color }).eq("id", user.id);
+  const { error } = await supabase.from("profiles").update({ display_name, username, bio: bio || null, color }).eq("id", user.id);
+  if (error?.code === "23505") return { error: `O nick @${username} já está em uso.` };
   if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
   revalidatePath("/", "layout");
   return { saved: true };

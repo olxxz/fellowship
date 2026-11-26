@@ -34,6 +34,13 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
         <span className={styles.label}>Descrição</span>
         <textarea className={styles.textarea} name="description" maxLength={300} defaultValue={space.description ?? ""} />
       </label>
+      <label className={styles.switchRow}>
+        <input type="checkbox" name="is_public" defaultChecked={space.is_public} />
+        <span className={styles.field}>
+          <span className={styles.label}>Cenário público</span>
+          <span className={styles.help}>Aparece em Explorar para todo mundo e qualquer conta entra sem convite. Desligado, só entra quem recebe um convite.</span>
+        </span>
+      </label>
       <ColorPicker label="Cor do Cenário" name="color" value={color} onChange={setColor} help="Aparece no ícone da barra de Cenários, no banner e nos convites." />
       {state.error && (
         <p className={styles.error} role="alert">

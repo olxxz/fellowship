@@ -1,8 +1,8 @@
 "use server";
 
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { safeNext } from "@/lib/supabase/config";
+import { NEXT_COOKIE, safeNext } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 export interface AuthFormState {
@@ -85,6 +85,7 @@ export async function signUpWithPassword(_prev: AuthFormState, form: FormData): 
   if (error) return { error: authMessage(error), email, name };
   // Com "Confirm email" desligado no Supabase, a sessão já vem pronta.
   if (data.session) redirect(next);
+  if (next !== "/inicio") (await cookies()).set(NEXT_COOKIE, encodeURIComponent(next), { path: "/", maxAge: 60 * 60 * 24, sameSite: "lax", secure: true });
   return { notice: `Enviamos um link de confirmação para ${email}. Abra o e-mail neste mesmo navegador para entrar.`, email, name };
 }
 

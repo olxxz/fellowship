@@ -3,6 +3,7 @@
 import { Button } from "@fellowship/ui";
 import { useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { NEXT_COOKIE } from "@/lib/supabase/config";
 
 /** Entra com o Google pelo Supabase Auth. Na volta, /auth/callback cria a sessão. */
 export function GoogleButton({ next, label = "Entrar com Google" }: { next: string; label?: string }) {
@@ -12,6 +13,7 @@ export function GoogleButton({ next, label = "Entrar com Google" }: { next: stri
   async function signIn() {
     setLoading(true);
     setError(null);
+    document.cookie = `${NEXT_COOKIE}=${encodeURIComponent(next)}; path=/; max-age=900; samesite=lax; secure`;
     const { error } = await getBrowserClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },

@@ -6,18 +6,18 @@ import styles from "@/components/account/Settings.module.sass";
 import { ContentHeader } from "@/components/shell/ContentHeader";
 import { requireAccount } from "@/lib/app/queries";
 
-export const metadata: Metadata = { title: "Meu perfil" };
+export const metadata: Metadata = { title: "Editar perfil" };
 
 export default async function ContaPage() {
   const { profile, user } = await requireAccount("/conta");
   const usesPassword = user.app_metadata?.providers?.includes("email");
   return (
     <>
-      <ContentHeader icon="settings" title="Meu perfil" />
+      <ContentHeader icon="settings" title="Editar perfil" />
       <main className={styles.page}>
         <div className={styles.inner}>
           <div>
-            <h2 className={styles.title}>Meu perfil</h2>
+            <h2 className={styles.title}>Editar perfil</h2>
             <p className={styles.lead}>Como você aparece para o grupo, fora dos personagens.</p>
           </div>
           <ProfileForm profile={profile} />

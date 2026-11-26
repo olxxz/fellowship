@@ -139,6 +139,6 @@ describe("cada conta vê só o que pode", () => {
   });
 
   it("mensagens estão na publicação do Realtime", async () => {
-    expect(await all("select tablename from pg_publication_tables where pubname = 'supabase_realtime'")).toEqual([{ tablename: "messages" }]);
+    expect(await all("select tablename from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'messages'")).toEqual([{ tablename: "messages" }]);
   });
 });

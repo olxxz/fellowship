@@ -13,3 +13,9 @@ export function supabaseConfig() {
 export function safeNext(next: string | null | undefined, fallback = "/inicio") {
   return next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : fallback;
 }
+
+/**
+ * Cookie com o destino depois do login (ex.: /convite/abc). Reserva para quando o Supabase descarta
+ * o ?next= da volta do Google ou do e-mail (endereço de retorno fora da lista de Redirect URLs).
+ */
+export const NEXT_COOKIE = "fs_next";

@@ -1,6 +1,7 @@
 "use client";
 
-import { Avatar, cx, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
+import { Avatar, cx, HoverCard, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
+import { ProfileCardView, type ProfileCardData } from "@/components/account/ProfileCardView";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useShell } from "./ShellContext";
 import styles from "./MembersList.module.sass";
@@ -18,6 +19,8 @@ export interface MemberEntry {
   avatarUrl?: string;
   /** Na campanha, o personagem vem antes do jogador (retrato com anel, nome na cor dele). */
   asCharacter?: boolean;
+  /** App real: parar o mouse mostra o cartão de perfil; clicar abre o perfil. */
+  profile?: ProfileCardData;
 }
 
 /**
@@ -42,18 +45,31 @@ export function MembersList({ groups, label }: { groups: Array<{ title: string; 
               {group.title} — {group.members.length}
             </h2>
             <ul className={styles.list}>
-              {group.members.map((m) => (
-                <li key={m.id} className={cx(styles.member, m.status === "offline" && styles.offline)} style={playerColorStyle(m.color)}>
-                  <Avatar name={m.name} src={m.avatarUrl} color={m.color} size={32} status={m.status} appearance={m.asCharacter ? "ring" : "fill"} />
-                  <span className={styles.text}>
-                    <span className={cx(styles.name, m.asCharacter && styles.characterName)}>
-                      {m.name}
-                      {m.status && <span className={styles.hidden}>, {STATUS[m.status]}</span>}
+              {group.members.map((m) => {
+                const row = (
+                  <>
+                    <Avatar name={m.name} src={m.avatarUrl} color={m.color} size={32} status={m.status} appearance={m.asCharacter ? "ring" : "fill"} />
+                    <span className={styles.text}>
+                      <span className={cx(styles.name, m.asCharacter && styles.characterName)}>
+                        {m.name}
+                        {m.status && <span className={styles.hidden}>, {STATUS[m.status]}</span>}
+                      </span>
+                      {m.sub && <span className={styles.sub}>{m.sub}</span>}
                     </span>
-                    {m.sub && <span className={styles.sub}>{m.sub}</span>}
-                  </span>
-                </li>
-              ))}
+                  </>
+                );
+                return (
+                  <li key={m.id} className={cx(styles.member, m.status === "offline" && styles.offline, m.profile && styles.memberLink)} style={playerColorStyle(m.color)}>
+                    {m.profile ? (
+                      <HoverCard trigger={row} href={`/u/${m.profile.username}`} triggerClassName={styles.memberTrigger}>
+                        <ProfileCardView profile={m.profile} compact />
+                      </HoverCard>
+                    ) : (
+                      row
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
         ))}

@@ -20,6 +20,7 @@ export {
 } from "./components/Placeholder/Placeholder";
 export { ParticipantCard, type ParticipantCardProps } from "./components/ParticipantCard/ParticipantCard";
 export { Popover } from "./components/Popover/Popover";
+export { HoverCard, type HoverCardProps } from "./components/HoverCard/HoverCard";
 export { ResourceBar, type ResourceBarProps } from "./components/ResourceBar/ResourceBar";
 export { RollCard, type RollCardProps, type RollDie } from "./components/RollCard/RollCard";
 export { Sheet, type SheetProps } from "./components/Sheet/Sheet";

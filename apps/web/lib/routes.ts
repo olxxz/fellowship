@@ -8,3 +8,11 @@ export const demoHomeHref = "/demo/inicio";
 export const appSpaceHref = (spaceId: string, channelId?: string) => (channelId ? `/c/${spaceId}/${channelId}` : `/c/${spaceId}`);
 export const appHomeHref = "/inicio";
 export const createSpaceHref = "/criar-cenario";
+export const exploreHref = "/explorar";
+export const friendsHref = "/amigos";
+export const myProfileHref = "/perfil";
+export const editProfileHref = "/conta";
+export const userHref = (username: string) => `/u/${username}`;
+export const dmHref = (username: string) => `/mensagens/${username}`;
+/** Link de amizade e de convite para o app: quem abre cria conta (se precisar) e já pede amizade. */
+export const friendLinkHref = (username: string) => `/amigo/${username}`;

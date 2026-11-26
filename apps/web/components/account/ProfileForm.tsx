@@ -22,6 +22,28 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <input className={styles.input} name="display_name" required maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       <label className={styles.field}>
+        <span className={styles.label}>Nick</span>
+        <span className={styles.nickInput}>
+          <span aria-hidden="true">@</span>
+          <input
+            className={styles.input}
+            name="username"
+            required
+            minLength={3}
+            maxLength={20}
+            pattern="[a-z0-9_.]{3,20}"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            defaultValue={profile.username}
+            aria-describedby="nick-ajuda"
+          />
+        </span>
+        <span className={styles.help} id="nick-ajuda">
+          Único: é como os amigos acham você. Letras minúsculas, números, ponto e sublinhado.
+        </span>
+      </label>
+      <label className={styles.field}>
         <span className={styles.label}>Bio</span>
         <textarea className={styles.textarea} name="bio" maxLength={300} defaultValue={profile.bio ?? ""} placeholder="Mestre de quinta, jogador de domingo." />
       </label>

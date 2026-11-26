@@ -6,13 +6,14 @@ import { useRef } from "react";
 import styles from "@/components/shell/UserPanel.module.sass";
 import { ThemeMenuGroup } from "@/components/shell/ThemeMenuGroup";
 import { useOptionalVoice } from "@/lib/livekit/VoiceProvider";
-import { campaignHref } from "@/lib/routes";
+import { campaignHref, editProfileHref, friendsHref, myProfileHref } from "@/lib/routes";
 
 export interface AccountProfile {
   id: string;
   display_name: string;
   avatar_url: string | null;
   color: string;
+  username: string;
 }
 
 /** Painel da conta no rodapé da barra lateral: quem está logado, tema e sair. */
@@ -44,16 +45,14 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
         </div>
       )}
       <div className={styles.panel}>
-        <Avatar
-          name={profile.display_name}
-          src={profile.avatar_url ?? undefined}
-          color={profile.color}
-          size={36}
-        />
-        <div className={styles.who}>
-          <span className={styles.name}>{profile.display_name}</span>
-          <span className={styles.status}>Conectado</span>
-        </div>
+        {/* Avatar e nome abrem o próprio perfil, como os outros veem. */}
+        <Link href={myProfileHref} className={styles.me} aria-label={`Seu perfil, ${profile.display_name}`}>
+          <Avatar name={profile.display_name} src={profile.avatar_url ?? undefined} color={profile.color} size={36} />
+          <span className={styles.who}>
+            <span className={styles.name}>{profile.display_name}</span>
+            <span className={styles.status}>@{profile.username}</span>
+          </span>
+        </Link>
         {voice?.enabled && (
           <IconButton
             icon={voice.muted ? "micOff" : "mic"}
@@ -68,9 +67,8 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
             render={<IconButton icon="settings" label="Configurações" />}
           />
           <Menu.Popup side="top" align="end">
-            <Menu.LinkItem render={<Link href="/conta" />}>
-              Meu perfil
-            </Menu.LinkItem>
+            <Menu.LinkItem render={<Link href={editProfileHref} />}>Editar perfil</Menu.LinkItem>
+            <Menu.LinkItem render={<Link href={friendsHref} />}>Amigos</Menu.LinkItem>
             <Menu.Separator />
             <ThemeMenuGroup />
             <Menu.Separator />

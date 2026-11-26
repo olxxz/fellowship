@@ -4,10 +4,48 @@
 export interface Profile {
   id: string;
   display_name: string;
+  /** Nick único (@usuario): 3 a 20 caracteres a-z, 0-9, ponto e sublinhado. */
+  username: string;
   avatar_url: string | null;
   /** Cor livre em hex (#rrggbb). */
   color: string;
   bio: string | null;
+}
+
+/** Relação entre a conta logada e outra pessoa. */
+export type FriendshipState = "voce" | "amigos" | "enviado" | "recebido" | "nenhuma";
+
+/** Cartão público de alguém, achado pelo nick (find_profile). */
+export interface ProfileCard extends Profile {
+  friendship: FriendshipState;
+}
+
+export interface Friendship {
+  user_a: string;
+  user_b: string;
+  requested_by: string;
+  status: "pendente" | "aceita";
+  created_at: string;
+}
+
+export interface DirectMessage {
+  id: string;
+  user_a: string;
+  user_b: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+}
+
+/** Cenário público listado em Explorar. */
+export interface PublicSpace {
+  id: string;
+  name: string;
+  short: string;
+  description: string | null;
+  color: string;
+  member_count: number;
+  is_member: boolean;
 }
 
 export interface Space {
@@ -19,6 +57,8 @@ export interface Space {
   /** Cor livre em hex (#rrggbb). */
   color: string;
   owner_id: string;
+  /** Público: aparece em Explorar e qualquer conta entra sem convite. */
+  is_public: boolean;
 }
 
 export interface Role {
