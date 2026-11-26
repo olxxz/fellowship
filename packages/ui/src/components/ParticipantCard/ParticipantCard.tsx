@@ -12,6 +12,8 @@ export interface ParticipantCardProps {
   /** Cor do personagem nesta campanha. Padrão: player-4 (a do Narrador). */
   color?: PlayerColor;
   portraitUrl?: string;
+  /** Retrato desenhado (ex.: ilustração em SVG), no lugar da imagem ou da inicial. */
+  portraitArt?: ReactNode;
   playerAvatarUrl?: string;
   /** A borda acende na cor do personagem, com onda sonora e anúncio para leitores de tela. */
   speaking?: boolean;
@@ -36,6 +38,7 @@ function ParticipantCardBase({
   playerName,
   color = NARRATOR_COLOR,
   portraitUrl,
+  portraitArt,
   playerAvatarUrl,
   speaking,
   muted,
@@ -59,7 +62,13 @@ function ParticipantCardBase({
             <Icon name={muted ? "micOff" : "wave"} size={14} motion={muted ? undefined : "wave"} />
           </span>
         )}
-        {video ? <div className={styles.media}>{video}</div> : <Portrait url={portraitUrl} name={characterName} />}
+        {video ? (
+          <div className={styles.media}>{video}</div>
+        ) : portraitArt ? (
+          <div className={styles.media}>{portraitArt}</div>
+        ) : (
+          <Portrait url={portraitUrl} name={characterName} />
+        )}
         {video ? (
           <span aria-hidden="true" className={cx(styles.corner, styles.cornerCharacter)}>
             {portraitUrl ? <img src={portraitUrl} alt="" /> : characterName.charAt(0)}

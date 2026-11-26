@@ -1,5 +1,6 @@
 import { ButtonLink, Icon, ParticipantCard, RollCard, type IconName } from "@fellowship/ui";
 import Link from "next/link";
+import { DwarfArt, ElfArt, FelineArt, OgreArt } from "@/components/landing/Portraits";
 import { APP_NAME } from "@/lib/brand";
 import { campaignHref, spaceHref } from "@/lib/routes";
 import { authEnabled } from "@/lib/supabase/config";
@@ -73,10 +74,10 @@ export default function Home() {
         </div>
 
         <div className={styles.stage} aria-hidden="true" inert>
-          <ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />
-          <ParticipantCard variant="portrait" characterName="Brom" playerName="Bruno" color={2} />
-          <ParticipantCard variant="portrait" characterName="Lia" playerName="Carla" color={3} muted />
-          <ParticipantCard variant="portrait" characterName="Narrador" playerName="Rafa" />
+          <ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking portraitArt={<ElfArt />} />
+          <ParticipantCard variant="portrait" characterName="Brom" playerName="Bruno" color={2} portraitArt={<DwarfArt />} />
+          <ParticipantCard variant="portrait" characterName="Morg" playerName="Carla" color={3} muted portraitArt={<OgreArt />} />
+          <ParticipantCard variant="portrait" characterName="Sasha" playerName="Dani" color={5} portraitArt={<FelineArt />} />
           <div className={styles.roll}>
             <RollCard
               roller="Kael"
