@@ -3,12 +3,15 @@ import type { Category, Channel, Message, Profile, Role, Space } from "@fellowsh
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import { authEnabled } from "@/lib/supabase/config";
 import { getUser } from "@/lib/supabase/server";
 
 // Todas as consultas passam pelo RLS: cada conta só recebe o que pode ver.
 
 /** Conta logada com perfil, ou vai para /entrar. Uma consulta por requisição (cache). */
 export const requireAccount = cache(async (next: string = "/inicio") => {
+  // Sem Supabase configurado (ex.: CI), /entrar explica que o login não está disponível.
+  if (!authEnabled) redirect("/entrar");
   const { supabase, user } = await getUser();
   if (!user) redirect(`/entrar?next=${encodeURIComponent(next)}`);
   const { data: profile } = await supabase.from("profiles").select("id, display_name, avatar_url, color, bio").eq("id", user.id).single<Profile>();
