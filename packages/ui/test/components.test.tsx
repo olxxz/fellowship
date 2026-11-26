@@ -156,6 +156,14 @@ describe("SkeletonRegion", () => {
   });
 });
 
+describe("ParticipantCard fora da chamada", () => {
+  it("mostra o status e não anuncia fala", () => {
+    render(<ParticipantCard characterName="Nyx" playerName="Dani" color={5} offline speaking />);
+    expect(screen.getByText("fora da chamada")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+});
+
 describe("ParticipantCard portrait", () => {
   it("só o retrato: sem nomes visíveis, mas com rótulo acessível e anúncio de fala", () => {
     render(<ParticipantCard variant="portrait" characterName="Kael" playerName="Ana" color={1} speaking />);

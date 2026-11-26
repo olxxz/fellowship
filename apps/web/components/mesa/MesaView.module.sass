@@ -107,6 +107,16 @@
     height: 16px
     accent-color: var(--accent)
 
+.voiceStatus
+  @include text-caption
+  color: var(--text-muted)
+
+.voiceError
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  background: var(--danger-soft)
+  color: var(--text)
+
 .chat
   grid-area: chat
   min-height: 0

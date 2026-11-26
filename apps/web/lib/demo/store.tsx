@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import { characterById, seedMessages, userById, type DemoCharacter, type DemoMessage, type DemoUser } from "./data";
+import { usePref } from "@/lib/prefs";
+import { characterById, characters, seedMessages, userById, users, type DemoCharacter, type DemoMessage, type DemoUser } from "./data";
 
 export type Viewer = "jogador" | "mestre";
 
@@ -11,12 +12,20 @@ interface DemoState {
   messages: Record<string, DemoMessage[]>;
   /** Envia uma mensagem. Texto aparece na hora como "enviando" e é confirmado depois (envio otimista). */
   send: (channelKey: string, message: NewMessage) => void;
-  /** Ver o protótipo como jogador (Ana, que joga Kael) ou como mestre (Rafa). */
+  /** Quem está usando: um dos usuários do grupo (sem login ainda). Fica salvo no navegador. */
+  meId: string;
+  setMeId: (id: string) => void;
+  /** Derivado de quem está usando: Rafa mestra a campanha; os outros jogam. */
   viewer: Viewer;
-  setViewer: (viewer: Viewer) => void;
   me: DemoUser;
   myCharacter: DemoCharacter;
 }
+
+/** Quem mestra a campanha de exemplo. */
+const MASTER_ID = "rafa";
+
+/** Quem pode ser escolhido no protótipo: os que estão na campanha ao vivo. */
+export const selectableUsers = users.filter((u) => u.role === "narrador" || u.role === "mesa");
 
 const DemoContext = createContext<DemoState | null>(null);
 
@@ -25,7 +34,9 @@ const now = () => new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2
 
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState(seedMessages);
-  const [viewer, setViewer] = useState<Viewer>("jogador");
+  const [storedId, setMeId] = usePref<string>("eu", "ana");
+  const meId = userById(storedId) ? storedId : "ana";
+  const viewer: Viewer = meId === MASTER_ID ? "mestre" : "jogador";
 
   const send = useCallback((key: string, message: NewMessage) => {
     const id = `m-${++counter}`;
@@ -47,12 +58,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     () => ({
       messages,
       send,
+      meId,
+      setMeId,
       viewer,
-      setViewer,
-      me: userById(viewer === "mestre" ? "rafa" : "ana")!,
-      myCharacter: characterById(viewer === "mestre" ? "narrador" : "kael")!,
+      me: userById(meId)!,
+      myCharacter: characters.find((c) => c.ownerId === meId) ?? characterById("narrador")!,
     }),
-    [messages, send, viewer],
+    [messages, send, meId, setMeId, viewer],
   );
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;

@@ -1,18 +1,25 @@
 "use client";
 
-import { Button, IconButton, Menu, ParticipantCard, Popover, Sheet, Tabs, cx } from "@fellowship/ui";
+import { Button, IconButton, Menu, Popover, Sheet, Tabs, cx } from "@fellowship/ui";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ChatView } from "@/components/chat/ChatView";
 import { ContentHeader } from "@/components/shell/ContentHeader";
-import { characterById, userById, type DemoCampaign, type DemoCharacter, type DemoSpace } from "@/lib/demo/data";
+import { characterById, type DemoCampaign, type DemoCharacter, type DemoSpace } from "@/lib/demo/data";
 import { rollFormula } from "@/lib/demo/dice";
 import { useDemo } from "@/lib/demo/store";
+import { mesaRoomName } from "@/lib/livekit/room";
+import { useMesaVoice, voiceEnabled } from "@/lib/livekit/useMesaVoice";
 import { useFlag } from "@/lib/prefs";
 import { spaceHref } from "@/lib/routes";
 import { CharacterSheet } from "./CharacterSheet";
 import { DiceTray } from "./DiceTray";
 import styles from "./MesaView.module.sass";
+import { SimulatedGrid } from "./SimulatedGrid";
+
+// O SDK do LiveKit só é baixado quando alguém entra na voz.
+const VoiceGrid = dynamic(() => import("./VoiceGrid"), { ssr: false });
 
 type MobileTab = "mesa" | "chat" | "ficha";
 
@@ -25,7 +32,7 @@ const testRequests = [
 
 /** A Mesa: palco com os participantes, chat da campanha ao lado, ficha em gaveta e bandeja de dados. */
 export function MesaView({ space, campaign }: { space: DemoSpace; campaign: DemoCampaign }) {
-  const { send, viewer, me, myCharacter } = useDemo();
+  const { send, viewer, me, meId, myCharacter } = useDemo();
   const master = viewer === "mestre";
   const ingameKey = `${space.id}/${campaign.id}/ingame`;
   const outgameKey = `${space.id}/${campaign.id}/outgame`;
@@ -34,7 +41,6 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
   const [chatOpen, setChatOpen] = useFlag("mesa:chat", true);
   const [portraits, setPortraits] = useFlag("mesa:retratos", false);
   const [simulate, setSimulate] = useFlag("mesa:simular-fala", true);
-  const [speakingId, setSpeakingId] = useState<string | null>("brom");
   const [sceneIndex, setSceneIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<MobileTab>("mesa");
   const [chatTab, setChatTab] = useState<string>("ingame");
@@ -45,21 +51,10 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
 
   const narrator = characterById("narrador")!;
   const party = campaign.characterIds.map((id) => characterById(id)!);
-  const participants = [...party, narrator];
   const myCardId = master ? "narrador" : myCharacter.id;
   const sheetCharacter = master ? characterById(sheetCharacterId)! : myCharacter;
-
-  // Simulação de quem fala (no app de verdade, vem da detecção de voz do LiveKit).
-  useEffect(() => {
-    if (!simulate) return;
-    const ids = [...campaign.characterIds, "narrador"];
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
-      const pool = [...ids.filter((id) => !(muted && id === myCardId)), null];
-      setSpeakingId(pool[Math.floor(Math.random() * pool.length)] ?? null);
-    }, 2800);
-    return () => window.clearInterval(timer);
-  }, [simulate, muted, myCardId, campaign.characterIds]);
+  const voice = useMesaVoice({ roomName: mesaRoomName(space.id, campaign.id), userId: meId, micEnabled: !muted });
+  const inVoice = voice.status === "on" && voice.room;
 
   function postRoll(formula: string, hidden: boolean, character: DemoCharacter = master ? narrator : myCharacter, label?: string) {
     const result = rollFormula(formula);
@@ -156,28 +151,36 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
             )}
           </div>
 
-          <div className={cx(styles.participants, portraits && styles.portraits)}>
-            {participants.map((p) => {
-              const owner = p.ownerId ? userById(p.ownerId)! : userById(campaign.masterId)!;
-              const isMe = p.id === myCardId;
-              return (
-                <ParticipantCard
-                  key={p.id}
-                  variant={portraits ? "portrait" : "full"}
-                  characterName={p.name}
-                  playerName={isMe ? `${owner.name} (você)` : owner.name}
-                  color={p.color}
-                  speaking={speakingId === p.id}
-                  muted={isMe && muted}
-                />
-              );
-            })}
-          </div>
+          {inVoice ? (
+            <VoiceGrid room={voice.room!} campaign={campaign} portraits={portraits} myCardId={myCardId} />
+          ) : voiceEnabled ? (
+            <SimulatedGrid campaign={campaign} portraits={portraits} myCardId={myCardId} simulate={false} myMuted={muted} />
+          ) : (
+            <SimulatedGrid campaign={campaign} portraits={portraits} myCardId={myCardId} simulate={simulate} myMuted={muted} />
+          )}
 
-          <label className={styles.simToggle}>
-            <input type="checkbox" checked={simulate} onChange={(e) => setSimulate(e.target.checked)} />
-            Simular quem está falando (protótipo, até o LiveKit entrar)
-          </label>
+          {voiceEnabled ? (
+            <div className={styles.voiceStatus}>
+              {voice.error ? (
+                <p className={styles.voiceError} role="alert">
+                  {voice.error}
+                </p>
+              ) : (
+                <p role="status">
+                  {voice.status === "on"
+                    ? `Você está na voz como ${me.name}${master ? " (mestre)" : ` (${myCharacter.name})`}. Quem não entrou aparece como fora da chamada.`
+                    : voice.status === "connecting"
+                      ? "Conectando à voz…"
+                      : `Entre na voz para falar com o grupo. Você entra como ${me.name}; para trocar, use a engrenagem no painel do usuário.`}
+                </p>
+              )}
+            </div>
+          ) : (
+            <label className={styles.simToggle}>
+              <input type="checkbox" checked={simulate} onChange={(e) => setSimulate(e.target.checked)} />
+              Simular quem está falando (esta versão não tem voz; a voz funciona no deploy com servidor)
+            </label>
+          )}
         </section>
 
         {(chatOpen || mobileTab === "chat") && (
@@ -202,8 +205,25 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
         </section>
 
         <div className={styles.controls} role="toolbar" aria-label="Controles da Mesa">
-          <IconButton icon={muted ? "micOff" : "mic"} label={muted ? "Ativar microfone" : "Mutar microfone"} aria-pressed={muted} variant={muted ? "danger" : "secondary"} onClick={() => setMuted(!muted)} />
-          <IconButton icon="cameraOff" label="Câmera (chega com o LiveKit)" disabled />
+          {voiceEnabled && voice.status !== "on" ? (
+            <Button variant="primary" icon="voice" loading={voice.status === "connecting"} onClick={() => void voice.join()}>
+              Entrar na voz
+            </Button>
+          ) : (
+            <>
+              <IconButton icon={muted ? "micOff" : "mic"} label={muted ? "Ativar microfone" : "Mutar microfone"} aria-pressed={muted} variant={muted ? "danger" : "secondary"} onClick={() => setMuted(!muted)} />
+              {inVoice ? (
+                <IconButton
+                  icon={voice.cameraOn ? "camera" : "cameraOff"}
+                  label={voice.cameraOn ? "Desligar câmera" : "Ligar câmera"}
+                  aria-pressed={voice.cameraOn}
+                  onClick={() => void voice.toggleCamera()}
+                />
+              ) : (
+                <IconButton icon="cameraOff" label="Câmera (só com voz)" disabled />
+              )}
+            </>
+          )}
           <Popover.Root>
             <Popover.Trigger render={<Button variant="mesa" icon="dice">Rolar dados</Button>} />
             <Popover.Popup title="Bandeja de dados">
@@ -213,7 +233,11 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
           <Button className={styles.hideMobile} icon="sheet" onClick={openSheet}>
             Ficha
           </Button>
-          <IconButton className={styles.leave} icon="leave" label="Sair da Mesa" variant="danger" onClick={() => router.push(spaceHref(space.id, "geral"))} />
+          {inVoice ? (
+            <IconButton className={styles.leave} icon="leave" label="Sair da voz" variant="danger" onClick={voice.leave} />
+          ) : (
+            <IconButton className={styles.leave} icon="leave" label="Sair da Mesa" variant="danger" onClick={() => router.push(spaceHref(space.id, "geral"))} />
+          )}
         </div>
       </div>
 

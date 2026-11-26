@@ -16,6 +16,8 @@ export interface ParticipantCardProps {
   /** A borda acende na cor do personagem, com onda sonora e anúncio para leitores de tela. */
   speaking?: boolean;
   muted?: boolean;
+  /** Não está conectado à voz: card esmaecido e status "fora da chamada". */
+  offline?: boolean;
   /** Vídeo da câmera (ex.: o <video> do LiveKit). Com câmera, o retrato vai para o canto. */
   video?: ReactNode;
   /**
@@ -37,21 +39,22 @@ function ParticipantCardBase({
   playerAvatarUrl,
   speaking,
   muted,
+  offline,
   video,
   variant = "full",
 }: ParticipantCardProps) {
   const portraitOnly = variant === "portrait";
-  const label = `${characterName}, jogado por ${playerName}${muted ? ", mutado" : ""}`;
+  const label = `${characterName}, jogado por ${playerName}${offline ? ", fora da chamada" : muted ? ", mutado" : ""}`;
 
   return (
     <article
-      className={cx(styles.card, portraitOnly && styles.portraitOnly, speaking && !muted && styles.speaking)}
+      className={cx(styles.card, portraitOnly && styles.portraitOnly, offline && styles.offline, speaking && !muted && !offline && styles.speaking)}
       style={playerColorStyle(color)}
       aria-label={label}
       title={portraitOnly ? label : undefined}
     >
       <div className={styles.stage}>
-        {portraitOnly && (muted || speaking) && (
+        {portraitOnly && !offline && (muted || speaking) && (
           <span aria-hidden="true" className={cx(styles.badge, muted ? styles.badgeMuted : styles.badgeSpeaking)}>
             <Icon name={muted ? "micOff" : "wave"} size={14} />
           </span>
@@ -73,7 +76,9 @@ function ParticipantCardBase({
             <div className={styles.character}>{characterName}</div>
             <div className={styles.player}>{playerName}</div>
           </div>
-          {muted ? (
+          {offline ? (
+            <span className={styles.status}>fora da chamada</span>
+          ) : muted ? (
             <span className={cx(styles.status, styles.statusMuted)}>
               <Icon name="micOff" size={14} />
               mutado
@@ -89,7 +94,7 @@ function ParticipantCardBase({
         </div>
       )}
       <span role="status" className={styles.hidden}>
-        {speaking && !muted ? `${characterName} está falando` : ""}
+        {speaking && !muted && !offline ? `${characterName} está falando` : ""}
       </span>
     </article>
   );

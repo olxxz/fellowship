@@ -18,6 +18,7 @@ se a decisão mudar, uma nova ADR a substitui e a antiga ganha o status "Substit
 | [0010](0010-pwa-primeiro.md) | PWA primeiro, Expo depois | Aceita |
 | [0011](0011-testes.md) | Vitest e Playwright | Aceita |
 | [0012](0012-hospedagem.md) | Vercel + Supabase Cloud + LiveKit Cloud | Aceita |
+| [0013](0013-token-de-voz-sem-login.md) | Token de voz sem login até o Supabase | Aceita |
 
 **Pendentes**
 
