@@ -98,6 +98,7 @@ export function Landing({ account }: { account?: LandingAccount | null }) {
 
         <div className={styles.scene} aria-hidden="true">
           {/* Uma chamada de vídeo do app, em miniatura: cabeçalho do canal, quatro câmeras e os controles. */}
+          <div className={styles.glow} />
           <div className={styles.call}>
             <div className={styles.callBar}>
               <Icon name="mic" size={16} />

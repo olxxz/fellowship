@@ -126,7 +126,20 @@
   @media (max-height: 620px)
     display: none
 
+// Luz vazando por trás da janela, na cor do fundo de cada personagem, no canto onde ele está:
+// vinho (elfa), azul-escuro (mago), verde-escuro (orc) e pêssego (dragão).
+.glow
+  position: absolute
+  inset: -8% -10%
+  border-radius: 30%
+  background: radial-gradient(circle at 12% 18%, #8a1a5a, transparent 58%), radial-gradient(circle at 90% 14%, #2f4f9a, transparent 58%), radial-gradient(circle at 10% 86%, #1d8a62, transparent 60%), radial-gradient(circle at 90% 88%, #fcba7e, transparent 58%)
+  filter: blur(52px)
+  opacity: 1
+  transform: rotateY(-26deg) rotateX(8deg)
+  pointer-events: none
+
 .call
+  position: relative
   display: flex
   flex-direction: column
   width: 100%
