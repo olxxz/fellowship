@@ -1,4 +1,4 @@
-// Dados em "falso 3D": faces chapadas em tons diferentes (luz de cima à esquerda) e uma sombra no chão.
+// Dados em "falso 3D" (fora da landing por enquanto): faces chapadas em tons diferentes e sombra no chão.
 
 export function D20() {
   return (
