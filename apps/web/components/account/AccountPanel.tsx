@@ -21,7 +21,7 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
   const voice = useOptionalVoice();
   const inVoice = voice?.current;
   return (
-    <>
+    <div className={styles.dock}>
       {inVoice && (
         <div className={styles.voiceBar}>
           <div className={styles.who}>
@@ -90,6 +90,6 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
         </Menu.Root>
         <form ref={logout} action="/auth/sair" method="post" hidden />
       </div>
-    </>
+    </div>
   );
 }

@@ -6,10 +6,9 @@ import { usePathname } from "next/navigation";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { appHomeHref, createSpaceHref } from "@/lib/routes";
-import { AccountPanel, type AccountProfile } from "./AccountPanel";
 
 /** Barra do Início: área pessoal. Amigos e mensagens diretas chegam na fase 3. */
-export function AccountHomeSidebar({ profile }: { profile: AccountProfile }) {
+export function AccountHomeSidebar() {
   const path = usePathname();
   const { closeDrawer } = useShell();
   return (
@@ -23,7 +22,6 @@ export function AccountHomeSidebar({ profile }: { profile: AccountProfile }) {
           <ChannelRow icon="chat" name="Mensagens diretas" meta="fase 3" />
         </ChannelCategory>
       </div>
-      <AccountPanel profile={profile} />
     </div>
   );
 }

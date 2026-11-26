@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AccountPanel } from "@/components/account/AccountPanel";
 import { AccountSpaceSidebar } from "@/components/account/AccountSpaceSidebar";
 import { toRailSpaces } from "@/components/account/railSpaces";
 import { AppShell } from "@/components/shell/AppShell";
@@ -30,12 +31,12 @@ export default async function SpaceLayout({
             activeSpaceId={spaceId}
           />
         }
+        panel={<AccountPanel profile={profile} />}
         sidebar={
           <AccountSpaceSidebar
             space={view.space}
             categories={view.categories}
             channels={view.channels}
-            profile={profile}
             permissions={view.permissions}
           />
         }

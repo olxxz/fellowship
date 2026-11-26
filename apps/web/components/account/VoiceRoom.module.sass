@@ -59,20 +59,82 @@
   color: var(--danger)
   max-width: 48ch
 
-.grid
+.stageArea
+  position: relative
   flex: 1
   min-height: 0
-  overflow-y: auto
-  display: grid
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))
-  align-content: center
-  gap: var(--space-3)
-  padding: var(--space-4)
-  margin: 0
-  list-style: none
+  display: flex
+  flex-direction: column
+
+// Área medida pela grade (ResizeObserver): os quadros são dimensionados para caber nela.
+.area
+  flex: 1
+  min-height: 0
+  margin: var(--space-4)
   @include mobile
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
-    align-content: start
+    margin: var(--space-3)
+
+.grid
+  display: flex
+  flex-wrap: wrap
+  align-content: center
+  justify-content: center
+  gap: 12px
+  height: 100%
+  margin: 0
+  padding: 0
+  list-style: none
+
+.focusLayout
+  display: flex
+  flex-direction: column
+  gap: 12px
+  height: 100%
+
+.stage
+  flex: 1
+  min-height: 0
+  display: flex
+  margin: 0
+  padding: 0
+  list-style: none
+
+.strip
+  display: flex
+  justify-content: center
+  gap: 12px
+  margin: 0
+  padding: 0
+  overflow-x: auto
+  list-style: none
+  flex-shrink: 0
+
+.layoutToggle
+  position: absolute
+  top: var(--space-2)
+  right: var(--space-4)
+  z-index: 1
+  display: flex
+  padding: 2px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-full)
+  background: var(--bg-content)
+  button
+    @include reset-interactive
+    display: inline-flex
+    align-items: center
+    gap: 6px
+    min-height: 32px
+    padding: 0 var(--space-3)
+    border-radius: var(--radius-full)
+    @include text-caption
+    font-weight: 600
+    color: var(--text-muted)
+    &[aria-pressed="true"]
+      background: var(--bg-raised)
+      color: var(--text)
+    &:focus-visible
+      @include focus-ring
 
 .tile
   position: relative
@@ -81,7 +143,7 @@
   align-items: center
   justify-content: center
   gap: var(--space-2)
-  aspect-ratio: 4 / 3
+  aspect-ratio: 16 / 10
   overflow: hidden
   border: 3px solid transparent
   border-radius: var(--radius-xl)
@@ -113,19 +175,15 @@
   &:focus-visible
     @include focus-ring
 
-// Destaque: o quadro escolhido ocupa a largura toda; os outros ficam numa faixa abaixo.
-.gridFocused
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))
-  align-content: start
-
-.focused
-  grid-column: 1 / -1
-  order: -1
+.stageTile
+  flex: 1
   aspect-ratio: auto
-  height: min(70dvh, calc(100dvh - 260px))
-  @include mobile
-    height: auto
-    aspect-ratio: 16 / 10
+  height: 100%
+
+.stripTile
+  flex-shrink: 0
+  .tileName
+    @include text-caption
 
 .screenTile
   background: #000
@@ -177,3 +235,7 @@
   color: var(--danger)
   text-align: center
   padding: 0 var(--space-4) var(--space-2)
+
+// A própria câmera aparece espelhada, como num espelho (os outros veem normal).
+.mirror
+  transform: scaleX(-1)

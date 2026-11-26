@@ -11,7 +11,6 @@ import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
 import { appSpaceHref, campaignHref } from "@/lib/routes";
-import { AccountPanel, type AccountProfile } from "./AccountPanel";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
 import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
@@ -22,13 +21,11 @@ export function AccountSpaceSidebar({
   space,
   categories,
   channels,
-  profile,
   permissions,
 }: {
   space: Space;
   categories: Category[];
   channels: Channel[];
-  profile: AccountProfile;
   permissions: number;
 }) {
   const { channel: activeId } = useParams<{ channel?: string }>();
@@ -138,7 +135,6 @@ export function AccountSpaceSidebar({
           </p>
         </ChannelCategory>
       </div>
-      <AccountPanel profile={profile} />
     </div>
   );
 }

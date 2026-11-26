@@ -38,3 +38,16 @@
   @include text-body-sm
   font-weight: 600
   color: var(--success)
+
+// Painel da conta no app real: um cartão embaixo das duas barras (Cenários + canais).
+.dock
+  overflow: hidden
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+  box-shadow: 0 6px 20px -12px rgb(0 0 0 / 0.35)
+  .panel
+    padding: var(--space-2)
+    background: transparent
+  .voiceBar
+    background: color-mix(in srgb, var(--success) 8%, transparent)

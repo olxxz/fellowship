@@ -14,7 +14,7 @@ const DESKTOP = "(min-width: 768px)";
  * Casca do app em quatro colunas, como no Discord: barra de Cenários, barra lateral, conteúdo e (dentro do conteúdo) membros.
  * No celular, a navegação fica à esquerda e os membros à direita: abrir empurra o conteúdo para o lado (não cobre).
  */
-export function AppShell({ rail, sidebar, children }: { rail: ReactNode; sidebar: ReactNode; children: ReactNode }) {
+export function AppShell({ rail, sidebar, panel, children }: { rail: ReactNode; sidebar: ReactNode; panel?: ReactNode; children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useFlag("membros", true);
   const [mobileMembersOpen, setMobileMembersOpen] = useState(false);
@@ -75,9 +75,11 @@ export function AppShell({ rail, sidebar, children }: { rail: ReactNode; sidebar
     <ShellContext.Provider value={state}>
       <div ref={rootRef} className={styles.shell} data-app-shell="">
         <div ref={trackRef} className={cx(styles.track, drawerOpen && styles.trackNav, mobileMembersOpen && styles.trackMembers)}>
-          <nav ref={navRef} className={styles.nav} aria-label="Navegação" inert={mobile && !drawerOpen ? true : undefined}>
+          <nav ref={navRef} className={cx(styles.nav, panel ? styles.navWithPanel : undefined)} aria-label="Navegação" inert={mobile && !drawerOpen ? true : undefined}>
             {rail}
             {sidebar}
+            {/* Conta e voz: embaixo das duas barras, separado delas; aparece em qualquer página. */}
+            {panel && <div className={styles.panel}>{panel}</div>}
           </nav>
           <div className={styles.content} inert={drawerOpen}>
             {children}
