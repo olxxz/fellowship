@@ -1,6 +1,5 @@
 "use client";
 
-import type { PlayerColor } from "@fellowship/ui";
 import type { Channel, Message, Profile, Role, Space } from "@fellowship/db";
 import { useMemo } from "react";
 import styles from "@/components/channel/Channel.module.sass";
@@ -25,7 +24,7 @@ function memberGroups(space: Space, roles: Role[], members: SpaceMemberView[]) {
   const fallback = roles.find((r) => r.is_default)?.name ?? "Membros";
   const groups = new Map<string, MemberEntry[]>([["Dono", []], ...ordered.map((r) => [r.name, []] as [string, MemberEntry[]]), [fallback, []]]);
   for (const m of members) {
-    const entry: MemberEntry = { id: m.user_id, name: m.profile.display_name, color: m.profile.color as PlayerColor, avatarUrl: m.profile.avatar_url ?? undefined };
+    const entry: MemberEntry = { id: m.user_id, name: m.profile.display_name, color: m.profile.color, avatarUrl: m.profile.avatar_url ?? undefined };
     const top = ordered.find((r) => m.roleIds.includes(r.id));
     const group = m.user_id === space.owner_id ? "Dono" : (top?.name ?? fallback);
     groups.get(group)!.push(entry);

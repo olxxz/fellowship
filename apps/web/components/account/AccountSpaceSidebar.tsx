@@ -1,19 +1,38 @@
 "use client";
 
-import { ChannelCategory, ChannelRow, playerColorStyle, type PlayerColor } from "@fellowship/ui";
+import { Button, ChannelCategory, ChannelRow, IconButton, playerColorStyle } from "@fellowship/ui";
+import { Permission } from "@fellowship/core";
 import type { Category, Channel, Space } from "@fellowship/db";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
 import { appSpaceHref, campaignHref } from "@/lib/routes";
 import { AccountPanel, type AccountProfile } from "./AccountPanel";
+import { InviteDialog } from "./InviteDialog";
 
 /** Barra do Cenário real: só os canais que a conta pode ver (o banco já filtra pelo RLS). */
-export function AccountSpaceSidebar({ space, categories, channels, profile }: { space: Space; categories: Category[]; channels: Channel[]; profile: AccountProfile }) {
+export function AccountSpaceSidebar({
+  space,
+  categories,
+  channels,
+  profile,
+  permissions,
+}: {
+  space: Space;
+  categories: Category[];
+  channels: Channel[];
+  profile: AccountProfile;
+  permissions: number;
+}) {
   const { channel: activeId } = useParams<{ channel?: string }>();
   const { closeDrawer } = useShell();
+  const router = useRouter();
+  const [inviting, setInviting] = useState(false);
+  const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
+  const canManage = (permissions & Permission.MANAGE_THEME) !== 0;
 
   const row = (c: Channel) => (
     <ChannelRow key={c.id} icon={channelIcon(c)} name={c.name} active={c.id === activeId} href={appSpaceHref(space.id, c.id)} linkAs={Link} onClick={closeDrawer} />
@@ -23,10 +42,27 @@ export function AccountSpaceSidebar({ space, categories, channels, profile }: { 
 
   return (
     <div className={styles.sidebar}>
-      <header className={styles.banner} style={playerColorStyle(space.color as PlayerColor)}>
+      <header className={`${styles.banner} ${canManage ? styles.bannerWithAction : ""}`} style={playerColorStyle(space.color)}>
+        {canManage && (
+          <IconButton
+            className={styles.bannerAction}
+            icon="settings"
+            label="Configurações do Cenário"
+            onClick={() => {
+              closeDrawer();
+              router.push(`/c/${space.id}/configuracoes`);
+            }}
+          />
+        )}
         <h2 className={styles.bannerName}>{space.name}</h2>
         {space.description && <p className={styles.bannerSub}>{space.description}</p>}
+        {canInvite && (
+          <Button className={styles.invite} icon="userPlus" onClick={() => setInviting(true)}>
+            Convidar
+          </Button>
+        )}
       </header>
+      {canInvite && <InviteDialog spaceId={space.id} spaceName={space.name} open={inviting} onOpenChange={setInviting} />}
       <div className={styles.scroll}>
         {loose.length > 0 && <div>{loose.map(row)}</div>}
         {groups.map(({ cat, items }) => (

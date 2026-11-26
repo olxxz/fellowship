@@ -1,58 +1,161 @@
+@use "@fellowship/ui/styles/mixins" as *
 @use "@fellowship/ui/styles/typography" as *
 
+// Uma tela, sem rolagem: cabeçalho, palco e rodapé dividem a altura da janela.
 .page
   display: grid
-  place-items: center
-  min-height: 100dvh
-  padding: var(--space-5)
-  background: var(--bg-rail)
+  grid-template-rows: auto minmax(0, 1fr) auto
+  height: 100dvh
+  overflow: hidden
+  background: radial-gradient(900px 520px at 85% 35%, color-mix(in srgb, var(--mesa-gold) 10%, transparent), transparent 70%), radial-gradient(800px 500px at 0% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%), var(--bg-rail)
 
-.card
+.header
   display: flex
-  flex-direction: column
-  gap: var(--space-4)
+  align-items: center
+  justify-content: space-between
+  gap: var(--space-3)
   width: 100%
-  max-width: 480px
-  padding: var(--space-8) var(--space-6)
-  border: 1px solid var(--border)
-  border-radius: var(--radius-xl)
-  background: var(--bg-content)
+  max-width: 1200px
+  margin: 0 auto
+  padding: var(--space-4) var(--space-5)
+
+.brand
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  color: var(--text)
+  text-decoration: none
+  @include text-title
 
 .mark
   display: flex
   align-items: center
   justify-content: center
-  width: 56px
-  height: 56px
-  border-radius: var(--radius-lg)
+  width: 36px
+  height: 36px
+  border-radius: var(--radius-md)
   background: var(--mesa-gold)
   color: var(--mesa-ink)
 
-.title
-  @include text-display-xl
-
-.lead
-  color: var(--text-muted)
-
-.links
-  display: flex
-  flex-wrap: wrap
-  gap: var(--space-2)
-  margin-top: var(--space-2)
-
-.link
+.headerLink
   display: inline-flex
   align-items: center
   min-height: var(--size-touch)
-  padding: 0 var(--space-4)
+  padding: 0 var(--space-3)
   border-radius: var(--radius-md)
-  background: var(--bg-raised)
   color: var(--text)
+  text-decoration: none
   @include text-body-sm
   font-weight: 600
-  text-decoration: none
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
 
-.primary
-  background: var(--mesa-gold)
-  color: var(--mesa-ink)
+.hero
+  display: grid
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr)
+  align-items: center
+  gap: clamp(var(--space-6), 5vw, var(--space-12))
+  width: 100%
+  max-width: 1200px
+  min-height: 0
+  margin: 0 auto
+  padding: 0 var(--space-5)
+  @include mobile
+    grid-template-columns: minmax(0, 1fr)
+    align-content: center
+
+.copy
+  display: flex
+  flex-direction: column
+  gap: clamp(var(--space-3), 2.4vh, var(--space-6))
+  min-width: 0
+
+.overline
+  @include text-overline
+  text-transform: uppercase
+  color: var(--mesa-text)
+
+.title
+  font-family: var(--font-display)
   font-weight: 700
+  font-size: clamp(32px, min(5.4vw, 7.2vh), 64px)
+  line-height: 1.05
+  letter-spacing: -0.01em
+  text-wrap: balance
+
+.lead
+  max-width: 34rem
+  color: var(--text-muted)
+  font-size: clamp(15px, min(1.6vw, 2.3vh), 18px)
+  line-height: 1.5
+  text-wrap: pretty
+
+.ctas
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-2)
+
+.cta
+  min-height: 52px
+  padding: 0 var(--space-6)
+  font-size: 16px
+  @include mobile
+    flex: 1 1 100%
+
+.demo
+  @include text-body-sm
+  color: var(--text-muted)
+  a
+    color: var(--accent-text)
+    &:focus-visible
+      @include focus-ring
+
+// Palco: a Mesa montada com os componentes de verdade, só para mostrar.
+.stage
+  position: relative
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: var(--space-3)
+  max-height: 100%
+  min-height: 0
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-2xl)
+  background: color-mix(in srgb, var(--bg-content) 85%, transparent)
+  box-shadow: var(--shadow-popover)
+  @include mobile
+    display: none
+  @media (max-height: 620px)
+    display: none
+
+.roll
+  position: absolute
+  right: calc(-1 * var(--space-4))
+  bottom: calc(-1 * var(--space-5))
+  width: min(300px, 80%)
+  box-shadow: var(--shadow-popover)
+  border-radius: var(--radius-lg)
+
+.features
+  display: flex
+  flex-wrap: wrap
+  justify-content: center
+  gap: var(--space-2) var(--space-5)
+  width: 100%
+  max-width: 1200px
+  margin: 0 auto
+  padding: var(--space-4) var(--space-5) var(--space-5)
+  @include text-caption
+  color: var(--text-muted)
+  @media (max-height: 560px)
+    display: none
+
+.feature
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  svg
+    color: var(--mesa-text)

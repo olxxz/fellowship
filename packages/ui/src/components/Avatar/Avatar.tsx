@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { cx } from "../../cx";
-import { playerColorStyle, type PlayerColor } from "../../player-color";
+import { playerColorStyle, type AccentColor } from "../../player-color";
 import styles from "./Avatar.module.sass";
 
 export type PresenceStatus = "online" | "ausente" | "em-sessao" | "offline";
@@ -15,8 +15,8 @@ const STATUS_LABEL: Record<PresenceStatus, string> = {
 export interface AvatarProps {
   name: string;
   src?: string;
-  /** Cor de fundo (cor do perfil ou do personagem). Sem ela, fundo neutro. */
-  color?: PlayerColor;
+  /** Cor de fundo: cor de personagem (1–6) ou cor livre do perfil em hex. Sem ela, fundo neutro. */
+  color?: AccentColor;
   /** `ring`: retrato de personagem, com anel na cor dele em vez de fundo cheio. */
   appearance?: "fill" | "ring";
   /** Lado em px. Padrão: 40 (size-avatar). */

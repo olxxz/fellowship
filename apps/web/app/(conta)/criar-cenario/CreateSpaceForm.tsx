@@ -1,20 +1,11 @@
 "use client";
 
-import { Button, ButtonLink, Icon, playerColorStyle, type IconName, type PlayerColor } from "@fellowship/ui";
+import { Button, ButtonLink, ColorPicker, Icon, playerColorStyle, type IconName } from "@fellowship/ui";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { appHomeHref } from "@/lib/routes";
 import { createSpaceAction, type CreateSpaceState } from "./actions";
 import styles from "./CreateSpaceForm.module.sass";
-
-const COLORS: Array<{ value: PlayerColor; label: string }> = [
-  { value: 1, label: "Verde-água" },
-  { value: 2, label: "Coral" },
-  { value: 3, label: "Lilás" },
-  { value: 4, label: "Ouro" },
-  { value: 5, label: "Azul" },
-  { value: 6, label: "Verde" },
-];
 
 const TEMPLATES: Record<string, { name: string; text: string; categories: Array<[string, Array<[IconName, string]>]> }> = {
   padrao: {
@@ -41,7 +32,7 @@ function initials(name: string) {
 export function CreateSpaceForm() {
   const [state, action, pending] = useActionState<CreateSpaceState, FormData>(createSpaceAction, {});
   const [name, setName] = useState(state.values?.name ?? "");
-  const [color, setColor] = useState<PlayerColor>((state.values?.color as PlayerColor) ?? 4);
+  const [color, setColor] = useState(state.values?.color ?? "#d4a24c");
   const [template, setTemplate] = useState(state.values?.template ?? "padrao");
 
   return (
@@ -84,18 +75,7 @@ export function CreateSpaceForm() {
           />
         </div>
 
-        <fieldset className={styles.field}>
-          <legend className={styles.label}>Cor do Cenário</legend>
-          <div className={styles.colors}>
-            {COLORS.map((c) => (
-              <label key={c.value} className={styles.swatch} style={playerColorStyle(c.value)} title={c.label}>
-                <input type="radio" name="color" value={c.value} checked={color === c.value} onChange={() => setColor(c.value)} aria-label={c.label} />
-                <span aria-hidden="true" />
-              </label>
-            ))}
-          </div>
-          <p className={styles.help}>Aparece no ícone e no banner. Você pode trocar depois.</p>
-        </fieldset>
+        <ColorPicker label="Cor do Cenário" name="color" value={color} onChange={setColor} help="Aparece no ícone e no banner. Você pode trocar depois nas configurações do Cenário." />
 
         <fieldset className={styles.field}>
           <legend className={styles.label}>Canais iniciais</legend>

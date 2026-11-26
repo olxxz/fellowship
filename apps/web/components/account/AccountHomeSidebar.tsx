@@ -18,6 +18,7 @@ export function AccountHomeSidebar({ profile }: { profile: AccountProfile }) {
         <ChannelCategory name="Início">
           <ChannelRow icon="home" name="Seus Cenários" href={appHomeHref} linkAs={Link} active={path === appHomeHref} onClick={closeDrawer} />
           <ChannelRow icon="plus" name="Criar Cenário" href={createSpaceHref} linkAs={Link} active={path === createSpaceHref} onClick={closeDrawer} />
+          <ChannelRow icon="settings" name="Meu perfil" href="/conta" linkAs={Link} active={path === "/conta"} onClick={closeDrawer} />
           <ChannelRow icon="users" name="Amigos" meta="fase 3" />
           <ChannelRow icon="chat" name="Mensagens diretas" meta="fase 3" />
         </ChannelCategory>

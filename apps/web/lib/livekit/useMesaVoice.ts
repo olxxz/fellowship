@@ -24,18 +24,21 @@ export function useMesaVoice({ roomName, userId, micEnabled }: { roomName: strin
   const [status, setStatus] = useState<VoiceStatus>("off");
   const [error, setError] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const roomRef = useRef<Room | null>(null);
 
   const join = useCallback(async () => {
     setStatus("connecting");
     setError(null);
+    setNeedsLogin(false);
     try {
       const res = await fetch("/api/livekit/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room: roomName, userId }),
       });
-      const data = (await res.json().catch(() => ({}))) as { token?: string; url?: string; error?: string };
+      const data = (await res.json().catch(() => ({}))) as { token?: string; url?: string; error?: string; login?: boolean };
+      if (res.status === 401 && data.login) setNeedsLogin(true);
       if (!res.ok || !data.token) throw new Error(data.error ?? "Não foi possível entrar na voz agora.");
 
       const { Room, RoomEvent } = await import("livekit-client");
@@ -85,5 +88,5 @@ export function useMesaVoice({ roomName, userId, micEnabled }: { roomName: strin
   // Sair da página ou trocar de usuário ("Você é") desconecta.
   useEffect(() => () => void roomRef.current?.disconnect(), [userId]);
 
-  return { room, status, error, cameraOn, join, leave, toggleCamera };
+  return { room, status, error, needsLogin, cameraOn, join, leave, toggleCamera };
 }

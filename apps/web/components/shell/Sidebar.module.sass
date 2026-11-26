@@ -83,3 +83,19 @@
   padding: 0 10px
   @include text-caption
   color: var(--text-muted)
+
+.bannerAction
+  position: absolute
+  top: var(--space-2)
+  right: var(--space-2)
+  background: color-mix(in srgb, var(--bg-rail) 55%, transparent)
+
+.invite
+  align-self: flex-start
+  margin-top: var(--space-2)
+  min-height: 36px
+  background: color-mix(in srgb, var(--bg-rail) 55%, transparent)
+
+// Com a engrenagem no canto, o nome não passa por baixo dela.
+.bannerWithAction .bannerName, .bannerWithAction .bannerSub
+  padding-right: calc(var(--size-touch) + var(--space-1))

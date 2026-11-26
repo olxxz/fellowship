@@ -1,0 +1,119 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.page
+  display: grid
+  place-items: center
+  min-height: 100dvh
+  padding: var(--space-5) var(--space-4)
+  background: radial-gradient(1200px 600px at 15% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), var(--bg-rail)
+
+.card
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+  width: 100%
+  max-width: 420px
+  padding: var(--space-8) var(--space-6)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-content)
+  @include mobile
+    padding: var(--space-6) var(--space-5)
+
+.brand
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  align-self: flex-start
+  color: var(--text)
+  text-decoration: none
+  @include text-title
+  &:focus-visible
+    @include focus-ring
+
+.mark
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 36px
+  height: 36px
+  border-radius: var(--radius-md)
+  background: var(--mesa-gold)
+  color: var(--mesa-ink)
+
+.title
+  @include text-display
+
+.text, .small
+  color: var(--text-muted)
+
+.small
+  @include text-caption
+
+.form
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+
+.field
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+
+.labelRow
+  display: flex
+  justify-content: space-between
+  align-items: baseline
+
+.label
+  @include text-label
+
+.input
+  width: 100%
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text)
+  @include text-body
+  &:focus-visible
+    @include focus-ring
+
+.hint
+  @include text-caption
+  color: var(--text-muted)
+
+.submit
+  width: 100%
+  margin-top: var(--space-1)
+
+.divider
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  @include text-caption
+  color: var(--text-faint)
+  &::before, &::after
+    content: ""
+    flex: 1
+    height: 1px
+    background: var(--border)
+
+.error, .notice
+  padding: var(--space-3)
+  border-radius: var(--radius-md)
+  @include text-body-sm
+
+.error
+  background: var(--danger-soft)
+
+.notice
+  border: 1px solid var(--mesa-border)
+  background: var(--mesa-surface)
+
+.link
+  color: var(--accent-text)
+  &:focus-visible
+    @include focus-ring

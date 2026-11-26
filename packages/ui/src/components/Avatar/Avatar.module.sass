@@ -10,8 +10,8 @@
   height: var(--avatar-size)
   border-radius: var(--radius-full)
   background: var(--player-color, var(--bg-input))
-  // Inicial escura sobre a cor de perfil; sobre bg-input, texto normal.
-  color: #0e0f12
+  // Inicial com contraste calculado sobre a cor (escura ou branca); sobre bg-input, texto normal.
+  color: var(--player-color-contrast, #0e0f12)
   font-family: var(--font-display)
   font-size: calc(var(--avatar-size) * 0.42)
   font-weight: 700

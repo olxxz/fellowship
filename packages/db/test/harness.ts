@@ -26,12 +26,17 @@ alter default privileges in schema public grant all on tables to anon, authentic
 create publication supabase_realtime;
 `;
 
-export async function createTestDb() {
+export const migrationFiles = () => readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort();
+
+export async function applyMigrations(db: PGlite, files: string[]) {
+  for (const file of files) await db.exec(readFileSync(join(MIGRATIONS, file), "utf8"));
+}
+
+/** Banco com o esboço do Supabase e as migrações. `upTo` aplica só as primeiras N (para testar conversões). */
+export async function createTestDb({ upTo }: { upTo?: number } = {}) {
   const db = new PGlite();
   await db.exec(SUPABASE_STUB);
-  for (const file of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort()) {
-    await db.exec(readFileSync(join(MIGRATIONS, file), "utf8"));
-  }
+  await applyMigrations(db, migrationFiles().slice(0, upTo));
   return db;
 }
 

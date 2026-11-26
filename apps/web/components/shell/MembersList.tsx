@@ -1,4 +1,4 @@
-import { Avatar, cx, playerColorStyle, type PlayerColor, type PresenceStatus } from "@fellowship/ui";
+import { Avatar, cx, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
 import styles from "./MembersList.module.sass";
 
 const STATUS: Record<PresenceStatus, string> = { online: "online", ausente: "ausente", "em-sessao": "em sessão", offline: "offline" };
@@ -7,7 +7,7 @@ export interface MemberEntry {
   id: string;
   /** Nome em destaque: o personagem na campanha, o jogador no Cenário. */
   name: string;
-  color: PlayerColor;
+  color: AccentColor;
   /** Sem status (ainda não há presença em tempo real no app com login), o ponto não aparece. */
   status?: PresenceStatus;
   sub?: string;

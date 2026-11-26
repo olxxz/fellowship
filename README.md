@@ -28,7 +28,9 @@ docs/
 
 Na Vercel o app tem conta de verdade, com dados no Supabase:
 
-- **Entrar com Google** (`/entrar`). Na primeira vez, o perfil é criado com nome e foto do Google.
+- **Criar conta e entrar** (`/cadastro`, `/entrar`) com Google ou com e-mail e senha, com confirmação por e-mail e "Esqueci minha senha". Na primeira vez, o perfil nasce com nome (e foto, no Google).
+- **Convites por link:** "Convidar" na barra do Cenário gera um link com validade e limite de usos. Quem abre vê a prévia (até sem conta), cria a conta ou entra, e cai no Cenário como Membro. Os convites ativos ficam nas configurações do Cenário, onde dá para revogar.
+- **Meu perfil** (`/conta`) e **configurações do Cenário** (engrenagem no banner): nome, bio, iniciais, descrição e **cor livre** (sugestões ou qualquer cor; o texto por cima fica claro ou escuro sozinho para dar leitura).
 - **Início** (`/inicio`) com os Cenários da conta e **Criar Cenário** (`/criar-cenario`): nome, descrição, cor e canais iniciais.
 - **Cenário** (`/c/...`): só os canais que a conta pode ver, chat em tempo real nos canais de texto e membros agrupados por cargo.
 - **Cada conta vê só o que pode:** quem decide é o Row Level Security do Postgres, não a interface. Regras em `supabase/migrations` e testes em `packages/db/test`.
@@ -45,6 +47,14 @@ Na Vercel o app tem conta de verdade, com dados no Supabase:
 4. **Vercel** → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (a integração Supabase da Vercel pode criar com o nome antigo, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, que também funciona). Faça um novo deploy depois de mudar variáveis.
 
 A senha do banco não vai em lugar nenhum do app: guarde no seu gerenciador de senhas.
+
+### Contas com e-mail e senha
+
+1. **Supabase → Authentication → Sign In / Providers → Email:** deixe ligado.
+2. **Confirmação por e-mail:** o serviço de e-mail padrão do Supabase tem limite baixo de envios por hora e, em projetos novos, só envia para quem faz parte da equipe do projeto. Para os amigos receberem o link de confirmação, escolha uma das opções:
+   - configurar um SMTP próprio em **Authentication → Emails → SMTP Settings** (ex.: Resend, que tem plano grátis); ou
+   - desligar **Confirm email** no provedor Email, enquanto o app é só do grupo. Aí a conta já entra direto ao se cadastrar.
+3. **Opcional, para o link funcionar mesmo abrindo o e-mail em outro aparelho:** em **Authentication → Emails → Templates**, troque o link dos modelos "Confirm signup" e "Reset password" por `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email` (no de senha, `type=recovery`). Sem isso, o link padrão funciona quando aberto no mesmo navegador do cadastro.
 
 ### Banco de dados
 
@@ -71,7 +81,7 @@ A Mesa tem voz de verdade no deploy da Vercel. No GitHub Pages, que é estático
 
 Variáveis (veja `apps/web/.env.example`): `NEXT_PUBLIC_LIVEKIT_URL`, `LIVEKIT_API_KEY` e `LIVEKIT_API_SECRET`. Localmente vão em `apps/web/.env.local`; na Vercel, em Settings → Environment Variables. A key e o segredo nunca levam o prefixo `NEXT_PUBLIC_`.
 
-Ainda não há login: quem tem o link pode entrar como qualquer um do grupo ([ADR 0013](docs/adr/0013-token-de-voz-sem-login.md)). Chat e rolagens continuam locais em cada navegador até o Supabase.
+Com o login configurado, só quem tem conta recebe token de voz. Na Mesa do protótipo, cada pessoa ainda escolhe qual usuário de exemplo é ([ADR 0013](docs/adr/0013-token-de-voz-sem-login.md)); isso acaba quando as campanhas reais chegarem.
 
 ## Dados de exemplo
 
@@ -119,4 +129,6 @@ Fase 0, começando. Próximos passos da especificação:
 - [ ] Teste técnico do LiveKit (chamada + detecção de quem fala): código pronto, falta testar com o grupo
 - [x] Schema do banco com as regras de Row Level Security (fase 0: Cenários, cargos, canais, mensagens)
 - [x] Login com Google e criar Cenário
-- [ ] Convites por link para o grupo entrar nos Cenários
+- [x] Convites por link para o grupo entrar nos Cenários
+- [x] Contas com e-mail e senha, perfil e configurações do Cenário com cor livre
+- [ ] Configurações do Cenário: canais, categorias e cargos

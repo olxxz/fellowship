@@ -151,6 +151,24 @@ export const icons = {
     </>
   ),
   check: <path d="M5 12.5 10 17l9-10" />,
+  link: (
+    <>
+      <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+      <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="8" y="8" width="12" height="12" rx="2" />
+      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+    </>
+  ),
+  userPlus: (
+    <>
+      <circle cx="10" cy="8" r="4" />
+      <path d="M3 20a7 7 0 0 1 14 0M19 8v6M16 11h6" />
+    </>
+  ),
   minus: <path d="M5 12h14" />,
   back: <path d="M15 18l-6-6 6-6" />,
   chevronDown: <path d="M6 9l6 6 6-6" />,

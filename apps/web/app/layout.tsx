@@ -4,6 +4,7 @@ import "./fonts.css";
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
+import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 import { DemoProvider } from "@/lib/demo/store";
 import { themeScript } from "@/lib/theme";
 
@@ -11,8 +12,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-space-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Fellowship", template: "%s · Fellowship" },
-  description: "Cenários, campanhas e a Mesa do seu grupo num lugar só.",
+  title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
+  description: APP_DESCRIPTION,
 };
 
 export const viewport: Viewport = {

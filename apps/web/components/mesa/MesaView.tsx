@@ -1,8 +1,9 @@
 "use client";
 
-import { Button, IconButton, Menu, Popover, Sheet, Tabs, cx } from "@fellowship/ui";
+import { Button, ButtonLink, IconButton, Menu, Popover, Sheet, Tabs, cx } from "@fellowship/ui";
+import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ChatView } from "@/components/chat/ChatView";
 import { ContentHeader } from "@/components/shell/ContentHeader";
@@ -48,6 +49,7 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
   const [sheetCharacterId, setSheetCharacterId] = useState<string>(campaign.characterIds[0]!);
   const mesaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   const narrator = characterById("narrador")!;
   const party = campaign.characterIds.map((id) => characterById(id)!);
@@ -162,9 +164,14 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
           {voiceEnabled ? (
             <div className={styles.voiceStatus}>
               {voice.error ? (
-                <p className={styles.voiceError} role="alert">
-                  {voice.error}
-                </p>
+                <div className={styles.voiceError} role="alert">
+                  <p>{voice.error}</p>
+                  {voice.needsLogin && (
+                    <ButtonLink href={`/entrar?next=${encodeURIComponent(pathname)}`} linkAs={Link} variant="primary" style={{ marginTop: "var(--space-2)" }}>
+                      Entrar
+                    </ButtonLink>
+                  )}
+                </div>
               ) : (
                 <p role="status">
                   {voice.status === "on"

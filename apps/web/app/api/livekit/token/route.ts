@@ -1,10 +1,17 @@
 // Rota do token de voz. Só existe no deploy com servidor (Vercel); o build estático do Pages não a inclui
 // (ver pageExtensions no next.config.ts).
 import { createMesaToken, TokenRequestError } from "@/lib/livekit/token";
+import { authEnabled } from "@/lib/supabase/config";
+import { getUser } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  // Com o login configurado, só quem tem conta entra na voz (ADR 0013).
+  if (authEnabled) {
+    const { user } = await getUser();
+    if (!user) return Response.json({ error: "Entre na sua conta para usar a voz.", login: true }, { status: 401 });
+  }
   let body: unknown;
   try {
     body = await request.json();

@@ -1,6 +1,6 @@
 "use client";
 
-import { cx, Icon, playerColorStyle, type PlayerColor } from "@fellowship/ui";
+import { cx, Icon, playerColorStyle, type AccentColor } from "@fellowship/ui";
 import Link from "next/link";
 import styles from "./Rail.module.sass";
 import { useShell } from "./ShellContext";
@@ -9,7 +9,7 @@ export interface RailSpace {
   id: string;
   name: string;
   short: string;
-  color: PlayerColor;
+  color: AccentColor;
   href: string;
 }
 

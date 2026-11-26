@@ -1,0 +1,100 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+.picker
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  min-width: 0
+  margin: 0
+  padding: 0
+  border: none
+
+.legend
+  padding: 0
+  margin-bottom: var(--space-2)
+  @include text-label
+  color: var(--text)
+
+.swatches
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+
+.swatch
+  position: relative
+  display: inline-flex
+  cursor: pointer
+  input
+    position: absolute
+    inset: 0
+    opacity: 0
+    cursor: pointer
+  span
+    display: block
+    width: var(--size-touch)
+    height: var(--size-touch)
+    border-radius: var(--radius-full)
+    background: var(--swatch)
+  input:checked + span
+    box-shadow: 0 0 0 3px var(--bg-content), 0 0 0 5px var(--swatch)
+  input:focus-visible + span
+    outline: 2px solid var(--focus-ring)
+    outline-offset: 6px
+
+.custom
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-2)
+
+.native
+  width: var(--size-touch)
+  height: var(--size-touch)
+  padding: 0
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-full)
+  background: none
+  cursor: pointer
+  &::-webkit-color-swatch-wrapper
+    padding: 3px
+  &::-webkit-color-swatch
+    border: none
+    border-radius: var(--radius-full)
+  &::-moz-color-swatch
+    border: none
+    border-radius: var(--radius-full)
+  &:focus-visible
+    @include focus-ring
+
+.hex
+  width: 120px
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text)
+  font-family: var(--font-display)
+  text-transform: lowercase
+  &:focus-visible
+    @include focus-ring
+  &[aria-invalid="true"]
+    border-color: var(--vital-hp)
+
+.sample
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  min-width: var(--size-touch)
+  height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border-radius: var(--radius-lg)
+  background: var(--player-color)
+  color: var(--player-color-contrast)
+  font-family: var(--font-display)
+  font-weight: 700
+
+.help
+  @include text-caption
+  color: var(--text-muted)

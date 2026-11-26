@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { authEnabled, supabaseConfig } from "@/lib/supabase/config";
 
-const PROTECTED = ["/inicio", "/c/", "/criar-cenario"];
+const PROTECTED = ["/inicio", "/c/", "/criar-cenario", "/conta", "/nova-senha"];
 
 export async function proxy(request: NextRequest) {
   if (!authEnabled) return NextResponse.next();

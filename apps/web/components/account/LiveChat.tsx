@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatMessage, cx, Icon, IconButton, type PlayerColor } from "@fellowship/ui";
+import { ChatMessage, cx, Icon, IconButton } from "@fellowship/ui";
 import type { Channel, Message, Profile } from "@fellowship/db";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import styles from "@/components/chat/Chat.module.sass";
@@ -122,7 +122,7 @@ export function LiveChat({ channel, initialMessages, authors, me, canSend, readO
             <li key={m.id}>
               <ChatMessage
                 scope="outgame"
-                author={{ name: author?.display_name ?? "Alguém", color: (author?.color ?? 1) as PlayerColor, avatarUrl: author?.avatar_url ?? undefined }}
+                author={{ name: author?.display_name ?? "Alguém", color: author?.color ?? 1, avatarUrl: author?.avatar_url ?? undefined }}
                 time={formatTime(m.created_at)}
                 continuation={continuation}
                 pending={m.pending}

@@ -19,7 +19,7 @@ beforeAll(async () => {
   ana = await createUser(db, "Ana Souza", { avatar_url: "https://exemplo.com/ana.png" });
   bruno = await createUser(db, "Bruno");
   carla = await createUser(db, "Carla");
-  space = await as(db, ana, async () => (await one<{ id: string }>("select public.create_space('Terras de Vel', 'Pontes e névoa', 4::smallint, 'padrao') as id")).id);
+  space = await as(db, ana, async () => (await one<{ id: string }>("select public.create_space('Terras de Vel', 'Pontes e névoa', '#d4a24c', 'padrao') as id")).id);
   for (const c of await all<{ id: string; name: string }>("select id, name from public.channels where space_id = $1", [space])) channel[c.name] = c.id;
   memberRole = (await one<{ id: string }>("select id from public.roles where space_id = $1 and name = 'Membro'", [space])).id;
   defaultRole = (await one<{ id: string }>("select id from public.roles where space_id = $1 and is_default", [space])).id;
@@ -27,11 +27,10 @@ beforeAll(async () => {
 
 describe("perfil automático", () => {
   it("nasce do Google com nome, foto e cor de personagem", async () => {
-    const p = await one<{ display_name: string; avatar_url: string; color: number }>("select * from public.profiles where id = $1", [ana]);
+    const p = await one<{ display_name: string; avatar_url: string; color: string }>("select * from public.profiles where id = $1", [ana]);
     expect(p.display_name).toBe("Ana Souza");
     expect(p.avatar_url).toBe("https://exemplo.com/ana.png");
-    expect(p.color).toBeGreaterThanOrEqual(1);
-    expect(p.color).toBeLessThanOrEqual(6);
+    expect(p.color).toMatch(/^#[0-9a-f]{6}$/);
   });
 
   it("sem nome no Google, usa o começo do e-mail", async () => {
@@ -50,7 +49,7 @@ describe("criar Cenário", () => {
   });
 
   it("modelo vazio tem só o Geral", async () => {
-    const id = await as(db, bruno, async () => (await one<{ id: string }>("select public.create_space('Neon Rio', null, 5::smallint, 'vazio') as id")).id);
+    const id = await as(db, bruno, async () => (await one<{ id: string }>("select public.create_space('Neon Rio', null, '#5b8def', 'vazio') as id")).id);
     expect(await all("select name from public.channels where space_id = $1", [id])).toEqual([{ name: "Geral" }]);
     await db.query("delete from public.spaces where id = $1", [id]);
   });

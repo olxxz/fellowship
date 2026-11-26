@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cx } from "../../cx";
-import { playerColorStyle, type PlayerColor } from "../../player-color";
+import { playerColorStyle, type AccentColor } from "../../player-color";
 import { Avatar } from "../Avatar/Avatar";
 import { Icon } from "../Icon/Icon";
 import type { IconName } from "../Icon/icons";
@@ -11,7 +11,7 @@ export interface ChatMessageProps {
   /** Ingame mostra o personagem (retrato, nome na cor dele); outgame mostra o perfil do jogador. */
   scope: "ingame" | "outgame";
   /** Quem aparece: o personagem no ingame, o jogador no outgame. */
-  author: { name: string; color?: PlayerColor; avatarUrl?: string };
+  author: { name: string; color?: AccentColor; avatarUrl?: string };
   /** Linha discreta ao lado do nome (no ingame, quem joga o personagem). */
   subtitle?: string;
   time: string;

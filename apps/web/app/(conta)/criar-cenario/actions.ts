@@ -6,7 +6,7 @@ import { appSpaceHref } from "@/lib/routes";
 
 export interface CreateSpaceState {
   error?: string;
-  values?: { name: string; description: string; color: number; template: string };
+  values?: { name: string; description: string; color: string; template: string };
 }
 
 /** Cria o Cenário pela função create_space do banco (tudo numa transação) e abre o primeiro canal de texto. */
@@ -15,11 +15,11 @@ export async function createSpaceAction(_prev: CreateSpaceState, form: FormData)
   const values = {
     name: String(form.get("name") ?? "").trim(),
     description: String(form.get("description") ?? "").trim(),
-    color: Number(form.get("color") ?? 4),
+    color: String(form.get("color") ?? "").trim().toLowerCase(),
     template: form.get("template") === "vazio" ? "vazio" : "padrao",
   };
   if (values.name.length < 2 || values.name.length > 60) return { error: "O nome do Cenário precisa ter entre 2 e 60 caracteres.", values };
-  if (!Number.isInteger(values.color) || values.color < 1 || values.color > 6) values.color = 4;
+  if (!/^#[0-9a-f]{6}$/.test(values.color)) return { error: "Escolha uma cor válida.", values };
 
   const { data: spaceId, error } = await supabase.rpc("create_space", {
     p_name: values.name,

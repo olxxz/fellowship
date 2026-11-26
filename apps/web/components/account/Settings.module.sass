@@ -1,0 +1,164 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.page
+  flex: 1
+  overflow-y: auto
+  padding: var(--space-6) var(--space-5) var(--space-12)
+
+.inner
+  display: flex
+  flex-direction: column
+  gap: var(--space-8)
+  max-width: 640px
+
+.title
+  @include text-display
+
+.lead
+  color: var(--text-muted)
+
+.section
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+
+.sectionTitle
+  @include text-title
+
+.form
+  display: flex
+  flex-direction: column
+  gap: var(--space-5)
+
+.row
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: var(--space-3)
+  @include mobile
+    grid-template-columns: minmax(0, 1fr)
+
+.field
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  min-width: 0
+
+.label
+  @include text-label
+
+.help
+  @include text-caption
+  color: var(--text-muted)
+
+.input, .textarea
+  width: 100%
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text)
+  @include text-body
+  &:focus-visible
+    @include focus-ring
+
+.textarea
+  min-height: 88px
+  padding: 10px var(--space-3)
+  resize: vertical
+
+.actions
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-2)
+
+.error, .saved
+  padding: var(--space-3)
+  border-radius: var(--radius-md)
+  @include text-body-sm
+
+.error
+  background: var(--danger-soft)
+
+.saved
+  border: 1px solid color-mix(in srgb, var(--success) 50%, transparent)
+  color: var(--text)
+
+.linkBox
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  color: var(--text-muted)
+
+.linkInput
+  flex: 1
+  min-width: 0
+  border: none
+  background: none
+  color: var(--text)
+  font-family: var(--font-display)
+  font-size: 14px
+  outline: none
+
+.preview
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: linear-gradient(160deg, color-mix(in srgb, var(--player-color) 35%, var(--bg-sidebar)), var(--bg-sidebar) 80%)
+
+.previewIcon
+  display: flex
+  flex-shrink: 0
+  align-items: center
+  justify-content: center
+  width: 48px
+  height: 48px
+  border-radius: var(--radius-xl)
+  background: var(--player-color)
+  color: var(--player-color-contrast)
+  font-family: var(--font-display)
+  font-weight: 700
+
+.previewName
+  @include text-title
+  overflow-wrap: anywhere
+
+.list
+  margin: 0
+  padding: 0
+  list-style: none
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+
+.invite
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-3) var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+
+.inviteCode
+  font-family: var(--font-display)
+  font-weight: 700
+
+.inviteMeta
+  flex: 1
+  min-width: 160px
+  @include text-caption
+  color: var(--text-muted)
+
+.srOnly
+  @include visually-hidden

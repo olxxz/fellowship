@@ -1,4 +1,4 @@
-import { ButtonLink, Icon, playerColorStyle, type PlayerColor } from "@fellowship/ui";
+import { ButtonLink, Icon, playerColorStyle } from "@fellowship/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -36,7 +36,7 @@ export default async function InicioPage() {
             <h3 className={styles.overline}>Seus Cenários</h3>
             <div className={styles.grid}>
               {spaces.map((s) => (
-                <Link key={s.id} href={appSpaceHref(s.id)} className={styles.space} style={playerColorStyle(s.color as PlayerColor)}>
+                <Link key={s.id} href={appSpaceHref(s.id)} className={styles.space} style={playerColorStyle(s.color)}>
                   <span className={styles.spaceName}>{s.name}</span>
                   {s.description && <span className={styles.spaceText}>{s.description}</span>}
                   <span className={styles.spaceText}>{s.owner_id === profile.id ? "Você é o dono" : "Membro"}</span>

@@ -13,7 +13,7 @@ export default async function SpaceLayout({ children, params }: { children: Reac
   return (
     <AppShell
       rail={<Rail homeHref={appHomeHref} createHref={createSpaceHref} spaces={toRailSpaces(spaces)} activeSpaceId={spaceId} />}
-      sidebar={<AccountSpaceSidebar space={view.space} categories={view.categories} channels={view.channels} profile={profile} />}
+      sidebar={<AccountSpaceSidebar space={view.space} categories={view.categories} channels={view.channels} profile={profile} permissions={view.permissions} />}
     >
       {children}
     </AppShell>

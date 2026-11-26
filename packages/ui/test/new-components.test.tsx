@@ -115,3 +115,28 @@ describe("Menu", () => {
     expect(onValueChange).toHaveBeenCalledWith("light", expect.anything());
   });
 });
+
+describe("cores livres", () => {
+  it("calcula texto legível sobre a cor", async () => {
+    const { readableOn, playerColorStyle } = await import("../src");
+    expect(readableOn("#f2c94c")).toBe("#0e0f12");
+    expect(readableOn("#1a237e")).toBe("#ffffff");
+    expect(playerColorStyle("#1A237E")).toMatchObject({ "--player-color": "#1a237e", "--player-color-contrast": "#ffffff" });
+    expect(playerColorStyle(3)).toMatchObject({ "--player-color": "var(--player-3)" });
+  });
+
+  it("ColorPicker escolhe sugestão, aceita hex digitado e envia no formulário", async () => {
+    const { ColorPicker } = await import("../src");
+    function Demo() {
+      const [c, setC] = useState("#d4a24c");
+      return <ColorPicker label="Cor do Cenário" name="color" value={c} onChange={setC} />;
+    }
+    const { container } = render(<Demo />);
+    await userEvent.click(screen.getByRole("radio", { name: "Rosa" }));
+    expect(container.querySelector('input[name="color"]')).toHaveValue("#ff6b9d");
+    const hex = screen.getByRole("textbox", { name: "Cor em hexadecimal" });
+    await userEvent.clear(hex);
+    await userEvent.type(hex, "123ABC");
+    expect(container.querySelector('input[name="color"]')).toHaveValue("#123abc");
+  });
+});
