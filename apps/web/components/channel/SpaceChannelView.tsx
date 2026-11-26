@@ -2,7 +2,6 @@
 
 import { ContentHeader, MembersToggle } from "@/components/shell/ContentHeader";
 import { MembersList } from "@/components/shell/MembersList";
-import { useShell } from "@/components/shell/ShellContext";
 import { ChatView } from "@/components/chat/ChatView";
 import { EmptyState } from "@/components/common/EmptyState";
 import { channelById, channelKey, spaceById } from "@/lib/demo/data";
@@ -16,7 +15,6 @@ const placeholders = {
 } as const;
 
 export function SpaceChannelView({ spaceId, channelId }: { spaceId: string; channelId: string }) {
-  const { membersOpen } = useShell();
   const space = spaceById(spaceId)!;
   const channel = channelById(space, channelId)!;
   const isChat = channel.kind === "texto" || channel.kind === "anuncios";
@@ -40,7 +38,7 @@ export function SpaceChannelView({ spaceId, channelId }: { spaceId: string; chan
             </EmptyState>
           )}
         </main>
-        {membersOpen && <MembersList label={`Membros de ${space.name}`} groups={spaceMemberGroups()} />}
+        <MembersList label={`Membros de ${space.name}`} groups={spaceMemberGroups()} />
       </div>
     </>
   );

@@ -4,6 +4,7 @@ import "./fonts.css";
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
+import { APP_ICON_SVG_DATA_URI } from "@/lib/appIcon";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 import { DemoProvider } from "@/lib/demo/store";
 import { themeScript } from "@/lib/theme";
@@ -14,9 +15,19 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"],
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
   description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "black-translucent" },
+  // No export estático os ícones gerados (app/icon.ts) não existem; o favicon vai embutido.
+  ...(process.env.STATIC_EXPORT === "1" && { icons: { icon: APP_ICON_SVG_DATA_URI } }),
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Pinça para ampliar continua liberada (acessibilidade); o zoom automático ao digitar é evitado com campos de 16px.
+  viewportFit: "cover",
+  // Com o teclado aberto, o conteúdo encolhe em vez de a página rolar por baixo (Chrome no Android).
+  interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#0e0f12" },
     { media: "(prefers-color-scheme: light)", color: "#e3e4e8" },

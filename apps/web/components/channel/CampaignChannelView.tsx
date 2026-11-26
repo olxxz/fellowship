@@ -7,7 +7,6 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { CharacterSheet } from "@/components/mesa/CharacterSheet";
 import { ContentHeader, MembersToggle } from "@/components/shell/ContentHeader";
 import { MembersList } from "@/components/shell/MembersList";
-import { useShell } from "@/components/shell/ShellContext";
 import { campaignById, campaignChannelInfo, characterById, spaceById, userById, type CampaignChannelId, type DemoCharacter } from "@/lib/demo/data";
 import { rollFormula } from "@/lib/demo/dice";
 import { useDemo } from "@/lib/demo/store";
@@ -22,7 +21,6 @@ const later: Partial<Record<CampaignChannelId, { title: string; text: string }>>
 };
 
 export function CampaignChannelView({ spaceId, campaignId, channelId }: { spaceId: string; campaignId: string; channelId: CampaignChannelId }) {
-  const { membersOpen } = useShell();
   const { send, viewer, me } = useDemo();
   const space = spaceById(spaceId)!;
   const campaign = campaignById(space, campaignId)!;
@@ -105,7 +103,7 @@ export function CampaignChannelView({ spaceId, campaignId, channelId }: { spaceI
       <ContentHeader icon={info.icon} title={info.name} topic={`${campaign.name} · ${info.description}`} actions={<MembersToggle />} />
       <div className={styles.body}>
         <main className={styles.main}>{content}</main>
-        {membersOpen && <MembersList label={`Na campanha ${campaign.name}`} groups={campaignMemberGroups(campaign)} />}
+        <MembersList label={`Na campanha ${campaign.name}`} groups={campaignMemberGroups(campaign)} />
       </div>
     </>
   );

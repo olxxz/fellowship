@@ -7,9 +7,12 @@ export interface ShellState {
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  /** Lista de membros (salva por pessoa). */
+  /** Lista de membros no desktop (salva por pessoa). */
   membersOpen: boolean;
   setMembersOpen: (open: boolean) => void;
+  /** Lista de membros no celular: gaveta da direita, fechada por padrão. */
+  mobileMembersOpen: boolean;
+  setMobileMembersOpen: (open: boolean) => void;
 }
 
 export const ShellContext = createContext<ShellState | null>(null);

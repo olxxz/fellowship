@@ -6,7 +6,6 @@ import styles from "@/components/channel/Channel.module.sass";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ContentHeader, MembersToggle } from "@/components/shell/ContentHeader";
 import { MembersList, type MemberEntry } from "@/components/shell/MembersList";
-import { useShell } from "@/components/shell/ShellContext";
 import { channelIcon, isChatChannel } from "@/lib/app/channels";
 import type { SpaceMemberView } from "@/lib/app/queries";
 import { LiveChat } from "./LiveChat";
@@ -44,7 +43,6 @@ export interface AccountChannelViewProps {
 }
 
 export function AccountChannelView({ space, channel, roles, members, initialMessages, me, canSend, readOnlyReason }: AccountChannelViewProps) {
-  const { membersOpen } = useShell();
   const authors = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.profile])), [members]);
   const groups = useMemo(() => memberGroups(space, roles, members), [space, roles, members]);
 
@@ -61,7 +59,7 @@ export function AccountChannelView({ space, channel, roles, members, initialMess
             </EmptyState>
           )}
         </main>
-        {membersOpen && <MembersList label={`Membros de ${space.name}`} groups={groups} />}
+        <MembersList label={`Membros de ${space.name}`} groups={groups} />
       </div>
     </>
   );

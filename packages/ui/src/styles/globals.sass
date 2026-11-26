@@ -8,6 +8,10 @@
 html
   color-scheme: dark
   -webkit-text-size-adjust: 100%
+  text-size-adjust: 100%
+  // Sem rolagem lateral e sem "voltar" ao arrastar para o lado dentro do navegador (Chrome, trackpad).
+  overflow-x: clip
+  overscroll-behavior-x: none
 
 html[data-theme="light"]
   color-scheme: light
@@ -28,6 +32,22 @@ h1, h2, h3, h4, p
 
 button, input, textarea, select
   font: inherit
+
+// Toque: sem atraso de duplo toque para zoom nos controles.
+a, button, input, textarea, select, label, summary
+  touch-action: manipulation
+
+// No celular, campo com menos de 16px faz o iPhone dar zoom sozinho ao focar (e a tela fica ampliada).
+// 16px em todo campo de toque, por cima do tamanho de cada componente.
+@media (pointer: coarse)
+  input, textarea, select
+    font-size: 16px !important
+
+// Dentro do app (casca de altura fixa), puxar a página não recarrega nem "estica" a tela.
+html:has([data-app-shell])
+  overscroll-behavior: none
+  body
+    overscroll-behavior: none
 
 img, svg, video
   display: block

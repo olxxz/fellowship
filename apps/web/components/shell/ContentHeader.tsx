@@ -2,6 +2,7 @@
 
 import { Icon, IconButton, type IconName } from "@fellowship/ui";
 import type { ReactNode } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import styles from "./ContentHeader.module.sass";
 import { useShell } from "./ShellContext";
 
@@ -23,14 +24,19 @@ export function ContentHeader({ icon, title, topic, actions }: { icon: IconName;
 
 /** Botão que mostra ou esconde a lista de membros (a escolha fica salva). */
 export function MembersToggle() {
-  const { membersOpen, setMembersOpen } = useShell();
+  const { membersOpen, setMembersOpen, mobileMembersOpen, setMobileMembersOpen, closeDrawer } = useShell();
+  const mobile = useIsMobile();
+  const open = mobile ? mobileMembersOpen : membersOpen;
   return (
     <IconButton
       icon="users"
-      label={membersOpen ? "Esconder membros" : "Mostrar membros"}
-      aria-pressed={membersOpen}
-      variant={membersOpen ? "secondary" : "secondary"}
-      onClick={() => setMembersOpen(!membersOpen)}
+      label={open ? "Esconder membros" : "Mostrar membros"}
+      aria-pressed={open}
+      onClick={() => {
+        if (!mobile) return setMembersOpen(!membersOpen);
+        closeDrawer();
+        setMobileMembersOpen(!mobileMembersOpen);
+      }}
     />
   );
 }

@@ -60,6 +60,12 @@ A senha do banco não vai em lugar nenhum do app: guarde no seu gerenciador de s
 
 As migrações ficam em `supabase/migrations` e a **integração do Supabase com o GitHub** aplica cada uma ao dar push na `main`. Para mudar o banco, crie um arquivo novo (nunca edite uma migração já aplicada). Os testes de RLS rodam num Postgres em memória (PGlite) com `pnpm --filter @fellowship/db test`.
 
+### Celular
+
+- **Sem zoom ao digitar:** todo campo tem 16px em telas de toque (abaixo disso o iPhone amplia a página sozinho). A pinça para ampliar continua liberada.
+- **Gavetas por gesto:** arrastar para a direita abre a navegação; para a esquerda, os membros. A direção só é decidida depois de 10px e precisa ser bem lateral (|dx| > 1,5·|dy|, uns 34°), então rolar na diagonal não abre nada. Ao soltar, abre se passou de 1/3 da gaveta ou se o movimento foi rápido (> 0,45 px/ms). Regras em `apps/web/lib/gesture.ts`, com testes.
+- **Voltar do sistema:** a faixa de 20px junto às bordas fica para o gesto de voltar do iPhone e do Android, que uma página não consegue desligar. Instalado como app ("Adicionar à tela de início"), o iPhone não tem esse gesto do Safari e as gavetas respondem em toda a largura.
+
 ## Protótipo (`/demo`)
 
 Além do app com login, há um **protótipo navegável com dados de exemplo** em `/demo` (também publicado no GitHub Pages). Tudo nele vive no navegador e some ao recarregar.
