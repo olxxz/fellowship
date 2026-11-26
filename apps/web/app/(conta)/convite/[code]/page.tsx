@@ -5,12 +5,31 @@ import Link from "next/link";
 import { AcceptInviteForm } from "@/components/account/AcceptInviteForm";
 import settings from "@/components/account/Settings.module.sass";
 import { AuthCard } from "@/components/auth/AuthCard";
+import { APP_NAME } from "@/lib/brand";
 import styles from "@/components/auth/Auth.module.sass";
 import { appSpaceHref } from "@/lib/routes";
 import { authEnabled } from "@/lib/supabase/config";
 import { getUser } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Convite" };
+/** Título e descrição da prévia do link (o cartão vem de opengraph-image.tsx). */
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
+  const fallback: Metadata = { title: "Convite", description: `Você foi convidado para um Cenário no ${APP_NAME}.` };
+  if (!authEnabled) return fallback;
+  const { code } = await params;
+  const { supabase } = await getUser();
+  const { data } = await supabase.rpc("get_invite", { p_code: code });
+  const invite = (Array.isArray(data) ? data[0] : null) as InvitePreview | null;
+  if (!invite || invite.status !== "valido") return fallback;
+  const members = `${invite.member_count} ${invite.member_count === 1 ? "membro" : "membros"}`;
+  const title = `Convite para ${invite.name}`;
+  const description = `${invite.inviter} chamou você para o Cenário ${invite.name} no ${APP_NAME}. ${invite.description ? `${invite.description} · ` : ""}${members}.`;
+  return {
+    title,
+    description,
+    openGraph: { title: `${title} · ${APP_NAME}`, description, type: "website", siteName: APP_NAME, locale: "pt_BR" },
+    twitter: { card: "summary_large_image", title: `${title} · ${APP_NAME}`, description },
+  };
+}
 
 const INVALID: Record<string, string> = {
   expirado: "Este convite expirou. Peça um link novo para quem convidou você.",
