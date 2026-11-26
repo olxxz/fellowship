@@ -17,7 +17,7 @@
   width: 100%
   max-width: 1200px
   margin: 0 auto
-  padding: var(--space-4) var(--space-5)
+  padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-5) var(--space-4)
 
 .brand
   display: inline-flex
@@ -147,7 +147,7 @@
   width: 100%
   max-width: 1200px
   margin: 0 auto
-  padding: var(--space-4) var(--space-5) var(--space-5)
+  padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom))
   @include text-caption
   color: var(--text-muted)
   @media (max-height: 560px)

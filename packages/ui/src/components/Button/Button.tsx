@@ -10,8 +10,9 @@ import styles from "./Button.module.sass";
  * - `secondary`: ações de apoio.
  * - `mesa`: tudo o que é jogo (rolar dados, entrar na Mesa, pedir teste).
  * - `danger`: sair da sala, apagar. Nunca a ação principal de uma tela comum.
+ * - `ghost`: sem fundo até passar o mouse ou ficar ativo; para ações de barra (menu, membros, tela cheia).
  */
-export type ButtonVariant = "primary" | "secondary" | "mesa" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "mesa" | "danger" | "ghost";
 
 interface BaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

@@ -5,8 +5,9 @@
   display: flex
   align-items: center
   gap: var(--space-2)
-  min-height: 56px
-  padding: 0 var(--space-2) 0 var(--space-4)
+  // Instalado no iPhone (barra de status translúcida), o cabeçalho estende o fundo por baixo dela.
+  min-height: calc(56px + env(safe-area-inset-top))
+  padding: env(safe-area-inset-top) var(--space-2) 0 var(--space-4)
   border-bottom: 1px solid var(--border)
   @include mobile
     padding-left: var(--space-1)

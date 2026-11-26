@@ -95,13 +95,14 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
         actions={
           <>
             <IconButton
+              variant="ghost"
               icon="grid"
               label={portraits ? "Mostrar cards completos" : "Mostrar só os retratos"}
               aria-pressed={portraits}
               onClick={() => setPortraits(!portraits)}
             />
-            <IconButton className={styles.hideMobile} icon="chat" label={chatOpen ? "Esconder o chat" : "Mostrar o chat"} aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)} />
-            <IconButton className={styles.hideMobile} icon="fullscreen" label="Tela cheia" onClick={toggleFullscreen} />
+            <IconButton className={styles.hideMobile} variant="ghost" icon="chat" label={chatOpen ? "Esconder o chat" : "Mostrar o chat"} aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)} />
+            <IconButton className={styles.hideMobile} variant="ghost" icon="fullscreen" label="Tela cheia" onClick={toggleFullscreen} />
           </>
         }
       />

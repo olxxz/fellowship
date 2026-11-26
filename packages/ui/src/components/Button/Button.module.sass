@@ -53,10 +53,29 @@
   --button-fg: #ffffff
   font-weight: 700
 
+// Barra de ferramentas: sem fundo, ícone em text-muted; ganha fundo no hover e quando está ligado (aria-pressed).
+.ghost
+  --button-bg: transparent
+  --button-fg: var(--text-muted)
+  @media (hover: hover)
+    &:hover:not(:disabled)
+      --button-bg: var(--bg-raised)
+      --button-fg: var(--text)
+      filter: none
+  &:active:not(:disabled)
+    --button-bg: var(--bg-raised)
+    filter: none
+  &[aria-pressed="true"]
+    --button-bg: var(--bg-raised)
+    --button-fg: var(--text)
+
 .iconOnly
   width: var(--size-touch)
   padding: 0
   border-radius: var(--radius-full)
+
+.iconOnly.ghost
+  border-radius: var(--radius-md)
 
 // Carregando: o rótulo e a camada de carregamento ocupam a mesma célula da grade, então a largura é a da maior
 // e não muda ao trocar. O rótulo some com opacity (não visibility) para continuar sendo o nome do botão.

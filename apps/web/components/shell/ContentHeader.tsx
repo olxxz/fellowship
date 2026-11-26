@@ -11,7 +11,7 @@ export function ContentHeader({ icon, title, topic, actions }: { icon: IconName;
   const { openDrawer } = useShell();
   return (
     <header className={styles.header}>
-      <IconButton className={styles.menu} icon="menu" label="Abrir navegação" onClick={openDrawer} />
+      <IconButton className={styles.menu} variant="ghost" icon="menu" label="Abrir navegação" onClick={openDrawer} />
       <Icon name={icon} size={20} className={styles.icon} />
       <div className={styles.titles}>
         <h1 className={styles.title}>{title}</h1>
@@ -29,6 +29,7 @@ export function MembersToggle() {
   const open = mobile ? mobileMembersOpen : membersOpen;
   return (
     <IconButton
+      variant="ghost"
       icon="users"
       label={open ? "Esconder membros" : "Mostrar membros"}
       aria-pressed={open}

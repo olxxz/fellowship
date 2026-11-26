@@ -34,8 +34,9 @@ export const viewport: Viewport = {
   // Com o teclado aberto, o conteúdo encolhe em vez de a página rolar por baixo (Chrome no Android).
   interactiveWidget: "resizes-content",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0e0f12" },
-    { media: "(prefers-color-scheme: light)", color: "#e3e4e8" },
+    // Mesma cor do cabeçalho do conteúdo (bg-content), para a barra de status não virar uma faixa.
+    { media: "(prefers-color-scheme: dark)", color: "#1c1d22" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
   ],
 };
 

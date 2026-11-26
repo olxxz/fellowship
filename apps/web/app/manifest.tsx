@@ -17,8 +17,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: auth ? "/" : "./",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#0e0f12",
-    theme_color: "#0e0f12",
+    background_color: "#1c1d22",
+    theme_color: "#1c1d22",
     // No export estático (Pages) os PNGs gerados não existem: usa o SVG embutido.
     icons:
       process.env.STATIC_EXPORT === "1"

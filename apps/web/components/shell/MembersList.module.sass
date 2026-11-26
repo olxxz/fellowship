@@ -5,7 +5,7 @@
   flex-shrink: 0
   width: var(--size-members)
   overflow-y: auto
-  padding: var(--space-4) var(--space-2)
+  padding: var(--space-4) var(--space-2) calc(var(--space-4) + env(safe-area-inset-bottom))
   background: var(--bg-sidebar)
   --avatar-cutout: var(--bg-sidebar)
   @include mobile
