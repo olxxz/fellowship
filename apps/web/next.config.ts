@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
+import { PUBLIC_DOMAIN } from "./lib/brand";
 
 // No GitHub Pages o app é exportado como site estático, servido em /<repositório>.
 // Fora dele (dev, Vercel) continua um app Next.js normal, com servidor.
 const staticExport = process.env.STATIC_EXPORT === "1";
-// Endereço público: NEXT_PUBLIC_SITE_URL, ou o domínio de produção que a Vercel informa no build.
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "");
+// Endereço público: NEXT_PUBLIC_SITE_URL, ou, na Vercel, o domínio fixado em lib/brand.ts (o projeto tem
+// vários domínios e a Vercel pode informar qualquer um deles como "de produção").
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL ? `https://${PUBLIC_DOMAIN}` : "");
 const basePath = process.env.PAGES_BASE_PATH || undefined;
 
 const config: NextConfig = {

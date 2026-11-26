@@ -38,7 +38,7 @@ Na Vercel o app tem conta de verdade, com dados no Supabase:
 ### Configurar o login com Google (uma vez)
 
 1. **Google Cloud Console** → APIs e serviços → Tela de consentimento OAuth (externo, nome Fellowship). Depois, Credenciais → Criar ID do cliente OAuth → Aplicativo da Web:
-   - Origens JavaScript autorizadas: o domínio da Vercel (ex.: `https://fellowship.vercel.app`) e `http://localhost:3000`.
+   - Origens JavaScript autorizadas: o domínio da Vercel (ex.: `https://joinfellowship.vercel.app`) e `http://localhost:3000`.
    - URI de redirecionamento autorizado: `https://<ref-do-projeto>.supabase.co/auth/v1/callback` (aparece na tela do provedor Google no Supabase).
 2. **Supabase** → Authentication → Sign In / Providers → Google: ative e cole o Client ID e o Client Secret.
 3. **Supabase** → Authentication → URL Configuration:
