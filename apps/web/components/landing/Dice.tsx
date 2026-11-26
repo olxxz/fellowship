@@ -1,45 +1,62 @@
-// Dados desenhados em vetor, no mesmo traço chapado das artes da landing.
+// Dados em "falso 3D": faces chapadas em tons diferentes (luz de cima à esquerda) e uma sombra no chão.
 
-export function D20({ value = 20 }: { value?: number }) {
+export function D20() {
   return (
-    <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden>
-      <path d="M32 3 57 17.5v29L32 61 7 46.5v-29z" fill="#6c5ce7" />
-      <path d="M32 3 57 17.5 32 22 7 17.5zM7 17.5 32 22 18 44 7 46.5zM57 17.5 32 22l14 22 11 2.5z" fill="#fff" fillOpacity=".14" />
-      <path d="M32 22 46 44H18z" fill="#fff" fillOpacity=".22" />
-      <text x="32" y="40" textAnchor="middle" fontFamily="var(--font-display), system-ui" fontWeight="700" fontSize="13" fill="#fff">
-        {value}
+    <svg viewBox="0 0 100 110" width="104" height="114" aria-hidden>
+      <ellipse cx="52" cy="102" rx="34" ry="6" fill="#000" opacity=".18" />
+      {/* contorno e facetas */}
+      <path d="M50 4 92 28v48L50 100 8 76V28z" fill="#4b3bc4" />
+      <path d="M50 4 92 28 50 36 8 28z" fill="#8e81f5" />
+      <path d="M8 28 50 36 28 72 8 76z" fill="#6f61e8" />
+      <path d="M92 28 50 36 72 72 92 76z" fill="#4b3bc4" />
+      <path d="M50 36 72 72H28z" fill="#7d70f0" />
+      <path d="M28 72h44L50 100z" fill="#3c2fa6" />
+      <path d="M8 76 28 72 50 100zM92 76 72 72 50 100z" fill="#33288f" />
+      <g fill="none" stroke="#fff" strokeOpacity=".35" strokeWidth="1.2" strokeLinejoin="round">
+        <path d="M8 28 50 36 92 28M50 36 28 72h44zM28 72 8 76M72 72l20 4M28 72l22 28 22-28" />
+      </g>
+      <path d="M50 4 92 28v48L50 100 8 76V28z" fill="none" stroke="#1d1660" strokeWidth="3" strokeLinejoin="round" />
+      <text x="50" y="64" textAnchor="middle" fontFamily="var(--font-display), system-ui" fontWeight="700" fontSize="17" fill="#fff">
+        20
       </text>
     </svg>
   );
 }
 
-export function D6({ value = 5 }: { value?: 1 | 2 | 3 | 4 | 5 | 6 }) {
-  const pips: Record<number, Array<[number, number]>> = {
-    1: [[32, 32]],
-    2: [[22, 22], [42, 42]],
-    3: [[21, 21], [32, 32], [43, 43]],
-    4: [[22, 22], [42, 22], [22, 42], [42, 42]],
-    5: [[21, 21], [43, 21], [32, 32], [21, 43], [43, 43]],
-    6: [[22, 20], [42, 20], [22, 32], [42, 32], [22, 44], [42, 44]],
-  };
+export function D6() {
   return (
-    <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden>
-      <rect x="8" y="8" width="48" height="48" rx="10" fill="#e8a33d" />
-      <rect x="8" y="8" width="48" height="24" rx="10" fill="#fff" fillOpacity=".14" />
-      {pips[value]!.map(([cx, cy]) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4.5" fill="#3a2a12" />
-      ))}
+    <svg viewBox="0 0 100 104" width="84" height="88" aria-hidden>
+      <ellipse cx="50" cy="96" rx="34" ry="6" fill="#000" opacity=".18" />
+      {/* cubo isométrico: topo claro, frente média, lado escuro */}
+      <path d="M50 8 88 28 50 48 12 28z" fill="#f7c66a" />
+      <path d="M12 28 50 48v42L12 70z" fill="#e8a33d" />
+      <path d="M88 28 50 48v42l38-20z" fill="#c4801f" />
+      <path d="M12 28 50 48 88 28M50 48v42" fill="none" stroke="#fff" strokeOpacity=".4" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M50 8 88 28v42L50 90 12 70V28z" fill="none" stroke="#5a3a0a" strokeWidth="3" strokeLinejoin="round" />
+      {/* topo: 1 */}
+      <ellipse cx="50" cy="28" rx="6" ry="3.4" fill="#3a2a12" />
+      {/* frente: 2 */}
+      <ellipse cx="22" cy="42" rx="3.6" ry="4.4" fill="#3a2a12" transform="rotate(-28 22 42)" />
+      <ellipse cx="40" cy="74" rx="3.6" ry="4.4" fill="#3a2a12" transform="rotate(-28 40 74)" />
+      {/* lado: 3 */}
+      <ellipse cx="78" cy="42" rx="3.6" ry="4.4" fill="#2a1d0b" transform="rotate(28 78 42)" />
+      <ellipse cx="69" cy="58" rx="3.6" ry="4.4" fill="#2a1d0b" transform="rotate(28 69 58)" />
+      <ellipse cx="60" cy="74" rx="3.6" ry="4.4" fill="#2a1d0b" transform="rotate(28 60 74)" />
     </svg>
   );
 }
 
-export function D4({ value = 4 }: { value?: number }) {
+export function D4() {
   return (
-    <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden>
-      <path d="M32 6 59 54H5z" fill="#2a9d8f" />
-      <path d="M32 6 59 54 32 44z" fill="#000" fillOpacity=".14" />
-      <text x="30" y="42" textAnchor="middle" fontFamily="var(--font-display), system-ui" fontWeight="700" fontSize="15" fill="#fff">
-        {value}
+    <svg viewBox="0 0 100 96" width="76" height="73" aria-hidden>
+      <ellipse cx="50" cy="88" rx="34" ry="6" fill="#000" opacity=".18" />
+      {/* tetraedro: duas faces visíveis */}
+      <path d="M50 6 10 80h44z" fill="#3cbfae" />
+      <path d="M50 6 54 80l36-14z" fill="#1f7f73" />
+      <path d="M50 6 54 80" fill="none" stroke="#fff" strokeOpacity=".4" strokeWidth="1.2" />
+      <path d="M50 6 90 66 54 80 10 80z" fill="none" stroke="#0e4a43" strokeWidth="3" strokeLinejoin="round" />
+      <text x="38" y="66" textAnchor="middle" fontFamily="var(--font-display), system-ui" fontWeight="700" fontSize="18" fill="#fff">
+        4
       </text>
     </svg>
   );

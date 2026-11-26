@@ -75,15 +75,36 @@ export default function Home() {
         </div>
 
         <div className={styles.scene} aria-hidden="true">
-          <div className={styles.stage}>
-            {PORTRAITS.map((p, i) => (
-              <Image key={p.alt} className={styles.portrait} src={p.src} alt="" sizes="(max-width: 1200px) 22vw, 260px" priority={i < 2} />
-            ))}
-            <div className={styles.dice}>
-              <D20 />
-              <D6 />
-              <D4 />
+          {/* Uma chamada de vídeo do app, em miniatura: cabeçalho do canal, quatro câmeras e os controles. */}
+          <div className={styles.call}>
+            <div className={styles.callBar}>
+              <Icon name="mic" size={16} />
+              Taverna
             </div>
+            <div className={styles.callGrid}>
+              {PORTRAITS.map((p) => (
+                <Image key={p.alt} className={styles.tile} src={p.src} alt="" sizes="(max-width: 1200px) 24vw, 300px" priority />
+              ))}
+            </div>
+            <div className={styles.callControls}>
+              <span className={styles.ctl}>
+                <Icon name="mic" size={18} />
+              </span>
+              <span className={styles.ctl}>
+                <Icon name="camera" size={18} />
+              </span>
+              <span className={styles.ctl}>
+                <Icon name="screen" size={18} />
+              </span>
+              <span className={`${styles.ctl} ${styles.ctlLeave}`}>
+                <Icon name="leave" size={18} />
+              </span>
+            </div>
+          </div>
+          <div className={styles.dice}>
+            <D20 />
+            <D6 />
+            <D4 />
           </div>
         </div>
       </main>
