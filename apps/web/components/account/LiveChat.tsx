@@ -5,6 +5,7 @@ import type { Channel, Message, Profile } from "@fellowship/db";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import styles from "@/components/chat/Chat.module.sass";
 import { getBrowserClient } from "@/lib/supabase/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type Author = Pick<Profile, "id" | "display_name" | "avatar_url" | "color">;
 type ChatItem = Message & { pending?: boolean };
@@ -41,19 +42,80 @@ export function LiveChat({ channel, initialMessages, authors, me, canSend, readO
 
   useEffect(() => {
     const supabase = getBrowserClient();
-    const sub = supabase
-      .channel(`mensagens:${channel.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `channel_id=eq.${channel.id}` }, (payload) => {
-        const msg = payload.new as Message;
-        setMessages((all) => (all.some((m) => m.id === msg.id) ? all : [...all, msg]));
-      })
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `channel_id=eq.${channel.id}` }, (payload) => {
-        const id = (payload.old as { id?: string }).id;
-        setMessages((all) => all.filter((m) => m.id !== id));
-      })
-      .subscribe();
+    let disposed = false;
+    let live = false;
+    let sub: RealtimeChannel | null = null;
+    let retry: ReturnType<typeof setTimeout> | undefined;
+
+    const merge = (incoming: ChatItem[]) =>
+      setMessages((all) => {
+        const known = new Set(all.map((m) => m.id));
+        const fresh = incoming.filter((m) => !known.has(m.id));
+        if (!fresh.length) return all;
+        return [...all, ...fresh].sort((a: ChatItem, b: ChatItem) => (a.pending ? 1 : 0) - (b.pending ? 1 : 0) || a.created_at.localeCompare(b.created_at));
+      });
+
+    // Busca as últimas mensagens e junta pelo id: cobre o que chegou enquanto o socket estava fora do ar.
+    const catchUp = async () => {
+      const { data } = await supabase
+        .from("messages")
+        .select("id, space_id, channel_id, author_id, scope, kind, content, created_at")
+        .eq("channel_id", channel.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (!disposed && data) merge((data as Message[]).reverse());
+    };
+
+    const connect = async () => {
+      // O socket precisa do JWT da sessão antes de entrar no canal; sem ele entra como anônimo e o RLS não entrega nada.
+      const { data } = await supabase.auth.getSession();
+      if (disposed) return;
+      if (data.session) await supabase.realtime.setAuth(data.session.access_token);
+      if (sub) await supabase.removeChannel(sub);
+      sub = supabase
+        .channel(`mensagens:${channel.id}:${crypto.randomUUID()}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `channel_id=eq.${channel.id}` }, (payload) => {
+          merge([payload.new as Message]);
+        })
+        .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" }, (payload) => {
+          const id = (payload.old as { id?: string }).id;
+          if (id) setMessages((all) => all.filter((m) => m.id !== id));
+        })
+        .subscribe((status) => {
+          if (disposed) return;
+          live = status === "SUBSCRIBED";
+          if (live) void catchUp();
+          else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            clearTimeout(retry);
+            retry = setTimeout(() => void connect(), 3000);
+          }
+        });
+    };
+
+    void connect();
+
+    const { data: authSub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "TOKEN_REFRESHED" || event === "SIGNED_IN")) void supabase.realtime.setAuth(session.access_token);
+    });
+
+    // Rede de segurança: enquanto o tempo real não está de pé, busca a cada 4 s; ao voltar para a aba, sempre busca.
+    const poll = setInterval(() => {
+      if (!live && document.visibilityState === "visible") void catchUp();
+    }, 4000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void catchUp();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onVisible);
+
     return () => {
-      void supabase.removeChannel(sub);
+      disposed = true;
+      clearTimeout(retry);
+      clearInterval(poll);
+      authSub.subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onVisible);
+      if (sub) void supabase.removeChannel(sub);
     };
   }, [channel.id]);
 
