@@ -3,6 +3,7 @@
 import { Button, Icon, Modal } from "@fellowship/ui";
 import { useState, useTransition } from "react";
 import { createInviteAction } from "@/lib/app/space-actions";
+import { publicOrigin } from "@/lib/site";
 import styles from "./Settings.module.sass";
 
 const EXPIRES: Array<[string, number | null]> = [
@@ -34,7 +35,7 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
     setCopied(false);
     startTransition(async () => {
       const result = await createInviteAction(spaceId, EXPIRES[Number(expires)]![1], USES[Number(uses)]![1]);
-      if ("code" in result && result.code) setLink(`${window.location.origin}/convite/${result.code}`);
+      if ("code" in result && result.code) setLink(`${publicOrigin()}/convite/${result.code}`);
       else setError(result.error ?? "Não foi possível criar o convite agora.");
     });
   }

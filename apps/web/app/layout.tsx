@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { APP_ICON_SVG_DATA_URI } from "@/lib/appIcon";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 import { DemoProvider } from "@/lib/demo/store";
+import { siteUrl } from "@/lib/site";
 import { themeScript } from "@/lib/theme";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -15,6 +16,10 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"],
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
   description: APP_DESCRIPTION,
+  // Base para os links absolutos das prévias (og:image) apontarem para o domínio público.
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
+  openGraph: { type: "website", siteName: APP_NAME, locale: "pt_BR", title: APP_NAME, description: APP_DESCRIPTION },
+  twitter: { card: "summary_large_image", title: APP_NAME, description: APP_DESCRIPTION },
   applicationName: APP_NAME,
   appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "black-translucent" },
   // No export estático os ícones gerados (app/icon.ts) não existem; o favicon vai embutido.
