@@ -36,6 +36,7 @@ export function InviteList({ spaceId, spaceName, invites, canInvite }: { spaceId
               <Button
                 variant="danger"
                 loading={pending}
+                loadingLabel="Revogando…"
                 onClick={() =>
                   startTransition(async () => {
                     const result = await revokeInviteAction(spaceId, invite.code);

@@ -96,13 +96,13 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
             <input className={styles.linkInput} readOnly value={link} aria-label="Link do convite" onFocus={(e) => e.currentTarget.select()} />
           </div>
           <div className={styles.actions}>
-            <Button variant="primary" icon={copied ? "check" : "copy"} onClick={() => void copy()}>
+            <Button variant="primary" icon={copied ? "check" : "copy"} iconMotion={copied ? "pop" : undefined} onClick={() => void copy()}>
               {copied ? "Copiado" : "Copiar link"}
             </Button>
             {typeof navigator !== "undefined" && "share" in navigator && (
               <Button onClick={() => void share()}>Compartilhar</Button>
             )}
-            <Button onClick={generate} loading={pending}>
+            <Button onClick={generate} loading={pending} loadingLabel="Gerando…">
               Gerar outro
             </Button>
           </div>
@@ -111,7 +111,7 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
           </span>
         </>
       ) : (
-        <Button variant="primary" icon="link" onClick={generate} loading={pending}>
+        <Button variant="primary" icon="link" onClick={generate} loading={pending} loadingLabel="Gerando link…">
           Gerar link de convite
         </Button>
       )}

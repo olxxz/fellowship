@@ -45,7 +45,7 @@ export function SignInForm({ next }: { next: string }) {
         <input className={styles.input} id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
       <Feedback state={state} />
-      <Button className={styles.submit} type="submit" variant="primary" loading={pending}>
+      <Button className={styles.submit} type="submit" variant="primary" loading={pending} loadingLabel="Entrando…">
         Entrar
       </Button>
     </form>
@@ -80,7 +80,7 @@ export function SignUpForm({ next }: { next: string }) {
         </span>
       </div>
       <Feedback state={state} />
-      <Button className={styles.submit} type="submit" variant="primary" loading={pending}>
+      <Button className={styles.submit} type="submit" variant="primary" loading={pending} loadingLabel="Criando conta…">
         Criar conta
       </Button>
     </form>
@@ -98,7 +98,7 @@ export function ResetRequestForm() {
         <input className={styles.input} id="email" name="email" type="email" autoComplete="email" required defaultValue={state.email} />
       </div>
       <Feedback state={state} />
-      <Button className={styles.submit} type="submit" variant="primary" loading={pending}>
+      <Button className={styles.submit} type="submit" variant="primary" loading={pending} loadingLabel="Enviando…">
         Enviar link
       </Button>
     </form>
@@ -122,7 +122,7 @@ export function NewPasswordForm() {
         <input className={styles.input} id="confirm" name="confirm" type="password" autoComplete="new-password" required minLength={8} />
       </div>
       <Feedback state={state} />
-      <Button className={styles.submit} type="submit" variant="primary" loading={pending}>
+      <Button className={styles.submit} type="submit" variant="primary" loading={pending} loadingLabel="Salvando…">
         Salvar senha
       </Button>
     </form>

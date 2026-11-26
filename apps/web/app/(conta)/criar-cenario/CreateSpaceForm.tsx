@@ -97,7 +97,7 @@ export function CreateSpaceForm() {
         )}
 
         <div className={styles.actions}>
-          <Button type="submit" variant="primary" loading={pending}>
+          <Button type="submit" variant="primary" loading={pending} loadingLabel="Criando…">
             Criar Cenário
           </Button>
           <ButtonLink href={appHomeHref} linkAs={Link}>

@@ -4,7 +4,7 @@ export { CampaignCard, type CampaignCardProps, type CampaignParticipant } from "
 export { ChannelCategory, type ChannelCategoryProps } from "./components/ChannelRow/ChannelCategory";
 export { ChannelRow, type ChannelRowProps } from "./components/ChannelRow/ChannelRow";
 export { ChatMessage, ChatNotice, type ChatMessageProps, type ChatNoticeProps } from "./components/ChatMessage/ChatMessage";
-export { Icon, type IconProps } from "./components/Icon/Icon";
+export { Icon, type IconMotion, type IconProps } from "./components/Icon/Icon";
 export { icons, type IconName } from "./components/Icon/icons";
 export { Menu } from "./components/Menu/Menu";
 export { Modal, type ModalProps } from "./components/Modal/Modal";

@@ -19,6 +19,8 @@ export interface CharacterSheetProps {
 export function CharacterSheet({ character, onRoll, choices, onChoose }: CharacterSheetProps) {
   const sheet = character.sheet;
   const [vitals, setVitals] = useState<Record<string, { hp: number; mana: number }>>({});
+  // A cada rolagem, o dado da perícia rolada dá uma volta.
+  const [rolled, setRolled] = useState<{ id: string; n: number }>({ id: "", n: 0 });
   if (!sheet) return <p className={styles.note}>Este personagem ainda não tem ficha.</p>;
 
   const current = vitals[character.id] ?? { hp: sheet.vitals.hp[0], mana: sheet.vitals.mana[0] };
@@ -76,7 +78,17 @@ export function CharacterSheet({ character, onRoll, choices, onChoose }: Charact
                   <span className={styles.skillName}>{s.label}</span>
                   <span className={styles.skillFormula}>{formula}</span>
                 </span>
-                <Button variant="mesa" icon="dice" aria-label={`Rolar ${s.label}: ${formula}`} onClick={() => onRoll(character, s.label, formula)}>
+                <Button
+                  variant="mesa"
+                  icon="dice"
+                  iconKey={rolled.id === s.id ? rolled.n : 0}
+                  iconMotion={rolled.id === s.id ? "tumble" : undefined}
+                  aria-label={`Rolar ${s.label}: ${formula}`}
+                  onClick={() => {
+                    setRolled((r) => ({ id: s.id, n: r.n + 1 }));
+                    onRoll(character, s.label, formula);
+                  }}
+                >
                   Rolar
                 </Button>
               </li>

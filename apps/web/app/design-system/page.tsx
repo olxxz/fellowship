@@ -30,9 +30,13 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
             Sair
           </Button>
           <Button disabled>Desabilitado</Button>
-          <Button variant="primary" loading>
-            Salvando
+          <Button variant="primary" loading loadingLabel="Salvando…">
+            Salvar alterações
           </Button>
+          <Button variant="mesa" icon="dice" loading>
+            Rolar 1d20 + 4
+          </Button>
+          <IconButton icon="send" label="Enviando" loading />
           <IconButton icon="mic" label="Mutar" />
           <IconButton icon="micOff" label="Desmutar" variant="danger" />
         </div>

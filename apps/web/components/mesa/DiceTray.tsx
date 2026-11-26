@@ -14,6 +14,8 @@ export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula
   const [hidden, setHidden] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formulaId = useId();
+  // A cada rolagem, o dado do botão usado dá uma volta (a chave remonta só o ícone).
+  const [rolled, setRolled] = useState<{ key: string; n: number }>({ key: "", n: 0 });
 
   const withMod = (base: string) => (modifier ? `${base} ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : base);
 
@@ -27,12 +29,30 @@ export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula
     <div className={styles.tray}>
       <div className={styles.dice}>
         {QUICK.map((sides) => (
-          <button key={sides} type="button" className={styles.die} onClick={() => roll(withMod(`1d${sides}`))} aria-label={`Rolar ${withMod(`1d${sides}`)}`}>
-            <Icon name="dice" size={18} className={styles.dieIcon} />d{sides}
+          <button
+            key={sides}
+            type="button"
+            className={styles.die}
+            onClick={() => {
+              setRolled((r) => ({ key: `d${sides}`, n: r.n + 1 }));
+              roll(withMod(`1d${sides}`));
+            }}
+            aria-label={`Rolar ${withMod(`1d${sides}`)}`}
+          >
+            <Icon key={rolled.key === `d${sides}` ? rolled.n : 0} name="dice" size={18} className={styles.dieIcon} motion={rolled.key === `d${sides}` ? "tumble" : undefined} />
+            d{sides}
           </button>
         ))}
-        <button type="button" className={styles.die} onClick={() => roll(withMod("2d20kh1"))} aria-label={`Rolar com vantagem: ${withMod("2d20kh1")}`}>
-          <Icon name="dice" size={18} className={styles.dieIcon} />
+        <button
+          type="button"
+          className={styles.die}
+          onClick={() => {
+            setRolled((r) => ({ key: "vant", n: r.n + 1 }));
+            roll(withMod("2d20kh1"));
+          }}
+          aria-label={`Rolar com vantagem: ${withMod("2d20kh1")}`}
+        >
+          <Icon key={rolled.key === "vant" ? rolled.n : 0} name="dice" size={18} className={styles.dieIcon} motion={rolled.key === "vant" ? "tumble" : undefined} />
           Vant.
         </button>
       </div>
@@ -54,14 +74,16 @@ export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula
         className={styles.row}
         onSubmit={(e) => {
           e.preventDefault();
-          if (formula.trim()) roll(formula);
+          if (!formula.trim()) return;
+          setRolled((r) => ({ key: "formula", n: r.n + 1 }));
+          roll(formula);
         }}
       >
         <label htmlFor={formulaId} className={styles.label}>
           Fórmula
         </label>
         <input id={formulaId} className={styles.formula} value={formula} placeholder="2d20kh1 + 5" onChange={(e) => setFormula(e.target.value)} autoComplete="off" />
-        <Button type="submit" variant="mesa">
+        <Button type="submit" variant="mesa" icon="dice" iconKey={rolled.key === "formula" ? rolled.n : 0} iconMotion={rolled.key === "formula" ? "tumble" : undefined}>
           Rolar
         </Button>
       </form>

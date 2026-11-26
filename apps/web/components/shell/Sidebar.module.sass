@@ -42,10 +42,28 @@
   font-weight: 600
 
 .liveDot
+  position: relative
   width: 7px
   height: 7px
   border-radius: var(--radius-full)
   background: var(--success)
+  &::after
+    content: ""
+    position: absolute
+    inset: 0
+    border-radius: inherit
+    background: var(--success)
+    animation: live 2s ease-out infinite
+    @include reduced-motion
+      animation: none
+
+@keyframes live
+  0%
+    transform: scale(1)
+    opacity: 0.6
+  100%
+    transform: scale(2.6)
+    opacity: 0
 
 .back
   @include reset-interactive

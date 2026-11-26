@@ -192,3 +192,31 @@ describe("ButtonLink", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });
+
+describe("Button carregando", () => {
+  it("mostra o que está acontecendo, mantém o nome e reserva a largura", () => {
+    const { rerender, container } = render(
+      <Button variant="primary" loadingLabel="Criando…">
+        Criar Cenário
+      </Button>,
+    );
+    // Sem carregar, a camada de "Criando…" já existe (reserva espaço), mas não aparece nem é lida.
+    expect(container.querySelector(".busy")).toHaveAttribute("aria-hidden", "true");
+    rerender(
+      <Button variant="primary" loading loadingLabel="Criando…">
+        Criar Cenário
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Criar Cenário" });
+    expect(button).toHaveAttribute("aria-busy", "true");
+    expect(button).toHaveClass("loading");
+    expect(screen.getByText("Criando…")).toBeInTheDocument();
+    expect(container.querySelector(".busy svg")).toHaveClass("spin");
+  });
+
+  it("botão só de ícone troca o ícone pelo indicador", () => {
+    const { container } = render(<IconButton icon="send" label="Enviar" loading />);
+    expect(screen.getByRole("button", { name: "Enviar" })).toHaveAttribute("aria-busy", "true");
+    expect(container.querySelector("svg")).toHaveClass("spin");
+  });
+});

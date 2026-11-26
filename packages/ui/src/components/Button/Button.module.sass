@@ -58,27 +58,29 @@
   padding: 0
   border-radius: var(--radius-full)
 
-// Carregando: o conteúdo fica invisível (mantém a largura) e um esqueleto do mesmo tamanho ocupa o lugar do rótulo.
-.content
+// Carregando: o rótulo e a camada de carregamento ocupam a mesma célula da grade, então a largura é a da maior
+// e não muda ao trocar. O rótulo some com opacity (não visibility) para continuar sendo o nome do botão.
+.stack
+  display: inline-grid
+  > *
+    grid-area: 1 / 1
+
+.content, .busy
   display: inline-flex
   align-items: center
-  gap: inherit
+  justify-content: center
+  gap: var(--space-2)
+  transition: opacity 120ms ease-out
+
+.busy
+  opacity: 0
+  pointer-events: none
 
 .loading .content
-  // opacity em vez de visibility: o rótulo continua sendo o nome do botão para leitores de tela.
   opacity: 0
 
-.loadingBar
-  position: absolute
-  inset: 50% var(--space-4) auto
-  height: 12px
-  transform: translateY(-50%)
-  border-radius: var(--radius-sm)
-  background: currentColor
-  opacity: 0.35
-
-.iconOnly .loadingBar
-  inset: 50% 12px auto
+.loading .busy
+  opacity: 1
 
 .hidden
   @include visually-hidden

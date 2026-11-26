@@ -15,7 +15,7 @@ export function AcceptInviteForm({ code, spaceName }: { code: string; spaceName:
           {state.error}
         </p>
       )}
-      <Button className={styles.submit} type="submit" variant="primary" loading={pending}>
+      <Button className={styles.submit} type="submit" variant="primary" loading={pending} loadingLabel="Entrando…">
         Entrar em {spaceName}
       </Button>
     </form>

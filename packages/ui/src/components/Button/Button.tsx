@@ -1,6 +1,6 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ElementType, ReactNode } from "react";
 import { cx } from "../../cx";
-import { Icon } from "../Icon/Icon";
+import { Icon, type IconMotion } from "../Icon/Icon";
 import type { IconName } from "../Icon/icons";
 import { Skeleton } from "../Skeleton/Skeleton";
 import styles from "./Button.module.sass";
@@ -15,17 +15,25 @@ export type ButtonVariant = "primary" | "secondary" | "mesa" | "danger";
 
 interface BaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  /** Mantém a largura e troca o rótulo por um esqueleto. O clique é ignorado enquanto carrega. */
+  /** Mostra um indicador girando (e o `loadingLabel`, se houver) sem mudar a largura. O clique é ignorado enquanto carrega. */
   loading?: boolean;
 }
 
 export interface ButtonProps extends BaseProps {
   /** Ícone opcional à esquerda, 18px. */
   icon?: IconName;
+  /** O que está acontecendo enquanto carrega ("Criando…"). O espaço dele já fica reservado, para o botão não pular. */
+  loadingLabel?: string;
+  /** Movimento do ícone (ex.: `pop` ao confirmar, `tumble` ao rolar). */
+  iconMotion?: IconMotion;
+  /** Mude a chave para repetir o movimento do ícone (ex.: a cada rolagem), sem remontar o botão. */
+  iconKey?: string | number;
   children: ReactNode;
 }
 
-function ButtonBase({ variant = "secondary", icon, loading, className, children, onClick, type = "button", ...rest }: ButtonProps) {
+function ButtonBase({ variant = "secondary", icon, loading, loadingLabel, iconMotion, iconKey, className, children, onClick, type = "button", ...rest }: ButtonProps) {
+  // Sem texto de carregamento: o indicador entra no lugar do ícone (ou sozinho, centralizado), na mesma largura.
+  const busy = loadingLabel ?? (icon ? children : null);
   return (
     <button
       type={type}
@@ -34,11 +42,18 @@ function ButtonBase({ variant = "secondary", icon, loading, className, children,
       onClick={loading ? undefined : onClick}
       {...rest}
     >
-      <span className={styles.content}>
-        {icon && <Icon name={icon} />}
-        {children}
+      <span className={styles.stack}>
+        <span className={styles.content}>
+          {icon && <Icon key={iconKey} name={icon} motion={iconMotion} />}
+          {children}
+        </span>
+        {(loading || loadingLabel) && (
+          <span className={styles.busy} aria-hidden="true">
+            <Icon name="spinner" motion={loading ? "spin" : undefined} />
+            {busy}
+          </span>
+        )}
       </span>
-      {loading && <span aria-hidden="true" className={styles.loadingBar} />}
     </button>
   );
 }
@@ -62,14 +77,12 @@ export function IconButton({ variant = "secondary", icon, label, loading, classN
       type={type}
       aria-label={label}
       aria-busy={loading || undefined}
-      className={cx(styles.button, styles[variant], styles.iconOnly, loading && styles.loading, className)}
+      // Sem a classe loading: aqui o próprio ícone vira o indicador (não há rótulo para esconder).
+      className={cx(styles.button, styles[variant], styles.iconOnly, className)}
       onClick={loading ? undefined : onClick}
       {...rest}
     >
-      <span className={styles.content}>
-        <Icon name={icon} />
-      </span>
-      {loading && <span aria-hidden="true" className={styles.loadingBar} />}
+      <span className={styles.content}>{loading ? <Icon name="spinner" motion="spin" /> : <Icon name={icon} />}</span>
     </button>
   );
 }

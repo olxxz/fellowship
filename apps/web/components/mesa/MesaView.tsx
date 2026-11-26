@@ -213,7 +213,7 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
 
         <div className={styles.controls} role="toolbar" aria-label="Controles da Mesa">
           {voiceEnabled && voice.status !== "on" ? (
-            <Button variant="primary" icon="voice" loading={voice.status === "connecting"} onClick={() => void voice.join()}>
+            <Button variant="primary" icon="voice" loading={voice.status === "connecting"} loadingLabel="Conectando…" onClick={() => void voice.join()}>
               Entrar na voz
             </Button>
           ) : (

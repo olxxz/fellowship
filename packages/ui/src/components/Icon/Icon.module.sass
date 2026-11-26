@@ -1,0 +1,77 @@
+@use "../../styles/mixins" as *
+
+// Movimento só onde comunica algo (alguém falando, dado rolando, ação confirmada).
+// Com "reduzir movimento" no sistema, nada gira nem salta: no máximo uma variação de opacidade.
+
+.icon
+  flex-shrink: 0
+
+// Gira sem parar (carregando).
+.spin
+  animation: spin 0.8s linear infinite
+  @include reduced-motion
+    animation: fade 1.4s ease-in-out infinite
+
+// Dado rolando: uma volta com desaceleração, a cada vez que o ícone é montado de novo.
+.tumble
+  animation: tumble 0.55s cubic-bezier(0.2, 0.8, 0.2, 1)
+  @include reduced-motion
+    animation: none
+
+// Confirmação: aparece com um pequeno salto.
+.pop
+  animation: pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1.4)
+  @include reduced-motion
+    animation: none
+
+// Pulsa devagar (atenção sem urgência).
+.pulse
+  animation: fade 1.6s ease-in-out infinite
+
+// Onda sonora: cada barra sobe e desce fora de fase.
+.wave path
+  transform-box: fill-box
+  transform-origin: center
+  animation: bar 0.9s ease-in-out infinite
+  @include reduced-motion
+    animation: none
+  &:nth-child(2)
+    animation-delay: -0.15s
+  &:nth-child(3)
+    animation-delay: -0.3s
+  &:nth-child(4)
+    animation-delay: -0.45s
+  &:nth-child(5)
+    animation-delay: -0.6s
+
+@keyframes spin
+  to
+    transform: rotate(360deg)
+
+@keyframes tumble
+  0%
+    transform: rotate(0) scale(1)
+  40%
+    transform: rotate(220deg) scale(1.15)
+  100%
+    transform: rotate(360deg) scale(1)
+
+@keyframes pop
+  0%
+    transform: scale(0.5)
+    opacity: 0
+  100%
+    transform: scale(1)
+    opacity: 1
+
+@keyframes fade
+  0%, 100%
+    opacity: 1
+  50%
+    opacity: 0.45
+
+@keyframes bar
+  0%, 100%
+    transform: scaleY(0.55)
+  50%
+    transform: scaleY(1.15)

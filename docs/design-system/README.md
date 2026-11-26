@@ -53,6 +53,11 @@ Todo componente tem oito estados: padrão, hover, foco, ativo, desabilitado, **c
 - **Vazio:** uma frase e uma ação ("Nenhuma campanha ainda — criar campanha").
 - **Erro:** linguagem humana + "Tentar de novo".
 - **Otimista:** mensagem enviada aparece na hora, com opacidade reduzida até confirmar.
+- **Ações em andamento:** botões mostram um indicador girando e o que está acontecendo ("Criando…", "Salvando…"), sem mudar de largura.
+
+## Movimento
+
+Movimento só quando comunica algo, e uma ênfase por vez: a onda de quem está falando, o dado que gira ao rolar, o "pop" de uma confirmação, o ponto "ao vivo" que pulsa devagar. Com `prefers-reduced-motion`, nada gira nem salta (no máximo uma variação de opacidade).
 
 ## Temas de Cenário e de campanha
 

@@ -92,7 +92,22 @@ export const icons = {
       <path d="M5 11a7 7 0 0 0 11.5 5.4M19 11a7 7 0 0 1-.6 2.8M12 18v3M3 3l18 18" />
     </>
   ),
-  wave: <path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4" />,
+  // Uma linha por barra, para cada uma poder se mexer sozinha (motion="wave").
+  wave: (
+    <>
+      <path d="M4 10v4" />
+      <path d="M8 7v10" />
+      <path d="M12 4v16" />
+      <path d="M16 7v10" />
+      <path d="M20 10v4" />
+    </>
+  ),
+  spinner: (
+    <>
+      <circle cx="12" cy="12" r="9" strokeOpacity="0.25" />
+      <path d="M21 12a9 9 0 0 0-9-9" />
+    </>
+  ),
   leave: <path d="M3 12c5-4 13-4 18 0l-2 3-4-1v-2a10 10 0 0 0-6 0v2l-4 1z" />,
   settings: (
     <>

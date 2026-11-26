@@ -46,7 +46,7 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
         </p>
       )}
       <div className={styles.actions}>
-        <Button type="submit" variant="primary" loading={pending}>
+        <Button type="submit" variant="primary" loading={pending} loadingLabel="Salvando…">
           Salvar alterações
         </Button>
       </div>

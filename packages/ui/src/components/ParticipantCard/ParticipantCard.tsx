@@ -56,7 +56,7 @@ function ParticipantCardBase({
       <div className={styles.stage}>
         {portraitOnly && !offline && (muted || speaking) && (
           <span aria-hidden="true" className={cx(styles.badge, muted ? styles.badgeMuted : styles.badgeSpeaking)}>
-            <Icon name={muted ? "micOff" : "wave"} size={14} />
+            <Icon name={muted ? "micOff" : "wave"} size={14} motion={muted ? undefined : "wave"} />
           </span>
         )}
         {video ? <div className={styles.media}>{video}</div> : <Portrait url={portraitUrl} name={characterName} />}
@@ -86,7 +86,7 @@ function ParticipantCardBase({
           ) : (
             speaking && (
               <span className={cx(styles.status, styles.statusSpeaking)} aria-hidden="true">
-                <Icon name="wave" size={14} />
+                <Icon name="wave" size={14} motion="wave" />
                 falando
               </span>
             )
