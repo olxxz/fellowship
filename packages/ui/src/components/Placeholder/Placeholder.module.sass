@@ -1,0 +1,61 @@
+@use "../../styles/typography" as *
+
+.svg
+  display: block
+  width: 100%
+  height: auto
+
+.banner
+  position: relative
+  overflow: hidden
+  &::after
+    content: ""
+    position: absolute
+    inset: 0
+    background: linear-gradient(90deg, var(--bg-sidebar) 0%, color-mix(in srgb, var(--bg-sidebar) 70%, transparent) 25%, transparent 60%)
+
+.character
+  position: relative
+  display: flex
+  align-items: center
+  justify-content: center
+  aspect-ratio: 3 / 2
+  overflow: hidden
+  border-radius: var(--radius-lg)
+  background: radial-gradient(120% 90% at 50% 110%, color-mix(in srgb, var(--player-color) 38%, var(--bg-raised)) 0%, var(--bg-raised) 70%)
+  color: var(--player-color)
+
+.characterIcon
+  width: 46%
+  height: auto
+  opacity: 0.9
+
+.characterInitial
+  position: absolute
+  left: var(--space-2)
+  bottom: var(--space-2)
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border-radius: var(--radius-full)
+  background: var(--player-color)
+  color: var(--player-color-contrast)
+  font-family: var(--font-display)
+  font-size: 13px
+  font-weight: 700
+
+.thumb
+  display: flex
+  align-items: center
+  justify-content: center
+  aspect-ratio: 1
+  border-radius: var(--radius-lg)
+  border: 1px solid color-mix(in srgb, var(--player-color) 35%, var(--border))
+  background: color-mix(in srgb, var(--player-color) 16%, var(--bg-raised))
+  color: var(--player-color)
+
+.thumbIcon
+  width: 48%
+  height: auto

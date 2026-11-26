@@ -21,6 +21,7 @@ se a decisão mudar, uma nova ADR a substitui e a antiga ganha o status "Substit
 | [0013](0013-token-de-voz-sem-login.md) | Token de voz sem login até o Supabase | Aceita |
 | [0014](0014-conflito-de-cargos.md) | Conflito de permissões entre cargos | Aceita |
 | [0015](0015-app-na-vercel-prototipo-no-pages.md) | App com login na Vercel, protótipo no GitHub Pages | Aceita |
+| [0016](0016-upload-de-imagens.md) | Upload de imagens | Proposta |
 
 **Pendentes**
 

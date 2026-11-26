@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, cx, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { useShell } from "./ShellContext";
 import styles from "./MembersList.module.sass";
 
@@ -21,17 +22,17 @@ export interface MemberEntry {
 
 /**
  * Lista de membros. No desktop é uma coluna que a pessoa mostra ou esconde (salvo);
- * no celular é uma gaveta da direita, aberta pelo botão ou arrastando para a esquerda.
+ * no celular fica à direita do conteúdo, que é empurrado ao abrir (botão ou arrastando para a esquerda).
  */
 export function MembersList({ groups, label }: { groups: Array<{ title: string; members: MemberEntry[] }>; label: string }) {
-  const { membersOpen, mobileMembersOpen, setMobileMembersOpen } = useShell();
+  const { membersOpen, mobileMembersOpen } = useShell();
+  const mobile = useIsMobile();
   return (
-    <>
-      {mobileMembersOpen && <button type="button" className={styles.backdrop} aria-label="Fechar membros" onClick={() => setMobileMembersOpen(false)} />}
     <aside
-      className={cx(styles.members, !membersOpen && styles.desktopHidden, mobileMembersOpen && styles.mobileOpen)}
+      className={cx(styles.members, !membersOpen && styles.desktopHidden)}
       aria-label={label}
       data-drawer="members"
+      inert={mobile && !mobileMembersOpen ? true : undefined}
     >
       {groups
         .filter((g) => g.members.length > 0)
@@ -57,6 +58,5 @@ export function MembersList({ groups, label }: { groups: Array<{ title: string; 
           </section>
         ))}
     </aside>
-    </>
   );
 }

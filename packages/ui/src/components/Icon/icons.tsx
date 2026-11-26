@@ -59,7 +59,8 @@ export const icons = {
     </>
   ),
   // Compêndio
-  claw: <path d="M6 4c2 4 2 10-1 16M12 4c2 4 2 10-1 16M18 4c2 4 2 10-1 16" />,
+  // Três riscos de garra na diagonal.
+  claw: <path d="M4 11c2.5-1.5 5-4.5 6.5-8M5 17c4-2 8.5-6.5 11-11M10 21c3.5-2 7-6 9.5-10.5" />,
   sword: (
     <>
       <path d="M21 3v4L10 18l-4-4L17 3z" />
@@ -70,6 +71,19 @@ export const icons = {
     <>
       <path d="M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8z" />
       <path d="M19 15v6M16 18h6" />
+    </>
+  ),
+  shield: <path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z" />,
+  bow: (
+    <>
+      <path d="M6 3c6 3 9 7 9 9s-3 6-9 9" />
+      <path d="M6 3v18M15 12h6M18 9l3 3-3 3" />
+    </>
+  ),
+  dagger: (
+    <>
+      <path d="M14 4l6 0 0 6-8 8-4-4z" />
+      <path d="M6 12l6 6M7.5 16.5 4 20" />
     </>
   ),
   map: (

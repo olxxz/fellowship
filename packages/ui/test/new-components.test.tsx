@@ -140,3 +140,20 @@ describe("cores livres", () => {
     expect(container.querySelector('input[name="color"]')).toHaveValue("#123abc");
   });
 });
+
+describe("placeholders gerados", () => {
+  it("a mesma semente gera a mesma imagem; outra semente, outra", async () => {
+    const { GeneratedBanner } = await import("../src");
+    const a = render(<GeneratedBanner seed="campanha-1" color="#d4a24c" />).container.innerHTML;
+    const b = render(<GeneratedBanner seed="campanha-1" color="#d4a24c" />).container.innerHTML;
+    const c = render(<GeneratedBanner seed="campanha-2" color="#d4a24c" />).container.innerHTML;
+    expect(a).toBe(b);
+    expect(a).not.toBe(c);
+  });
+
+  it("retrato sem imagem tem nome acessível", async () => {
+    const { CharacterPlaceholder } = await import("../src");
+    render(<CharacterPlaceholder name="Kael" color={1} archetype="patrulheiro" />);
+    expect(screen.getByRole("img", { name: "Kael (sem retrato)" })).toBeInTheDocument();
+  });
+});

@@ -57,7 +57,7 @@ Todo componente tem oito estados: padrão, hover, foco, ativo, desabilitado, **c
 
 ## Movimento
 
-Movimento só quando comunica algo, e uma ênfase por vez: a onda de quem está falando, o dado que gira ao rolar, o "pop" de uma confirmação, o ponto "ao vivo" que pulsa devagar. Com `prefers-reduced-motion`, nada gira nem salta (no máximo uma variação de opacidade).
+Movimento só quando comunica algo, discreto (nada salta nem cresce) e uma ênfase por vez: a onda de quem está falando, o dado que gira ao rolar, o fade curto de uma confirmação, o ponto "ao vivo" que pulsa devagar. Com `prefers-reduced-motion`, nada gira nem salta (no máximo uma variação de opacidade).
 
 ## Temas de Cenário e de campanha
 
@@ -102,3 +102,7 @@ O teste `packages/ui/test/contrast.test.ts` valida as combinações que a interf
 | `text-faint` sobre `bg-raised` | 4.3:1 | Complemento da linha de canal ativa ("2 na sala") |
 
 Como borda e texto grande (o total da rolagem), as cores de personagem passam de 3:1. Para o nome no chat, falta decidir entre escurecer esses tokens no tema claro ou calcular `--player-color-contrast` como a especificação prevê. Quando uma lacuna for corrigida, o teste falha para lembrar de movê-la para a lista principal.
+
+## Placeholders
+
+Sem imagem, cada coisa tem um placeholder gerado pelo id (sempre o mesmo para a mesma coisa): perfil com a inicial na cor da pessoa, personagem com o emblema do arquétipo, Cenário e campanha com banner de blocos e discos na cor escolhida, e compêndio com o ícone do tipo. Ver a seção "Proposta · placeholders" em `/design-system` e a [ADR 0016](../adr/0016-upload-de-imagens.md) para o upload.

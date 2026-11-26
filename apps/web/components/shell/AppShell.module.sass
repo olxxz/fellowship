@@ -6,43 +6,43 @@
   height: 100dvh
   overflow: hidden
   background: var(--bg-rail)
+  // Larguras das gavetas no celular (o conteúdo sempre deixa uma faixa visível para tocar e fechar).
+  --drawer-nav-w: min(calc(var(--size-rail) + var(--size-sidebar)), calc(100vw - 56px))
+  --drawer-members-w: min(300px, calc(100vw - 56px))
   @include mobile
-    grid-template-columns: minmax(0, 1fr)
+    display: block
+
+// Celular: a navegação fica à esquerda do conteúdo e os membros à direita, fora da tela.
+// Abrir uma gaveta desliza o "trilho" inteiro: o conteúdo é empurrado, não coberto.
+.track
+  display: contents
+  @include mobile
+    display: block
+    position: relative
+    height: 100%
+    transform: translateX(0)
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1)
+    @include reduced-motion
+      transition: none
+
+.trackNav
+  @include mobile
+    transform: translateX(var(--drawer-nav-w))
+
+.trackMembers
+  @include mobile
+    transform: translateX(calc(-1 * var(--drawer-members-w)))
 
 .nav
   grid-column: span 2
   display: flex
   min-height: 0
   @include mobile
-    position: fixed
-    z-index: 40
-    inset: 0 auto 0 0
-    width: min(calc(var(--size-rail) + var(--size-sidebar)), calc(100vw - 48px))
-    transform: translateX(-100%)
-    visibility: hidden
-    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 220ms
-    @include reduced-motion
-      transition: none
-
-.navOpen
-  @include mobile
-    transform: none
-    visibility: visible
-    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)
-    box-shadow: var(--shadow-popover)
-    @include reduced-motion
-      transition: none
-
-.backdrop
-  display: none
-  @include mobile
-    @include reset-interactive
-    display: block
-    position: fixed
-    z-index: 39
-    inset: 0
-    background: var(--bg-overlay)
-    cursor: default
+    position: absolute
+    top: 0
+    bottom: 0
+    right: 100%
+    width: var(--drawer-nav-w)
 
 .content
   min-width: 0
@@ -52,3 +52,28 @@
   background: var(--bg-content)
   @include desktop
     border-top-left-radius: var(--radius-xl)
+  @include mobile
+    position: relative
+    height: 100%
+
+// Véu sobre o conteúdo empurrado: escurece de leve e um toque fecha a gaveta.
+.scrim
+  display: none
+  @include mobile
+    @include reset-interactive
+    display: block
+    position: absolute
+    inset: 0
+    z-index: 20
+    background: var(--bg-overlay)
+    opacity: 0
+    pointer-events: none
+    cursor: default
+    transition: opacity 260ms ease-out
+    @include reduced-motion
+      transition: none
+
+.scrimVisible
+  @include mobile
+    opacity: 0.6
+    pointer-events: auto

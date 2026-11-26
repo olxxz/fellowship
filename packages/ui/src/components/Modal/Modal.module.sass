@@ -29,10 +29,9 @@
   box-shadow: var(--shadow-popover)
   transform: translate(-50%, -50%)
   outline: none
-  transition: opacity 160ms ease-out, transform 160ms ease-out
+  transition: opacity 160ms ease-out
   &[data-starting-style], &[data-ending-style]
     opacity: 0
-    transform: translate(-50%, -48%) scale(0.98)
   @include reduced-motion
     transition: none
 

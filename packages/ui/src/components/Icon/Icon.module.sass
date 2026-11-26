@@ -1,6 +1,6 @@
 @use "../../styles/mixins" as *
 
-// Movimento só onde comunica algo (alguém falando, dado rolando, ação confirmada).
+// Movimento só onde comunica algo (alguém falando, dado rolando, ação confirmada), discreto: nada salta nem cresce.
 // Com "reduzir movimento" no sistema, nada gira nem salta: no máximo uma variação de opacidade.
 
 .icon
@@ -12,17 +12,15 @@
   @include reduced-motion
     animation: fade 1.4s ease-in-out infinite
 
-// Dado rolando: uma volta com desaceleração, a cada vez que o ícone é montado de novo.
+// Dado rolando: meia volta com desaceleração, sem crescer nem saltar.
 .tumble
-  animation: tumble 0.55s cubic-bezier(0.2, 0.8, 0.2, 1)
+  animation: tumble 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)
   @include reduced-motion
     animation: none
 
-// Confirmação: aparece com um pequeno salto.
+// Confirmação: o ícone novo entra com um fade curto (sem escala).
 .pop
-  animation: pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1.4)
-  @include reduced-motion
-    animation: none
+  animation: appear 0.18s ease-out
 
 // Pulsa devagar (atenção sem urgência).
 .pulse
@@ -49,20 +47,14 @@
     transform: rotate(360deg)
 
 @keyframes tumble
-  0%
-    transform: rotate(0) scale(1)
-  40%
-    transform: rotate(220deg) scale(1.15)
-  100%
-    transform: rotate(360deg) scale(1)
+  from
+    transform: rotate(-180deg)
+  to
+    transform: rotate(0)
 
-@keyframes pop
-  0%
-    transform: scale(0.5)
+@keyframes appear
+  from
     opacity: 0
-  100%
-    transform: scale(1)
-    opacity: 1
 
 @keyframes fade
   0%, 100%
@@ -72,6 +64,6 @@
 
 @keyframes bar
   0%, 100%
-    transform: scaleY(0.55)
+    transform: scaleY(0.6)
   50%
-    transform: scaleY(1.15)
+    transform: scaleY(1)

@@ -90,3 +90,44 @@
   flex-direction: column
   gap: var(--space-3)
   max-width: 340px
+
+.note
+  @include text-caption
+  color: var(--text-muted)
+
+.placeholders
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))
+  gap: var(--space-3)
+
+.thumbs
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr))
+  gap: var(--space-3)
+
+.figure
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  margin: 0
+  figcaption
+    @include text-caption
+    color: var(--text-muted)
+    text-align: center
+
+.banners
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))
+  gap: var(--space-3)
+
+.bannerDemo
+  position: relative
+  overflow: hidden
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+
+.bannerName
+  position: absolute
+  left: var(--space-4)
+  bottom: var(--space-3)
+  @include text-title

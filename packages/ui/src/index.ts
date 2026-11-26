@@ -8,6 +8,16 @@ export { Icon, type IconMotion, type IconProps } from "./components/Icon/Icon";
 export { icons, type IconName } from "./components/Icon/icons";
 export { Menu } from "./components/Menu/Menu";
 export { Modal, type ModalProps } from "./components/Modal/Modal";
+export {
+  ARCHETYPES,
+  CharacterPlaceholder,
+  COMPENDIUM_KINDS,
+  CompendiumThumb,
+  GeneratedAvatar,
+  GeneratedBanner,
+  type Archetype,
+  type CompendiumKind,
+} from "./components/Placeholder/Placeholder";
 export { ParticipantCard, type ParticipantCardProps } from "./components/ParticipantCard/ParticipantCard";
 export { Popover } from "./components/Popover/Popover";
 export { ResourceBar, type ResourceBarProps } from "./components/ResourceBar/ResourceBar";
@@ -23,5 +33,6 @@ export {
 } from "./components/Skeleton/Skeleton";
 export { Tabs } from "./components/Tabs/Tabs";
 export { cx } from "./cx";
+export { hashSeed, seededRandom } from "./seed";
 export { isHexColor, NARRATOR_COLOR, playerColorStyle, PRESET_COLORS, readableOn, type AccentColor, type PlayerColor } from "./player-color";
 export { ColorPicker, type ColorPickerProps } from "./components/ColorPicker/ColorPicker";

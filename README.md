@@ -63,7 +63,7 @@ As migrações ficam em `supabase/migrations` e a **integração do Supabase com
 ### Celular
 
 - **Sem zoom ao digitar:** todo campo tem 16px em telas de toque (abaixo disso o iPhone amplia a página sozinho). A pinça para ampliar continua liberada.
-- **Gavetas por gesto:** arrastar para a direita abre a navegação; para a esquerda, os membros. A direção só é decidida depois de 10px e precisa ser bem lateral (|dx| > 1,5·|dy|, uns 34°), então rolar na diagonal não abre nada. Ao soltar, abre se passou de 1/3 da gaveta ou se o movimento foi rápido (> 0,45 px/ms). Regras em `apps/web/lib/gesture.ts`, com testes.
+- **Gavetas que empurram:** a navegação fica à esquerda e os membros à direita do conteúdo; abrir desliza tudo para o lado (o conteúdo não é coberto). Arrastar para a direita abre a navegação; para a esquerda, os membros. A direção só é decidida depois de 10px e precisa ser bem lateral (|dx| > 1,5·|dy|, uns 34°), então rolar na diagonal não abre nada. Ao soltar, abre se passou de 1/3 da gaveta ou se o movimento foi rápido (> 0,45 px/ms). Regras em `apps/web/lib/gesture.ts`, com testes.
 - **Voltar do sistema:** a faixa de 20px junto às bordas fica para o gesto de voltar do iPhone e do Android, que uma página não consegue desligar. Instalado como app ("Adicionar à tela de início"), o iPhone não tem esse gesto do Safari e as gavetas respondem em toda a largura.
 
 ## Protótipo (`/demo`)

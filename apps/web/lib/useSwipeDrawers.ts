@@ -10,7 +10,7 @@ interface Drag {
   y0: number;
   axis: Axis;
   kind: Kind | null;
-  el: HTMLElement | null;
+  /** Largura da gaveta em jogo (navegação ou membros). */
   width: number;
   dx: number;
   samples: Sample[];
@@ -36,9 +36,15 @@ export interface SwipeDrawersOptions {
 
 /**
  * Celular: arrastar para a direita abre a navegação (e fecha os membros); para a esquerda abre os membros
- * (e fecha a navegação). A gaveta acompanha o dedo; ao soltar, confirma por distância ou velocidade (lib/gesture.ts).
+ * (e fecha a navegação). O trilho (navegação + conteúdo + membros) acompanha o dedo, empurrando o conteúdo;
+ * ao soltar, confirma por distância ou velocidade (lib/gesture.ts).
  */
-export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: RefObject<HTMLElement | null>, options: SwipeDrawersOptions) {
+export function useSwipeDrawers(
+  rootRef: RefObject<HTMLElement | null>,
+  trackRef: RefObject<HTMLElement | null>,
+  navRef: RefObject<HTMLElement | null>,
+  options: SwipeDrawersOptions,
+) {
   const latest = useRef(options);
   useEffect(() => {
     latest.current = options;
@@ -52,11 +58,18 @@ export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: 
     const standalone = window.matchMedia("(display-mode: standalone)").matches;
     let drag: Drag | null = null;
 
-    const reset = (el: HTMLElement | null) => {
-      if (!el) return;
-      el.style.transition = "";
-      el.style.transform = "";
-      el.style.visibility = "";
+    const scrim = () => root.querySelector<HTMLElement>("[data-scrim]");
+    const reset = () => {
+      const track = trackRef.current;
+      if (track) {
+        track.style.transition = "";
+        track.style.transform = "";
+      }
+      const veil = scrim();
+      if (veil) {
+        veil.style.transition = "";
+        veil.style.opacity = "";
+      }
     };
 
     const onStart = (e: TouchEvent) => {
@@ -65,7 +78,7 @@ export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: 
       const touch = e.touches[0]!;
       const target = e.target as Element;
       if (target.closest(IGNORE) || (!standalone && inSystemEdge(touch.clientX, window.innerWidth)) || insideHorizontalScroll(target, root)) return;
-      drag = { x0: touch.clientX, y0: touch.clientY, axis: "pending", kind: null, el: null, width: 0, dx: 0, samples: [{ x: touch.clientX, t: performance.now() }] };
+      drag = { x0: touch.clientX, y0: touch.clientY, axis: "pending", kind: null, width: 0, dx: 0, samples: [{ x: touch.clientX, t: performance.now() }] };
     };
 
     const onMove = (e: TouchEvent) => {
@@ -84,14 +97,15 @@ export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: 
         const { navOpen, membersOpen } = latest.current;
         const membersEl = root.querySelector<HTMLElement>('[data-drawer="members"]');
         drag.kind = navOpen ? (dx < 0 ? "closeNav" : null) : membersOpen ? (dx > 0 ? "closeMembers" : null) : dx > 0 ? "openNav" : membersEl ? "openMembers" : null;
-        drag.el = drag.kind === "openNav" || drag.kind === "closeNav" ? navRef.current : membersEl;
-        if (!drag.kind || !drag.el) {
+        const drawer = drag.kind === "openNav" || drag.kind === "closeNav" ? navRef.current : membersEl;
+        if (!drag.kind || !drawer || !trackRef.current) {
           drag = null;
           return;
         }
-        drag.width = drag.el.getBoundingClientRect().width;
-        drag.el.style.transition = "none";
-        drag.el.style.visibility = "visible";
+        drag.width = drawer.getBoundingClientRect().width;
+        trackRef.current.style.transition = "none";
+        const veil = scrim();
+        if (veil) veil.style.transition = "none";
       }
 
       e.preventDefault(); // o arrasto lateral é da gaveta, não da página
@@ -99,25 +113,28 @@ export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: 
       drag.samples.push({ x: touch.clientX, t: performance.now() });
       if (drag.samples.length > 20) drag.samples.shift();
 
+      // Deslocamento do trilho: positivo mostra a navegação, negativo mostra os membros.
       const w = drag.width;
-      const x =
+      const shift =
         drag.kind === "openNav"
-          ? Math.min(0, -w + Math.max(0, dx))
+          ? Math.min(w, Math.max(0, dx))
           : drag.kind === "closeNav"
-            ? Math.max(-w, Math.min(0, dx))
+            ? Math.min(w, Math.max(0, w + dx))
             : drag.kind === "openMembers"
-              ? Math.max(0, w + Math.min(0, dx))
-              : Math.min(w, Math.max(0, dx));
-      drag.el!.style.transform = `translateX(${x}px)`;
+              ? Math.max(-w, Math.min(0, dx))
+              : Math.max(-w, Math.min(0, -w + dx));
+      trackRef.current!.style.transform = `translateX(${shift}px)`;
+      const veil = scrim();
+      if (veil) veil.style.opacity = String((Math.abs(shift) / w) * 0.6);
     };
 
     const onEnd = () => {
       const d = drag;
       drag = null;
-      if (!d || d.axis !== "horizontal" || !d.el || !d.kind) return;
+      if (!d || d.axis !== "horizontal" || !d.kind) return;
       const direction = d.kind === "openNav" || d.kind === "closeMembers" ? 1 : -1;
       const commit = shouldCommit(d.dx, velocity(d.samples), d.width, direction);
-      reset(d.el); // a transição do CSS leva a gaveta até o estado final
+      reset(); // a transição do CSS leva o trilho até o estado final
       if (!commit) return;
       const { setNavOpen, setMembersOpen } = latest.current;
       if (d.kind === "openNav") setNavOpen(true);
@@ -136,5 +153,5 @@ export function useSwipeDrawers(rootRef: RefObject<HTMLElement | null>, navRef: 
       root.removeEventListener("touchend", onEnd);
       root.removeEventListener("touchcancel", onEnd);
     };
-  }, [rootRef, navRef]);
+  }, [rootRef, trackRef, navRef]);
 }

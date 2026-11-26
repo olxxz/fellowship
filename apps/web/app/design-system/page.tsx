@@ -1,4 +1,12 @@
-import { Avatar, Button, CampaignCard, ChannelCategory, ChannelRow, ChatMessage, ChatNotice, IconButton, ParticipantCard, ResourceBar, RollCard } from "@fellowship/ui";
+import {
+  ARCHETYPES,
+  Avatar,
+  Button,
+  CharacterPlaceholder,
+  COMPENDIUM_KINDS,
+  CompendiumThumb,
+  GeneratedAvatar,
+  GeneratedBanner, CampaignCard, ChannelCategory, ChannelRow, ChatMessage, ChatNotice, IconButton, ParticipantCard, ResourceBar, RollCard } from "@fellowship/ui";
 import type { Metadata } from "next";
 import styles from "./page.module.sass";
 
@@ -145,6 +153,46 @@ function Showcase({ theme, name }: { theme: "dark" | "light"; name: string }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxWidth: 360 }}>
           <ResourceBar label="Vida" tone="hp" value={14} max={18} />
           <ResourceBar label="Mana" tone="mana" value={6} max={8} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.overline}>Proposta · placeholders gerados pelo id</h3>
+        <p className={styles.note}>Perfil: inicial (atual) ou avatar gerado</p>
+        <div className={styles.row} style={{ alignItems: "center" }}>
+          {[["Ana", "#4fb3a9"], ["Bruno", "#e07a5f"], ["Carla", "#a99cf5"], ["Dani", "#5b8def"]].map(([n, c]) => (
+            <span key={n} style={{ display: "inline-flex", gap: 6 }}>
+              <Avatar name={n!} color={c!} size={44} />
+              <GeneratedAvatar seed={`perfil-${n}`} color={c!} size={44} />
+            </span>
+          ))}
+        </div>
+        <p className={styles.note}>Personagem sem retrato: emblema do arquétipo</p>
+        <div className={styles.placeholders}>
+          {ARCHETYPES.map((a, i) => (
+            <figure key={a} className={styles.figure}>
+              <CharacterPlaceholder name={["Brom", "Lia", "Nyx", "Edda", "Kael", "Grul"][i]!} color={(["#e07a5f", "#a99cf5", "#5b8def", "#d4a24c", "#4fb3a9", "#7ee0a1"] as const)[i]!} archetype={a} />
+              <figcaption>{a}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className={styles.note}>Cenário e campanha: banner gerado (a mesma campanha tem sempre o mesmo)</p>
+        <div className={styles.banners}>
+          {[["Terras de Vel", "#d4a24c"], ["A Maldição de Vel", "#e05a5a"], ["Neon Rio", "#56ccf2"], ["Ecos de Karn", "#4fb3a9"]].map(([n, c]) => (
+            <div key={n} className={styles.bannerDemo}>
+              <GeneratedBanner seed={n!} color={c!} />
+              <span className={styles.bannerName}>{n}</span>
+            </div>
+          ))}
+        </div>
+        <p className={styles.note}>Compêndio: ícone do tipo na cor da campanha</p>
+        <div className={styles.thumbs}>
+          {COMPENDIUM_KINDS.map((k) => (
+            <figure key={k} className={styles.figure}>
+              <CompendiumThumb kind={k} color="#d4a24c" />
+              <figcaption>{k}</figcaption>
+            </figure>
+          ))}
         </div>
       </div>
 

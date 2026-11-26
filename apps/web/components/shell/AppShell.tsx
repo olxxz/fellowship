@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cx } from "@fellowship/ui";
 import { useFlag } from "@/lib/prefs";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { useSwipeDrawers } from "@/lib/useSwipeDrawers";
 import styles from "./AppShell.module.sass";
 import { ShellContext, type ShellState } from "./ShellContext";
@@ -11,16 +12,18 @@ const DESKTOP = "(min-width: 768px)";
 
 /**
  * Casca do app em quatro colunas, como no Discord: barra de Cenários, barra lateral, conteúdo e (dentro do conteúdo) membros.
- * No celular, a barra de Cenários e a lateral viram uma gaveta que desliza da esquerda.
+ * No celular, a navegação fica à esquerda e os membros à direita: abrir empurra o conteúdo para o lado (não cobre).
  */
 export function AppShell({ rail, sidebar, children }: { rail: ReactNode; sidebar: ReactNode; children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useFlag("membros", true);
   const [mobileMembersOpen, setMobileMembersOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  const mobile = useIsMobile();
 
-  useSwipeDrawers(rootRef, navRef, {
+  useSwipeDrawers(rootRef, trackRef, navRef, {
     navOpen: drawerOpen,
     setNavOpen: (open) => {
       setDrawerOpen(open);
@@ -71,13 +74,26 @@ export function AppShell({ rail, sidebar, children }: { rail: ReactNode; sidebar
   return (
     <ShellContext.Provider value={state}>
       <div ref={rootRef} className={styles.shell} data-app-shell="">
-        <nav ref={navRef} className={cx(styles.nav, drawerOpen && styles.navOpen)} aria-label="Navegação">
-          {rail}
-          {sidebar}
-        </nav>
-        {drawerOpen && <button type="button" className={styles.backdrop} aria-label="Fechar navegação" onClick={() => setDrawerOpen(false)} />}
-        <div className={styles.content} inert={drawerOpen}>
-          {children}
+        <div ref={trackRef} className={cx(styles.track, drawerOpen && styles.trackNav, mobileMembersOpen && styles.trackMembers)}>
+          <nav ref={navRef} className={styles.nav} aria-label="Navegação" inert={mobile && !drawerOpen ? true : undefined}>
+            {rail}
+            {sidebar}
+          </nav>
+          <div className={styles.content} inert={drawerOpen}>
+            {children}
+          </div>
+          <button
+            type="button"
+            className={cx(styles.scrim, (drawerOpen || mobileMembersOpen) && styles.scrimVisible)}
+            aria-label={drawerOpen ? "Fechar navegação" : "Fechar membros"}
+            tabIndex={drawerOpen || mobileMembersOpen ? 0 : -1}
+            aria-hidden={drawerOpen || mobileMembersOpen ? undefined : true}
+            data-scrim=""
+            onClick={() => {
+              setDrawerOpen(false);
+              setMobileMembersOpen(false);
+            }}
+          />
         </div>
       </div>
     </ShellContext.Provider>
