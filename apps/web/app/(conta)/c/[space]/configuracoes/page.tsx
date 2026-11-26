@@ -1,5 +1,4 @@
 import { Permission } from "@fellowship/core";
-import type { Invite } from "@fellowship/db";
 import type { Metadata } from "next";
 import { InviteList } from "@/components/account/InviteList";
 import styles from "@/components/account/Settings.module.sass";
@@ -7,6 +6,7 @@ import { SpaceSettingsForm } from "@/components/account/SpaceSettingsForm";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ContentHeader } from "@/components/shell/ContentHeader";
 import { getSpaceView, requireAccount } from "@/lib/app/queries";
+import { listInvitesAction } from "@/lib/app/space-actions";
 
 export const metadata: Metadata = { title: "Configurações do Cenário" };
 
@@ -28,11 +28,7 @@ export default async function SpaceSettingsPage({ params }: { params: Promise<{ 
     );
   }
 
-  const { data } = await supabase
-    .from("invites")
-    .select("code, space_id, created_by, max_uses, uses, expires_at, revoked_at, created_at")
-    .eq("space_id", spaceId)
-    .order("created_at", { ascending: false });
+  const invites = canInvite || canManage ? await listInvitesAction(spaceId) : [];
 
   return (
     <>
@@ -50,7 +46,7 @@ export default async function SpaceSettingsPage({ params }: { params: Promise<{ 
           )}
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>Convites</h3>
-            <InviteList spaceId={spaceId} spaceName={view.space.name} invites={(data ?? []) as Invite[]} canInvite={canInvite} />
+            <InviteList spaceId={spaceId} spaceName={view.space.name} invites={invites} canInvite={canInvite} />
           </section>
         </div>
       </main>

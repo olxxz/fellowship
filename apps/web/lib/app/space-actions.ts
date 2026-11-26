@@ -1,5 +1,6 @@
 "use server";
 
+import type { Invite } from "@fellowship/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAccount } from "@/lib/app/queries";
@@ -22,6 +23,19 @@ export async function createInviteAction(spaceId: string, expiresHours: number |
   if (error || typeof data !== "string") return { error: dbMessage(error, "Não foi possível criar o convite agora.") };
   revalidatePath(`/c/${spaceId}/configuracoes`);
   return { code: data };
+}
+
+/** Convites ativos do Cenário que a conta pode ver (os próprios; quem gerencia canais vê todos). */
+export async function listInvitesAction(spaceId: string) {
+  const { supabase } = await requireAccount();
+  const { data } = await supabase
+    .from("invites")
+    .select("code, space_id, created_by, max_uses, uses, expires_at, revoked_at, created_at")
+    .eq("space_id", spaceId)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: false });
+  const now = Date.now();
+  return ((data ?? []) as Invite[]).filter((i) => (!i.expires_at || new Date(i.expires_at).getTime() > now) && (i.max_uses === null || i.uses < i.max_uses));
 }
 
 export async function revokeInviteAction(spaceId: string, code: string) {
