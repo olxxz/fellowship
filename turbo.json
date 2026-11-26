@@ -2,8 +2,19 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        "out/**"
+      ],
+      "env": [
+        "STATIC_EXPORT",
+        "PAGES_BASE_PATH"
+      ]
     },
     "dev": {
       "cache": false,
@@ -11,7 +22,9 @@
     },
     "lint": {},
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": [
+        "^typecheck"
+      ]
     },
     "test": {}
   }

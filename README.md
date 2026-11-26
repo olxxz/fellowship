@@ -41,6 +41,8 @@ pnpm dev          # http://localhost:3000
 | `pnpm check` | lint + typecheck + test |
 | `pnpm tokens` | Regera os arquivos de tokens a partir de `packages/ui/tokens/tokens.json` |
 
+**Deploy:** cada push na `main` publica o app como site estático no GitHub Pages (`.github/workflows/pages.yml`), em https://olxxz.github.io/fellowship/. Para gerar o mesmo build localmente: `STATIC_EXPORT=1 PAGES_BASE_PATH=/fellowship pnpm --filter @fellowship/web build` (sai em `apps/web/out`).
+
 ## Convenções
 
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/pt-br/) (`feat(ui): …`, `fix(web): …`, `docs(adr): …`).
