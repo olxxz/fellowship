@@ -1,0 +1,77 @@
+@use "@fellowship/ui/styles/mixins" as *
+
+.body
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.messages
+  flex: 1
+  min-height: 0
+  overflow: hidden
+  display: flex
+  flex-direction: column
+  justify-content: flex-end
+  padding-bottom: var(--space-4)
+
+.composer
+  padding: 0 var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom))
+
+.page
+  flex: 1
+  overflow: hidden
+  display: flex
+  flex-direction: column
+  gap: var(--space-6)
+  max-width: 640px
+  padding: var(--space-6) var(--space-5)
+
+.grid
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))
+  gap: var(--space-3)
+
+// Casca inteira (troca de Cenário): mesma grade do AppShell, com blocos no lugar.
+.shell
+  display: grid
+  grid-template-columns: var(--size-rail) var(--size-sidebar) minmax(0, 1fr)
+  height: 100dvh
+  background: var(--bg-rail)
+  @include mobile
+    grid-template-columns: minmax(0, 1fr)
+
+.rail
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-2)
+  padding: calc(var(--space-3) + env(safe-area-inset-top)) 0
+  @include mobile
+    display: none
+
+.sidebar
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-3)
+  background: var(--bg-sidebar)
+  border-top-left-radius: var(--radius-xl)
+  @include mobile
+    display: none
+
+.content
+  display: flex
+  flex-direction: column
+  min-width: 0
+  background: var(--bg-content)
+  @include desktop
+    border-top-left-radius: var(--radius-xl)
+
+.header
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  min-height: calc(56px + env(safe-area-inset-top))
+  padding: env(safe-area-inset-top) var(--space-4) 0
+  border-bottom: 1px solid var(--border)

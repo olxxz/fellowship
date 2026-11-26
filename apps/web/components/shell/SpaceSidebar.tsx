@@ -1,7 +1,7 @@
 "use client";
 
 import { CampaignCard, ChannelCategory, ChannelRow, playerColorStyle } from "@fellowship/ui";
-import Link from "next/link";
+import { PendingLink } from "@/components/nav/PendingLink";
 import { characterById, type DemoSpace } from "@/lib/demo/data";
 import { campaignHref, spaceHref } from "@/lib/routes";
 import { useShell } from "./ShellContext";
@@ -34,7 +34,7 @@ export function SpaceSidebar({ space, activeChannelId }: { space: DemoSpace; act
                   unread={c.unread && id !== activeChannelId}
                   active={id === activeChannelId}
                   href={spaceHref(space.id, id)}
-                  linkAs={Link}
+                  linkAs={PendingLink}
                   onClick={closeDrawer}
                 />
               );
@@ -61,7 +61,7 @@ export function SpaceSidebar({ space, activeChannelId }: { space: DemoSpace; act
                   }
                   nextSession={campaign.nextSession}
                   href={campaignHref(space.id, campaign.id)}
-                  linkAs={Link}
+                  linkAs={PendingLink}
                   onClick={closeDrawer}
                 />
               ))}

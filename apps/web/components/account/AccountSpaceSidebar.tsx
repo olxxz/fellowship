@@ -4,8 +4,9 @@ import { Button, ChannelCategory, ChannelRow, IconButton, playerColorStyle } fro
 import { Permission } from "@fellowship/core";
 import type { Category, Channel, Space } from "@fellowship/db";
 import Link from "next/link";
+import { PendingLink } from "@/components/nav/PendingLink";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
@@ -31,11 +32,12 @@ export function AccountSpaceSidebar({
   const { closeDrawer } = useShell();
   const router = useRouter();
   const [inviting, setInviting] = useState(false);
+  const [openingSettings, startSettings] = useTransition();
   const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
   const canManage = (permissions & Permission.MANAGE_THEME) !== 0;
 
   const row = (c: Channel) => (
-    <ChannelRow key={c.id} icon={channelIcon(c)} name={c.name} active={c.id === activeId} href={appSpaceHref(space.id, c.id)} linkAs={Link} onClick={closeDrawer} />
+    <ChannelRow key={c.id} icon={channelIcon(c)} name={c.name} active={c.id === activeId} href={appSpaceHref(space.id, c.id)} linkAs={PendingLink} onClick={closeDrawer} />
   );
   const loose = channels.filter((c) => !c.category_id);
   const groups = categories.map((cat) => ({ cat, items: channels.filter((c) => c.category_id === cat.id) })).filter((g) => g.items.length > 0);
@@ -48,9 +50,10 @@ export function AccountSpaceSidebar({
             className={styles.bannerAction}
             icon="settings"
             label="Configurações do Cenário"
+            loading={openingSettings}
             onClick={() => {
               closeDrawer();
-              router.push(`/c/${space.id}/configuracoes`);
+              startSettings(() => router.push(`/c/${space.id}/configuracoes`));
             }}
           />
         )}

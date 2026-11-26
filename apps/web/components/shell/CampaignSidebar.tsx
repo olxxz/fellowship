@@ -1,7 +1,7 @@
 "use client";
 
 import { ChannelCategory, ChannelRow, Icon, playerColorStyle } from "@fellowship/ui";
-import Link from "next/link";
+import { PendingLink } from "@/components/nav/PendingLink";
 import { campaignChannelIds, campaignChannelInfo, type DemoCampaign, type DemoSpace } from "@/lib/demo/data";
 import { campaignHref, spaceHref } from "@/lib/routes";
 import { useShell } from "./ShellContext";
@@ -24,7 +24,7 @@ export function CampaignSidebar({ space, campaign, activeChannelId }: { space: D
         meta={id === "mesa" && campaign.live ? `${campaign.characterIds.length + 1} na Mesa` : undefined}
         metaTone={id === "mesa" ? "mesa" : "faint"}
         href={campaignHref(space.id, campaign.id, id)}
-        linkAs={Link}
+        linkAs={PendingLink}
         onClick={closeDrawer}
       />
     );
@@ -33,10 +33,10 @@ export function CampaignSidebar({ space, campaign, activeChannelId }: { space: D
   return (
     <div className={styles.sidebar}>
       <header className={styles.banner} style={playerColorStyle(campaign.color)}>
-        <Link className={styles.back} href={spaceHref(space.id, "geral")} onClick={closeDrawer}>
+        <PendingLink className={styles.back} href={spaceHref(space.id, "geral")} onClick={closeDrawer}>
           <Icon name="back" size={16} />
           {space.name}
-        </Link>
+        </PendingLink>
         <h2 className={styles.bannerName}>{campaign.name}</h2>
         {campaign.live ? (
           <p className={`${styles.bannerSub} ${styles.live}`}>

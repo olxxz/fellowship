@@ -4,7 +4,7 @@ import { Button, ButtonLink, IconButton, Menu, Popover, Sheet, Tabs, cx } from "
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { ChatView } from "@/components/chat/ChatView";
 import { ContentHeader } from "@/components/shell/ContentHeader";
 import { characterById, type DemoCampaign, type DemoCharacter, type DemoSpace } from "@/lib/demo/data";
@@ -49,6 +49,7 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
   const [sheetCharacterId, setSheetCharacterId] = useState<string>(campaign.characterIds[0]!);
   const mesaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [leaving, startLeaving] = useTransition();
   const pathname = usePathname();
 
   const narrator = characterById("narrador")!;
@@ -244,7 +245,7 @@ export function MesaView({ space, campaign }: { space: DemoSpace; campaign: Demo
           {inVoice ? (
             <IconButton className={styles.leave} icon="leave" label="Sair da voz" variant="danger" onClick={voice.leave} />
           ) : (
-            <IconButton className={styles.leave} icon="leave" label="Sair da Mesa" variant="danger" onClick={() => router.push(spaceHref(space.id, "geral"))} />
+            <IconButton className={styles.leave} icon="leave" label="Sair da Mesa" variant="danger" loading={leaving} onClick={() => startLeaving(() => router.push(spaceHref(space.id, "geral")))} />
           )}
         </div>
       </div>

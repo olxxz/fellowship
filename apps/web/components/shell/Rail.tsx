@@ -1,7 +1,7 @@
 "use client";
 
 import { cx, Icon, playerColorStyle, type AccentColor } from "@fellowship/ui";
-import Link from "next/link";
+import { PendingIconLink } from "@/components/nav/PendingLink";
 import styles from "./Rail.module.sass";
 import { useShell } from "./ShellContext";
 
@@ -29,9 +29,9 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
     <div className={styles.rail}>
       <ul className={styles.list}>
         <li className={cx(styles.item, !activeSpaceId && styles.active)}>
-          <Link href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={closeDrawer}>
+          <PendingIconLink href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={closeDrawer}>
             <Icon name="home" size={22} />
-          </Link>
+          </PendingIconLink>
         </li>
       </ul>
       <span className={styles.separator} aria-hidden="true" />
@@ -40,7 +40,7 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
           const active = space.id === activeSpaceId;
           return (
             <li key={space.id} className={cx(styles.item, active && styles.active)}>
-              <Link
+              <PendingIconLink
                 href={space.href}
                 className={styles.icon}
                 style={playerColorStyle(space.color)}
@@ -50,15 +50,15 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
                 onClick={closeDrawer}
               >
                 {space.short}
-              </Link>
+              </PendingIconLink>
             </li>
           );
         })}
       </ul>
       {createHref ? (
-        <Link href={createHref} className={styles.add} aria-label="Criar Cenário" title="Criar Cenário" onClick={closeDrawer}>
+        <PendingIconLink href={createHref} className={styles.add} aria-label="Criar Cenário" title="Criar Cenário" onClick={closeDrawer}>
           <Icon name="plus" size={22} />
-        </Link>
+        </PendingIconLink>
       ) : (
         <button type="button" className={styles.add} aria-label="Criar Cenário (só no app com login)" title="Criar Cenário (só no app com login)" disabled>
           <Icon name="plus" size={22} />
