@@ -1,6 +1,7 @@
 import { Button, ButtonLink } from "@fellowship/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { NotificationsToggle } from "@/components/account/NotificationsToggle";
 import { ProfileForm } from "@/components/account/ProfileForm";
 import styles from "@/components/account/Settings.module.sass";
 import { ContentHeader } from "@/components/shell/ContentHeader";
@@ -21,6 +22,10 @@ export default async function ContaPage() {
             <p className={styles.lead}>Como você aparece para o grupo, fora dos personagens.</p>
           </div>
           <ProfileForm profile={profile} />
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>Notificações</h3>
+            <NotificationsToggle />
+          </section>
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>Conta</h3>
             <p className={styles.help}>

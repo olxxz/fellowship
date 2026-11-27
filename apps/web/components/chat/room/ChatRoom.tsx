@@ -20,6 +20,7 @@ import {
   type ChatSource,
 } from "@/lib/chat/source";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { notifyPush } from "@/lib/push";
 import { uploadAttachment } from "@/lib/upload";
 import { Composer } from "./Composer";
 import { MessageItem, type ReactionGroup } from "./MessageItem";
@@ -222,6 +223,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
       throw new Error("Não foi possível enviar. Confira a conexão e tente de novo.");
     }
     const saved = toChatMsg(data as unknown as ChatMsg);
+    if (source.type === "dm" || mentions.length) notifyPush(source.type === "dm" ? "dm" : "canal", saved.id);
     setMessages((all) => {
       const rest = all.filter((m) => m.id !== tempId);
       return rest.some((m) => m.id === saved.id) ? rest : [...rest, saved];
@@ -237,6 +239,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
     if (err || !data) return setError("Não foi possível enviar a figurinha.");
     stick.current = true;
     const saved = toChatMsg(data as unknown as ChatMsg);
+    if (source.type === "dm") notifyPush("dm", saved.id);
     setMessages((all) => (all.some((m) => m.id === saved.id) ? all : [...all, saved]));
   }
 

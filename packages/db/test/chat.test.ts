@@ -58,3 +58,27 @@ describe("chat completo", () => {
     await post(bruno, "https://x/gg.webp", "kind='figurinha'");
   });
 });
+
+describe("notificações", () => {
+  it("avisa quem foi mencionado e pode ver o canal, e a outra pessoa da conversa; nunca o autor", async () => {
+    const db = await createTestDb();
+    const ana = await createUser(db, "Ana");
+    const bruno = await createUser(db, "Bruno");
+    const space = await as(db, ana, async () => (await one<{ id: string }>(db, "select public.create_space('Vel') as id")).id);
+    const channel = (await one<{ id: string }>(db, "select id from public.channels where space_id = $1 and kind = 'texto' order by position limit 1", [space])).id;
+    const code = await as(db, ana, async () => (await one<{ c: string }>(db, "select public.create_invite($1) as c", [space])).c);
+    await as(db, bruno, () => db.query("select public.accept_invite($1)", [code]));
+    for (const [u, e] of [[ana, "https://push/ana"], [bruno, "https://push/bruno"]] as const) {
+      await as(db, u, () => db.query("insert into public.push_subscriptions (user_id, endpoint, p256dh, auth) values ($1, $2, 'k', 'a')", [u, e]));
+    }
+    // Ninguém vê a inscrição dos outros.
+    expect(await as(db, ana, async () => (await db.query("select endpoint from public.push_subscriptions")).rows)).toEqual([{ endpoint: "https://push/ana" }]);
+    const msg = await as(db, ana, async () =>
+      (await one<{ id: string }>(db, "insert into public.messages (space_id, channel_id, author_id, content, mentions) values ($1, $2, $3, 'oi @bruno', $4) returning id", [space, channel, ana, `{${bruno},${ana}}`])).id,
+    );
+    const targets = (await db.query<{ endpoint: string; url: string }>("select endpoint, url from public.push_targets('canal', $1)", [msg])).rows;
+    expect(targets.map((t) => t.endpoint)).toEqual(["https://push/bruno"]);
+    expect(targets[0]!.url).toBe(`/c/${space}/${channel}`);
+    await expect(as(db, ana, () => db.query("select * from public.push_targets('canal', $1)", [msg]))).rejects.toThrow(/permission denied/);
+  });
+});

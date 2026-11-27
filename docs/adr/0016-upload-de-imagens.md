@@ -1,6 +1,6 @@
 # 0016. Upload de imagens
 
-- **Status:** Proposta
+- **Status:** Aceita (2026-11-27)
 - **Data:** 2026-11-26
 
 ## Contexto
@@ -40,7 +40,9 @@ Assim o plano gratuito do Supabase (1 GB) aguenta bem um grupo, sem depender de 
 - O componente de upload (recorte, compressão, barra de progresso, erro e "tentar de novo") vai para `@fellowship/ui`, para servir a todas as telas.
 - Moderação e limites por campanha ficam para o estágio 3.
 
-## Em aberto
+## Decidido
 
-- Avatar público com link imprevisível, ou privado com URL assinada (mais seguro, mas mais lento e sem cache)?
-- Aceitar GIF já agora ou só depois?
+- Avatares, banners e ícones são **públicos** (buckets `perfis` e `cenarios`, link imprevisível), e as colunas guardam o endereço da imagem (`avatar_url`, `banner_url`, `icon_url`).
+- **GIF já agora**: em avatar, banner, figurinhas e anexos (até 4 MB nas imagens públicas, 25 MB nos anexos).
+- Anexos de chat ficam no bucket privado `anexos` (`c/<canal>/…` e `d/<a>_<b>/…`), lidos com URL assinada de 1 hora.
+- Campanhas, personagens e compêndio (buckets próprios, com revelação) entram na fase 1.
