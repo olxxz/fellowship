@@ -89,11 +89,16 @@ export function Landing({ account }: { account?: LandingAccount | null }) {
               </>
             )}
           </div>
-          {authEnabled && !account && (
-            <Link className={styles.demo} href={campaignHref("vel", "maldicao")}>
-              Ver a Mesa sem conta
+          <span className={styles.demoLinks}>
+            {authEnabled && !account && (
+              <Link className={styles.demo} href={campaignHref("vel", "maldicao")}>
+                Ver a Mesa sem conta
+              </Link>
+            )}
+            <Link className={styles.demo} href="/aventuras">
+              Jogar uma aventura solo
             </Link>
-          )}
+          </span>
         </div>
 
         <div className={styles.scene} aria-hidden="true">

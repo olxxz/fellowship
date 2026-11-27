@@ -43,6 +43,7 @@ export function AccountHomeSidebar({ friends, incoming, initialUnread }: { frien
         <ChannelCategory name="Início">
           <ChannelRow icon="home" name="Seus Cenários" href={appHomeHref} linkAs={PendingLink} active={path === appHomeHref} onClick={closeDrawer} />
           <ChannelRow icon="map" name="Explorar" href={exploreHref} linkAs={PendingLink} active={path === exploreHref} onClick={closeDrawer} />
+          <ChannelRow icon="book" name="Aventuras" href="/aventuras" linkAs={PendingLink} active={path.startsWith("/aventuras")} onClick={closeDrawer} />
           <ChannelRow
             icon="users"
             name="Amigos"

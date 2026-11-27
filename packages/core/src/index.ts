@@ -17,3 +17,4 @@ export type CampaignRole = (typeof CAMPAIGN_ROLES)[number];
 
 export * from "./permissions";
 export * from "./dice";
+export * from "./adventure";

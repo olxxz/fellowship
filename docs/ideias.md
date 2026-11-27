@@ -36,3 +36,11 @@ Anotações para não esquecer. Nada aqui está decidido.
   oráculos/tabelas aleatórias para inventar o resto. Tudo determinístico, sem custo por sessão.
 - Narrador de IA (depois, opcional): narra dentro da aventura escrita, pede as rolagens e o servidor rola; regras e
   estado continuam no código. Custo por sessão, então provavelmente recurso pago.
+- Editor de aventura visual dentro do app (por trás é JSON): cenas como cartões ligados por setas (escolhas e testes),
+  painel da cena (texto, imagem, efeitos), validação ao vivo (cena sem saída, cena inalcançável, item que ninguém dá).
+  Mapa simples opcional (imagem plana com pontos clicáveis ligados às cenas).
+
+## Atalhos (hotkeys)
+
+- Paleta de comandos (Ctrl/⌘ K): ir para canal, Cenário, campanha, pessoa; rolar dados ("r 1d20+5").
+- Alt+↑/↓ canal anterior/próximo; Ctrl+/ lista de atalhos; M mutar; Esc fecha; na Mesa: D dados, F ficha, C chat.
