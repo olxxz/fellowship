@@ -51,6 +51,9 @@
       height: var(--radius-xl)
       background: color-mix(in srgb, var(--player-color) 22%, var(--bg-sidebar))
       pointer-events: none
+    // Com foto, o canto continua a imagem: mostra a faixa da borda direita dela, no mesmo tamanho do banner.
+    &[data-image]::after
+      background: var(--banner-image) right top / var(--size-sidebar) calc(var(--size-sidebar) / 2) no-repeat
 
 .bannerName
   @include text-title
