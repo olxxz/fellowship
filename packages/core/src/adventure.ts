@@ -74,7 +74,7 @@ export function startAdventure(a: Adventure): AdventureState {
 }
 
 function apply(a: Adventure, s: AdventureState, effects: AdventureEffect[] = []): AdventureState {
-  let next = { ...s, itens: [...s.itens], flags: [...s.flags] };
+  const next = { ...s, itens: [...s.itens], flags: [...s.flags] };
   for (const e of effects) {
     if ("flag" in e && !next.flags.includes(e.flag)) next.flags.push(e.flag);
     if ("item" in e && !next.itens.includes(e.item)) next.itens.push(e.item);
