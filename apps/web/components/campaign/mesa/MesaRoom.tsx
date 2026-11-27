@@ -315,6 +315,7 @@ export function MesaRoom(props: {
             <>
               <IconButton icon={voice.muted ? "micOff" : "mic"} label={voice.muted ? "Ativar microfone" : "Mutar microfone"} aria-pressed={voice.muted} variant={voice.muted ? "danger" : "secondary"} onClick={() => voice.setMuted(!voice.muted)} />
               <IconButton icon={voice.cameraOn ? "camera" : "cameraOff"} label={voice.cameraOn ? "Desligar câmera" : "Ligar câmera"} aria-pressed={voice.cameraOn} disabled={!live} onClick={() => void voice.toggleCamera()} />
+              <IconButton icon="settings" label="Voz e vídeo (microfone, saída de som, volume)" onClick={() => voice.setSettingsOpen(true)} />
             </>
           ) : null}
           {props.canPlay && ingame && (

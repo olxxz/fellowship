@@ -195,6 +195,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         const next = new Room({
           // No celular, trocar de app dispara "pagehide": sem isto o LiveKit derruba a chamada sozinho.
           disconnectOnPageLeave: false,
+          // iPhone ignora o volume dos elementos de áudio: com a mixagem pelo Web Audio, o volume por pessoa
+          // funciona (e passa de 100%) e o som segue a saída escolhida pelo sistema (fone Bluetooth).
+          webAudioMix: isIOS(),
           adaptiveStream: true,
           dynacast: true,
           // Câmera em 720p com camadas menores para quadros pequenos; tela nítida para texto (fichas, mapas).
