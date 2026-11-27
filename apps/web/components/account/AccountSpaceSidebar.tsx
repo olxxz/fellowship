@@ -13,6 +13,7 @@ import { channelIcon } from "@/lib/app/channels";
 import { appSpaceHref, campaignHref } from "@/lib/routes";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
+import { SidebarChannels } from "./SidebarChannels";
 import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
 import { useChannelUnread } from "./useChannelUnread";
@@ -85,8 +86,6 @@ export function AccountSpaceSidebar({
       </div>
     );
   };
-  const loose = channels.filter((c) => !c.category_id);
-  const groups = categories.map((cat) => ({ cat, items: channels.filter((c) => c.category_id === cat.id) })).filter((g) => g.items.length > 0 || canManageChannels);
 
   return (
     <div className={styles.sidebar}>
@@ -122,12 +121,14 @@ export function AccountSpaceSidebar({
       )}
       {canInvite && <InviteDialog spaceId={space.id} spaceName={space.name} open={inviting} onOpenChange={setInviting} />}
       <div className={styles.scroll}>
-        {loose.length > 0 && <div>{loose.map(row)}</div>}
-        {groups.map(({ cat, items }) => (
-          <ChannelCategory key={cat.id} name={cat.name} action={canManageChannels ? addButton(cat.id, `Criar canal em ${cat.name}`) : undefined}>
-            {items.map(row)}
-          </ChannelCategory>
-        ))}
+        <SidebarChannels
+          spaceId={space.id}
+          categories={categories}
+          channels={channels}
+          canManage={canManageChannels}
+          renderRow={row}
+          categoryAction={(cat) => (canManageChannels ? addButton(cat.id, `Criar canal em ${cat.name}`) : undefined)}
+        />
         {canManageChannels && (
           <button type="button" className={styles.addChannelRow} onClick={() => setCreatingIn({ open: true, categoryId: null })}>
             <Icon name="plus" size={18} />

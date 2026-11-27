@@ -251,3 +251,41 @@
   font-weight: 600
   .mentionBadge
     margin-left: auto
+
+// Arrastar canais e categorias
+.dropList
+  min-height: 4px
+  border-radius: var(--radius-md)
+
+.dropEmpty
+  min-height: 40px
+  border: 1px dashed var(--border-strong)
+  display: grid
+  place-items: center
+
+.dropOver
+  background: color-mix(in srgb, var(--accent) 10%, transparent)
+
+.dropHint
+  @include text-caption
+  color: var(--text-muted)
+
+.dragGhost
+  border-radius: var(--radius-md)
+  background: var(--bg-raised)
+  box-shadow: var(--shadow-popover)
+  padding: 2px 6px
+  @include text-overline
+  cursor: grabbing
+
+.newCategory
+  margin: var(--space-2) var(--space-2) 0
+  input
+    width: 100%
+    min-height: 36px
+    padding: 0 10px
+    border: 1px solid var(--focus-ring)
+    border-radius: var(--radius-md)
+    background: var(--bg-input)
+    color: var(--text)
+    @include text-body-sm
