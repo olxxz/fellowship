@@ -1,6 +1,7 @@
 "use client";
 
-import { ChatMessage, cx, Icon, Popover } from "@fellowship/ui";
+import { ChatMessage, cx, Icon, Popover, RollCard } from "@fellowship/ui";
+import type { RollPayload } from "@fellowship/db";
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { QUICK_REACTIONS } from "@/lib/chat/emoji";
 import { getLinkPreview, type LinkPreview } from "@/lib/chat/link-preview";
@@ -128,6 +129,8 @@ export function MessageItem(props: MessageItemProps) {
       >
         {editing ? (
           <EditBox initial={msg.content} onSave={props.onSaveEdit} onCancel={props.onCancelEdit} />
+        ) : msg.kind === "rolagem" ? (
+          <RollMessage msg={msg} author={author} />
         ) : msg.kind === "figurinha" && msg.content ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img className={styles.sticker} src={msg.content} alt="Figurinha" loading="lazy" />
@@ -246,4 +249,34 @@ function EditBox({ initial, onSave, onCancel }: { initial: string; onSave: (v: s
       <span className={styles.editHint}>Esc cancela · Enter salva</span>
     </div>
   );
+}
+
+/** Rolagem gravada pelo servidor (o JSON vem em content). Quem rolou: o personagem, se houver. */
+function RollMessage({ msg, author }: { msg: ChatMsg; author: ChatAuthor | undefined }) {
+  const p = parseRoll(msg.content);
+  if (!p) return <p className={styles.text}>Rolagem inválida.</p>;
+  return (
+    <div className={styles.roll}>
+      <RollCard
+        roller={p.character?.name ?? author?.display_name ?? "Alguém"}
+        label={p.label}
+        formula={p.formula}
+        dice={p.dice.map((d) => (d.discarded ? { value: d.value, discarded: true } : { value: d.value }))}
+        modifier={p.modifier}
+        total={p.total}
+        color={(p.character?.color ?? author?.color) as never}
+        hidden={msg.visibility === "mestre"}
+        viewerIsMaster
+        critical={p.critical}
+      />
+    </div>
+  );
+}
+
+function parseRoll(content: string): RollPayload | null {
+  try {
+    return JSON.parse(content) as RollPayload;
+  } catch {
+    return null;
+  }
 }

@@ -54,13 +54,15 @@ export interface ChatRoomProps {
   canManage: boolean;
   readOnlyReason?: string;
   intro: { title: string; text: string };
+  /** Personagens por quem a pessoa pode rolar (canais de campanha). */
+  rollAs?: Array<{ id: string; name: string }>;
 }
 
 /**
  * Chat completo para canais e conversas diretas: tempo real (com busca do que faltou e reserva por polling),
  * envio otimista, anexos, responder, editar, apagar, reações, menções, figurinhas e marcar como lido.
  */
-export function ChatRoom({ source, me, authors, initialMessages, initialReactions, stickers, canSend, canManage, readOnlyReason, intro }: ChatRoomProps) {
+export function ChatRoom({ source, me, authors, initialMessages, initialReactions, stickers, canSend, canManage, readOnlyReason, intro, rollAs }: ChatRoomProps) {
   const [messages, setMessages] = useState<ChatMsg[]>(initialMessages);
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
   const [replyTo, setReplyTo] = useState<string | null>(null);
@@ -301,6 +303,17 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
     });
   }
 
+  // Rolagem: o servidor sorteia e grava; a mensagem chega aqui (e para os outros, pelo tempo real).
+  async function rollDice(formula: string, opts: { label?: string; hidden?: boolean; characterId?: string | null }) {
+    if (source.type !== "channel") return;
+    const res = await fetch("/api/rolar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ channelId: source.id, formula, ...opts }) });
+    const data = (await res.json().catch(() => ({}))) as { message?: ChatMsg; error?: string };
+    if (!res.ok || !data.message) throw new Error(data.error ?? "Não foi possível rolar.");
+    stick.current = true;
+    const saved = toChatMsg(data.message);
+    setMessages((all) => (all.some((m) => m.id === saved.id) ? all : [...all, saved]));
+  }
+
   async function sendSticker(sticker: Sticker) {
     const { data, error: err } = await getBrowserClient()
       .from(table)
@@ -449,6 +462,8 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
           onCancelReply={() => setReplyTo(null)}
           onSend={send}
           onSticker={(s) => void sendSticker(s)}
+          onRoll={source.type === "channel" ? rollDice : undefined}
+          rollAs={rollAs}
           onEditLast={() => {
             const last = [...messages].reverse().find((m) => m.author_id === me.id && m.kind === "texto" && !m.pending);
             if (last) setEditing(last.id);

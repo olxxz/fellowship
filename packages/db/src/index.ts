@@ -112,6 +112,57 @@ export interface Channel {
   topic: string | null;
   icon: string | null;
   position: number;
+  /** Canal de uma campanha (só quem joga vê). */
+  campaign_id?: string | null;
+}
+
+export type CampaignSystem = "homebrew" | "dnd2024";
+export type CampaignRole = "mestre" | "jogador" | "espectador";
+
+export interface Campaign {
+  id: string;
+  space_id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  banner_url: string | null;
+  system: CampaignSystem;
+  open_to_join: boolean;
+  position: number;
+  created_by: string | null;
+}
+
+export interface CampaignMember {
+  campaign_id: string;
+  user_id: string;
+  role: CampaignRole;
+}
+
+export type SheetTemplate = CampaignSystem;
+
+export interface Character {
+  id: string;
+  campaign_id: string;
+  owner_id: string | null;
+  kind: "pc" | "npc";
+  name: string;
+  portrait_url: string | null;
+  color: string;
+  template: SheetTemplate;
+  sheet: Record<string, unknown>;
+  revealed: boolean;
+  updated_at: string;
+}
+
+/** Conteúdo de uma mensagem de rolagem (JSON em messages.content, gravado pelo servidor). */
+export interface RollPayload {
+  formula: string;
+  label?: string;
+  total: number;
+  modifier: number;
+  dice: Array<{ value: number; sides: number; discarded?: boolean }>;
+  critical?: { kind: "success" | "failure"; label: string };
+  character?: { id: string; name: string; color: string; portrait_url: string | null };
 }
 
 export interface Message {

@@ -585,3 +585,52 @@
   background: var(--danger-soft)
   @include text-body-sm
   cursor: pointer
+
+.roll
+  max-width: 420px
+  margin-top: 2px
+
+// Rolador: botão de dados no campo de escrever.
+.rollPanel
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  width: min(320px, 82vw)
+
+.rollDice
+  display: grid
+  grid-template-columns: repeat(4, 1fr)
+  gap: 6px
+  button
+    @include reset-interactive
+    min-height: 40px
+    border: 1px solid var(--border)
+    border-radius: var(--radius-md)
+    background: var(--bg-raised)
+    color: var(--text)
+    font-weight: 700
+    &:hover
+      border-color: var(--accent)
+    &:focus-visible
+      @include focus-ring
+
+.rollInput
+  width: 100%
+  min-height: 40px
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border-strong)
+  border-radius: var(--radius-md)
+  background: var(--bg-input)
+  color: var(--text)
+  @include text-body-sm
+
+.rollRow
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  @include text-caption
+  color: var(--text-muted)
+  input[type="checkbox"]
+    accent-color: var(--accent)
+    width: 18px
+    height: 18px

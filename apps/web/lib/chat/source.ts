@@ -13,6 +13,8 @@ export interface ChatMsg {
   reply_to: string | null;
   mentions: string[];
   attachments: Attachment[];
+  /** Rolagem oculta: só o autor e o mestre veem. */
+  visibility?: "todos" | "mestre";
   pending?: boolean;
 }
 
@@ -28,7 +30,7 @@ export type ChatSource =
   | { type: "channel"; id: string; spaceId: string; name: string; topic?: string | null }
   | { type: "dm"; userA: string; userB: string; name: string };
 
-export const CHANNEL_COLUMNS = "id, author_id, content, created_at, kind, edited_at, reply_to, mentions, attachments";
+export const CHANNEL_COLUMNS = "id, author_id, content, created_at, kind, edited_at, reply_to, mentions, attachments, visibility";
 export const DM_COLUMNS = "id, author_id, content, created_at, kind, edited_at, reply_to, attachments";
 
 export const tableOf = (s: ChatSource) => (s.type === "channel" ? "messages" : "direct_messages");
@@ -49,6 +51,7 @@ export function toChatMsg(row: Partial<ChatMsg> & { id: string; author_id: strin
     reply_to: row.reply_to ?? null,
     mentions: row.mentions ?? [],
     attachments: row.attachments ?? [],
+    visibility: row.visibility ?? "todos",
   };
 }
 

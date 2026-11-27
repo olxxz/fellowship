@@ -26,9 +26,13 @@ export interface ComposerProps {
   onSticker: (sticker: Sticker) => void;
   /** Seta para cima com o campo vazio: editar a última mensagem própria. */
   onEditLast: () => void;
+  /** Rolagem (sorteada no servidor). Sem ela, o botão de dados não aparece. */
+  onRoll?: (formula: string, opts: { label?: string; hidden?: boolean; characterId?: string | null }) => Promise<void>;
+  /** Personagens por quem a pessoa pode rolar (na campanha). */
+  rollAs?: Array<{ id: string; name: string }>;
 }
 
-export function Composer({ placeholder, authors, meId, stickers, replyTo, onCancelReply, onSend, onSticker, onEditLast }: ComposerProps) {
+export function Composer({ placeholder, authors, meId, stickers, replyTo, onCancelReply, onSend, onSticker, onEditLast, onRoll, rollAs = [] }: ComposerProps) {
   const [text, setText] = useState("");
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [sending, setSending] = useState(false);
@@ -104,6 +108,14 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
     if (content.length > 4000) return toast.error("A mensagem passou de 4000 caracteres.");
     setSending(true);
     try {
+      // "/r 1d20+5 Percepção" rola em vez de mandar texto.
+      const cmd = onRoll && !drafts.length ? content.match(/^\/(?:r|rolar|roll)\s+(\S+(?:\s*[-+*/x]\s*\S+)*)\s*(.*)$/i) : null;
+      if (cmd) {
+        await onRoll!(cmd[1]!, { label: cmd[2] || undefined, characterId: rollAs[0]?.id ?? null });
+        setText("");
+        if (input.current) input.current.style.height = "auto";
+        return;
+      }
       await onSend(content, drafts.map((d) => d.file));
       setText("");
       setDrafts([]);
@@ -244,6 +256,7 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
             </Popover.Popup>
           </Popover.Root>
         )}
+        {onRoll && <DiceButton onRoll={onRoll} rollAs={rollAs} />}
         <EmojiPicker label="Emoji" onPick={insertAtCaret} />
         <IconButton
           icon="send"
@@ -257,5 +270,70 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
         Enter envia · Shift+Enter quebra a linha · @ menciona · cole ou arraste arquivos
       </p>
     </div>
+  );
+}
+
+const QUICK = ["d4", "d6", "d8", "d10", "d12", "d20", "d100", "2d20kh1"];
+
+/** Rolador: dados rápidos, fórmula livre, rótulo, "rolar como" e rolagem oculta (só o mestre vê). */
+function DiceButton({ onRoll, rollAs }: { onRoll: NonNullable<ComposerProps["onRoll"]>; rollAs: Array<{ id: string; name: string }> }) {
+  const [formula, setFormula] = useState("1d20");
+  const [label, setLabel] = useState("");
+  const [hidden, setHidden] = useState(false);
+  const [as, setAs] = useState<string>(rollAs[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
+  const go = async (f: string) => {
+    setBusy(true);
+    try {
+      await onRoll(f, { label: label.trim() || undefined, hidden, characterId: as || null });
+      setLabel("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível rolar.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Popover.Root>
+      <Popover.Trigger className={styles.toolButton} aria-label="Rolar dados" title="Rolar dados">
+        <Icon name="dice" size={20} />
+      </Popover.Trigger>
+      <Popover.Popup side="top" align="end" title="Rolar dados">
+        <div className={styles.rollPanel}>
+          <div className={styles.rollDice}>
+            {QUICK.map((d) => (
+              <button key={d} type="button" disabled={busy} onClick={() => void go(d.startsWith("d") ? `1${d}` : d)}>
+                {d === "2d20kh1" ? "Vant." : d}
+              </button>
+            ))}
+          </div>
+          <form
+            className={styles.rollPanel}
+            onSubmit={(e) => {
+              e.preventDefault();
+              void go(formula);
+            }}
+          >
+            <input className={styles.rollInput} value={formula} onChange={(e) => setFormula(e.target.value)} aria-label="Fórmula" placeholder="1d20+5, 2d6x3, 4d6dl1…" />
+            <input className={styles.rollInput} value={label} maxLength={80} onChange={(e) => setLabel(e.target.value)} aria-label="Rótulo" placeholder="O que é (Percepção, Ataque…)" />
+            {rollAs.length > 0 && (
+              <select className={styles.rollInput} value={as} onChange={(e) => setAs(e.target.value)} aria-label="Rolar como">
+                <option value="">Como eu mesmo</option>
+                {rollAs.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    Como {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <label className={styles.rollRow}>
+              <input type="checkbox" checked={hidden} onChange={(e) => setHidden(e.target.checked)} />
+              Oculta (só você e o mestre veem)
+            </label>
+            <IconButton icon="dice" label="Rolar" variant="primary" loading={busy} type="submit" />
+          </form>
+        </div>
+      </Popover.Popup>
+    </Popover.Root>
   );
 }
