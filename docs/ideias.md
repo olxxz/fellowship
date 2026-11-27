@@ -24,3 +24,15 @@ Anotações para não esquecer. Nada aqui está decidido.
 
 - Canal funcional: regras da casa, agenda de sessões com confirmação de presença, enquete de data.
 - Voz dinâmica: salas que nascem quando alguém entra e somem quando ficam vazias.
+
+## One-shots, aventuras da comunidade e jogo solo
+
+- Campanha avulsa (one-shot) sem precisar de um Cenário: um Cenário pessoal escondido por baixo, criado na hora.
+- Aventura como módulo: cenas, NPCs, mapas, handouts, modelo de ficha e personagens prontos. Quem joga cria uma cópia
+  (a campanha) e o original fica intacto. Exportar uma campanha própria como aventura.
+- Vitrine de aventuras da comunidade (no Explorar): busca, sistema, duração, nº de jogadores, avaliações; denúncia e
+  moderação. Pago só depois, se fizer sentido. Conteúdo de D&D só pelo SRD 5.2 (CC-BY).
+- Solo só com código: aventura-livro-jogo (cenas ligadas por escolhas e testes: rolou ≥ CD vai para a cena X) e
+  oráculos/tabelas aleatórias para inventar o resto. Tudo determinístico, sem custo por sessão.
+- Narrador de IA (depois, opcional): narra dentro da aventura escrita, pede as rolagens e o servidor rola; regras e
+  estado continuam no código. Custo por sessão, então provavelmente recurso pago.
