@@ -32,7 +32,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   // Pinça para ampliar continua liberada (acessibilidade); o zoom automático ao digitar é evitado com campos de 16px.
-  viewportFit: "cover",
+  // Sem viewportFit "cover": no app instalado (iOS), "cover" faz o sistema desenhar a página por baixo da barra
+  // de status com um borrado por cima e calcular a altura sem ela (sobra uma faixa embaixo). Sem ele, a página fica
+  // entre a barra de status e o indicador de início, como os outros apps web.
   // Com o teclado aberto, o conteúdo encolhe em vez de a página rolar por baixo (Chrome no Android).
   interactiveWidget: "resizes-content",
   themeColor: [
