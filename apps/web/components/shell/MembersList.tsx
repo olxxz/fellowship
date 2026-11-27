@@ -1,6 +1,7 @@
 "use client";
 
-import { Avatar, cx, HoverCard, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
+import { Avatar, ContextMenu, cx, HoverCard, Menu, playerColorStyle, type AccentColor, type PresenceStatus } from "@fellowship/ui";
+import Link from "next/link";
 import { ProfileCardView, type ProfileCardData } from "@/components/account/ProfileCardView";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useShell } from "./ShellContext";
@@ -60,7 +61,19 @@ export function MembersList({ groups, label }: { groups: Array<{ title: string; 
                 );
                 return (
                   <li key={m.id} className={cx(styles.member, m.status === "offline" && styles.offline, m.profile && styles.memberLink)} style={playerColorStyle(m.color)}>
-                    {m.profile ? (
+                    {m.profile && mobile ? (
+                      // Celular: tocar abre o perfil; segurar mostra o cartão (banner, bio) com o botão de ver o perfil.
+                      <ContextMenu.Root>
+                        <ContextMenu.Trigger render={<Link href={`/u/${m.profile.username}`} className={styles.memberTrigger} />}>{row}</ContextMenu.Trigger>
+                        <ContextMenu.Popup className={styles.profileMenu}>
+                          <ProfileCardView profile={m.profile} compact>
+                            <Menu.LinkItem icon="users" className={styles.profileMenuButton} render={<Link href={`/u/${m.profile.username}`} />}>
+                              Ver perfil
+                            </Menu.LinkItem>
+                          </ProfileCardView>
+                        </ContextMenu.Popup>
+                      </ContextMenu.Root>
+                    ) : m.profile ? (
                       <HoverCard trigger={row} href={`/u/${m.profile.username}`} triggerClassName={styles.memberTrigger}>
                         <ProfileCardView profile={m.profile} compact />
                       </HoverCard>

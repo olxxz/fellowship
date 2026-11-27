@@ -87,3 +87,21 @@
   text-decoration: none
   &:focus-visible
     @include focus-ring
+
+// Toque: segurar o membro abre o cartão sem selecionar o texto.
+@media (hover: none)
+  .member
+    user-select: none
+    -webkit-user-select: none
+    -webkit-touch-callout: none
+
+// Cartão de perfil no menu de contexto (celular): sem o recuo do menu, o banner encosta nas bordas.
+.profileMenu
+  width: min(320px, calc(100vw - 32px))
+  padding: 0
+  overflow: hidden
+
+.profileMenuButton
+  justify-content: center
+  border: 1px solid var(--border)
+  background: var(--bg-raised)
