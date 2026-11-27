@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu as BaseMenu } from "@base-ui/react/menu";
+import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import type { ComponentProps, ReactNode } from "react";
 import { cx } from "../../cx";
 import { Icon } from "../Icon/Icon";
@@ -108,4 +109,24 @@ export const Menu = {
   Group,
   Separator,
   Header,
+};
+
+function ContextPopup({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <BaseContextMenu.Portal>
+      <BaseContextMenu.Positioner className={styles.positioner} collisionPadding={8}>
+        <BaseContextMenu.Popup className={cx(styles.popup, className)}>{children}</BaseContextMenu.Popup>
+      </BaseContextMenu.Positioner>
+    </BaseContextMenu.Portal>
+  );
+}
+
+/**
+ * Menu do clique direito (no celular, segurar o dedo), como no Notion e no Canva. Os itens são os mesmos
+ * do `Menu` (`Menu.Item`, `Menu.Separator`…).
+ */
+export const ContextMenu = {
+  Root: BaseContextMenu.Root,
+  Trigger: BaseContextMenu.Trigger,
+  Popup: ContextPopup,
 };

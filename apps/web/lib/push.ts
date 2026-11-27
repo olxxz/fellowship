@@ -59,3 +59,14 @@ export async function disablePush() {
 export function notifyPush(kind: "canal" | "dm", messageId: string) {
   void fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, messageId }), keepalive: true }).catch(() => {});
 }
+
+/** Manda um aviso de teste para os aparelhos da própria conta e explica o que falhou. */
+export async function testPush(): Promise<string | null> {
+  const r = await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "teste" }) });
+  const data = (await r.json().catch(() => ({}))) as { sent?: number; devices?: number; disabled?: boolean; missing?: string[]; errors?: string[]; error?: string };
+  if (data.error) return data.error;
+  if (data.disabled) return `Falta configurar no servidor: ${(data.missing ?? []).join(", ") || "o login"}. Depois de salvar na Vercel, faça um novo deploy.`;
+  if (!data.devices) return "Nenhum aparelho inscrito. Desligue e ligue as notificações de novo.";
+  if (!data.sent) return `O envio falhou (${data.errors?.[0] ?? "erro desconhecido"}). Desligue e ligue as notificações de novo; se continuar, as chaves VAPID da Vercel não batem.`;
+  return null;
+}

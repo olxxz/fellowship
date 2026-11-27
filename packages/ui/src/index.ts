@@ -6,7 +6,7 @@ export { ChannelRow, type ChannelRowProps } from "./components/ChannelRow/Channe
 export { ChatMessage, ChatNotice, type ChatMessageProps, type ChatNoticeProps } from "./components/ChatMessage/ChatMessage";
 export { Icon, type IconMotion, type IconProps } from "./components/Icon/Icon";
 export { icons, type IconName } from "./components/Icon/icons";
-export { Menu } from "./components/Menu/Menu";
+export { ContextMenu, Menu } from "./components/Menu/Menu";
 export { Modal, type ModalProps } from "./components/Modal/Modal";
 export {
   ARCHETYPES,

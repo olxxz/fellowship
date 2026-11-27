@@ -83,9 +83,13 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
   const markRead = useCallback(() => {
     if (document.visibilityState !== "visible") return;
     const supabase = getBrowserClient();
-    if (source.type === "channel") void supabase.rpc("mark_channel_read", { p_channel: source.id });
-    else void supabase.rpc("mark_direct_read", { p_other: source.userA === me.id ? source.userB : source.userA });
-    window.dispatchEvent(new CustomEvent("fellowship:read", { detail: key }));
+    // A consulta do Supabase só vai ao servidor quando alguém espera por ela: sem o then, nada era gravado
+    // e as mensagens lidas voltavam como novas ao recarregar.
+    const call =
+      source.type === "channel"
+        ? supabase.rpc("mark_channel_read", { p_channel: source.id })
+        : supabase.rpc("mark_direct_read", { p_other: source.userA === me.id ? source.userB : source.userA });
+    void call.then(() => window.dispatchEvent(new CustomEvent("fellowship:read", { detail: key })));
   }, [source, me.id, key]);
 
   // ── Tempo real, busca do que faltou e reserva por polling ──

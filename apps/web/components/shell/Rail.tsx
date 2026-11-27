@@ -3,7 +3,7 @@
 import { cx, Icon, playerColorStyle, type AccentColor } from "@fellowship/ui";
 import { PendingIconLink } from "@/components/nav/PendingLink";
 import styles from "./Rail.module.sass";
-import { useShell } from "./ShellContext";
+import { keepDrawerOpen, useShell } from "./ShellContext";
 
 export interface RailSpace {
   id: string;
@@ -34,7 +34,7 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
     <div className={styles.rail}>
       <ul className={styles.list}>
         <li className={cx(styles.item, !activeSpaceId && styles.active)}>
-          <PendingIconLink href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={closeDrawer}>
+          <PendingIconLink href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={keepDrawerOpen}>
             <Icon name="home" size={22} />
           </PendingIconLink>
         </li>
@@ -52,7 +52,7 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
                 aria-label={`${space.name}${space.mentions ? `, ${space.mentions} ${space.mentions === 1 ? "menção" : "menções"}` : space.unread ? ", mensagens não lidas" : ""}`}
                 aria-current={active ? "page" : undefined}
                 title={space.name}
-                onClick={closeDrawer}
+                onClick={keepDrawerOpen}
               >
                 {!space.iconUrl && space.short}
                 {!active && !!space.mentions && (

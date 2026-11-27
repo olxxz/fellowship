@@ -6,7 +6,7 @@ import { useFlag } from "@/lib/prefs";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useSwipeDrawers } from "@/lib/useSwipeDrawers";
 import styles from "./AppShell.module.sass";
-import { ShellContext, type ShellState } from "./ShellContext";
+import { ShellContext, takeKeepDrawer, type ShellState } from "./ShellContext";
 
 const DESKTOP = "(min-width: 768px)";
 
@@ -15,7 +15,7 @@ const DESKTOP = "(min-width: 768px)";
  * No celular, a navegação fica à esquerda e os membros à direita: abrir empurra o conteúdo para o lado (não cobre).
  */
 export function AppShell({ rail, sidebar, panel, children }: { rail: ReactNode; sidebar: ReactNode; panel?: ReactNode; children: ReactNode }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(takeKeepDrawer);
   const [membersOpen, setMembersOpen] = useFlag("membros", true);
   const [mobileMembersOpen, setMobileMembersOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);

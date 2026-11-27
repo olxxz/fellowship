@@ -22,3 +22,15 @@ export function useShell() {
   if (!ctx) throw new Error("useShell precisa do AppShell");
   return ctx;
 }
+
+// Trocar de Cenário pela barra da esquerda monta outra casca (outro layout). No celular, a gaveta
+// continua aberta do outro lado para a pessoa escolher o canal ou a conversa sem arrastar de novo.
+let keepDrawer = false;
+export const keepDrawerOpen = () => {
+  keepDrawer = true;
+};
+export const takeKeepDrawer = () => {
+  const v = keepDrawer;
+  keepDrawer = false;
+  return v;
+};
