@@ -27,6 +27,16 @@ export interface AvatarProps {
   className?: string;
 }
 
+/**
+ * Fotos do Google vêm pequenas (…=s96-c, 96 px). Pede o tamanho que o avatar precisa em telas de alta densidade
+ * (3x, no mínimo 128 px), para não ficar borrada no perfil grande.
+ */
+function sharpSrc(src: string, size: number) {
+  if (!/googleusercontent\.com/.test(src)) return src;
+  const px = Math.max(128, Math.ceil(size * 3));
+  return /=s\d+(-c)?$/.test(src) ? src.replace(/=s\d+(-c)?$/, `=s${px}-c`) : `${src}=s${px}-c`;
+}
+
 export function Avatar({ name, src, color, appearance = "fill", size = 40, status, labelled, className }: AvatarProps) {
   const style = { ...(color ? playerColorStyle(color) : {}), ["--avatar-size" as string]: `${size}px` } as CSSProperties;
   return (
@@ -35,7 +45,7 @@ export function Avatar({ name, src, color, appearance = "fill", size = 40, statu
       style={style}
       {...(labelled ? { role: "img", "aria-label": status ? `${name}, ${STATUS_LABEL[status]}` : name } : { "aria-hidden": true })}
     >
-      {src ? <img className={styles.image} src={src} alt="" /> : name.charAt(0).toUpperCase()}
+      {src ? <img className={styles.image} src={sharpSrc(src, size)} alt="" /> : name.charAt(0).toUpperCase()}
       {status && <span className={cx(styles.status, styles[status])} />}
     </span>
   );
