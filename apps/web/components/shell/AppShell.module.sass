@@ -46,17 +46,28 @@
 
 .navWithPanel
   display: grid
+  @include desktop
+    position: relative
   grid-template-columns: var(--size-rail) minmax(0, 1fr)
-  grid-template-rows: minmax(0, 1fr) auto
-  background: var(--bg-rail)
-  > *
+  grid-template-rows: minmax(0, 1fr)
+  // As duas barras vão até o fim da tela; o painel flutua por cima delas, sem fundo próprio atrás.
+  // --dock-h (medido no AppShell) reserva o espaço para o fim das listas não ficar escondido.
+  > :not(.panel)
     min-height: 0
+    grid-row: 1
+    padding-bottom: calc(var(--dock-h, 0px) + var(--space-2))
 
 .panel
-  grid-column: 1 / -1
+  position: absolute
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 2
   padding: var(--space-2)
   padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom))
-  background: var(--bg-rail)
+  pointer-events: none
+  > *
+    pointer-events: auto
 
 .content
   min-width: 0

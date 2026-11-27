@@ -21,6 +21,7 @@ export function AppShell({ rail, sidebar, panel, children }: { rail: ReactNode; 
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const mobile = useIsMobile();
 
   useSwipeDrawers(rootRef, trackRef, navRef, {
@@ -58,6 +59,17 @@ export function AppShell({ rail, sidebar, panel, children }: { rail: ReactNode; 
     };
   }, [drawerOpen, mobileMembersOpen]);
 
+  const hasPanel = !!panel;
+  // Altura do painel flutuante (muda quando a faixa da voz aparece): as barras reservam esse espaço embaixo.
+  useEffect(() => {
+    const el = panelRef.current;
+    const nav = navRef.current;
+    if (!el || !nav) return;
+    const ro = new ResizeObserver(() => nav.style.setProperty("--dock-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [hasPanel]);
+
   const state = useMemo<ShellState>(
     () => ({
       drawerOpen,
@@ -79,7 +91,11 @@ export function AppShell({ rail, sidebar, panel, children }: { rail: ReactNode; 
             {rail}
             {sidebar}
             {/* Conta e voz: embaixo das duas barras, separado delas; aparece em qualquer página. */}
-            {panel && <div className={styles.panel}>{panel}</div>}
+            {panel && (
+              <div ref={panelRef} className={styles.panel}>
+                {panel}
+              </div>
+            )}
           </nav>
           <div className={styles.content} inert={drawerOpen}>
             {children}

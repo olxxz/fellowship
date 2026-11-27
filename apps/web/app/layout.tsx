@@ -21,7 +21,9 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: APP_NAME, locale: "pt_BR", title: APP_NAME, description: APP_DESCRIPTION },
   twitter: { card: "summary_large_image", title: APP_NAME, description: APP_DESCRIPTION },
   applicationName: APP_NAME,
-  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "black-translucent" },
+  // "default": no app instalado no iPhone, a barra de status fica sólida (na theme-color) e a página começa abaixo dela.
+  // Com "black-translucent" o iOS desenha a página por baixo com um borrado e erra a altura (sobra uma faixa embaixo).
+  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" },
   // No export estático os ícones gerados (app/icon.ts) não existem; o favicon vai embutido.
   ...(process.env.STATIC_EXPORT === "1" && { icons: { icon: APP_ICON_SVG_DATA_URI } }),
 };
