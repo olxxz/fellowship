@@ -3,7 +3,7 @@
 // Carregado sob demanda: o SDK do LiveKit só pesa quando a pessoa está numa sala.
 import { Avatar, cx, Icon, playerColorStyle, Popover } from "@fellowship/ui";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
-import { isTrackReference, RoomAudioRenderer, RoomContext, useSpeakingParticipants, useTracks, VideoTrack, type TrackReferenceOrPlaceholder } from "@livekit/components-react";
+import { isTrackReference, RoomContext, useSpeakingParticipants, useTracks, VideoTrack, type TrackReferenceOrPlaceholder } from "@livekit/components-react";
 import { Track, type Participant, type Room } from "livekit-client";
 import { useEffect, useRef, useState } from "react";
 import styles from "./VoiceRoom.module.sass";
@@ -27,7 +27,6 @@ export interface VoiceCharacter {
 export default function VoiceTiles({ room, profiles, characters = {} }: { room: Room; profiles: Record<string, VoiceProfile>; characters?: Record<string, VoiceCharacter> }) {
   return (
     <RoomContext.Provider value={room}>
-      <RoomAudioRenderer />
       <Tiles profiles={profiles} characters={characters} />
     </RoomContext.Provider>
   );

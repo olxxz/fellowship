@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Modal, toast } from "@fellowship/ui";
-import type { LocalAudioTrack, Participant, RemoteParticipant, Room } from "livekit-client";
+import type { LocalAudioTrack, Participant, RemoteParticipant, RemoteTrack, Room } from "livekit-client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { readPref, useFlag, usePref, writePref } from "@/lib/prefs";
 import { voiceEnabled } from "./useMesaVoice";
@@ -92,6 +92,9 @@ function describe(error: unknown, device: "microfone" | "câmera" | "tela" = "mi
   return error instanceof Error && error.message ? error.message : "Não foi possível entrar na voz agora.";
 }
 
+/** iPhone/iPad (inclusive iPad que se diz Mac): o Krisp roda num AudioContext que o Safari deixa mudo. */
+const isIOS = () => typeof navigator !== "undefined" && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1));
+
 const personOf = (p: Participant, speaking: Set<string>): VoicePerson => ({
   userId: p.attributes.userId ?? p.identity.slice(0, 36),
   name: p.name || "Alguém",
@@ -138,6 +141,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
   const reset = useCallback(() => {
     roomRef.current = null;
+    // Some com o áudio da sala que ficou pendurado na página.
+    document.querySelectorAll("audio[data-voz]").forEach((el) => el.remove());
     setRoom(null);
     setCurrent(null);
     setStatus("off");
@@ -155,6 +160,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
   const applyKrisp = useCallback(async (track: LocalAudioTrack) => {
     try {
+      if (isIOS()) return;
       const { KrispNoiseFilter, isKrispNoiseFilterSupported } = await import("@livekit/krisp-noise-filter");
       if (!isKrispNoiseFilterSupported()) return;
       const processor = KrispNoiseFilter();
@@ -185,7 +191,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         const res = await fetch("/api/livekit/canal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ channelId: channel.id }) });
         const data = (await res.json().catch(() => ({}))) as { token?: string; url?: string; error?: string; canSpeak?: boolean };
         if (!res.ok || !data.token) throw new Error(data.error ?? "Não foi possível entrar na voz agora.");
-        const { Room, RoomEvent, VideoPresets, ScreenSharePresets } = await import("livekit-client");
+        const { Room, RoomEvent, VideoPresets, ScreenSharePresets, DisconnectReason } = await import("livekit-client");
         const next = new Room({
           // No celular, trocar de app dispara "pagehide": sem isto o LiveKit derruba a chamada sozinho.
           disconnectOnPageLeave: false,
@@ -226,6 +232,27 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           if (pub.source !== "microphone" || !pub.track) return;
           void applyKrisp(pub.track as LocalAudioTrack);
         });
+        // Áudio de quem está na sala, em qualquer página do app (antes só tocava com a sala aberta na tela).
+        next.on(RoomEvent.TrackSubscribed, (track: RemoteTrack) => {
+          if (track.kind !== "audio") return;
+          const el = track.attach();
+          el.dataset.voz = "";
+          el.style.display = "none";
+          document.body.appendChild(el);
+        });
+        next.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
+          if (track.kind === "audio") track.detach().forEach((el) => el.remove());
+        });
+        // iPhone e alguns navegadores só tocam áudio depois de um toque na tela: o próximo toque libera.
+        const unlock = () => {
+          if (roomRef.current !== next || next.canPlaybackAudio) return;
+          void next.startAudio().catch(() => {});
+        };
+        next.on(RoomEvent.AudioPlaybackStatusChanged, () => {
+          if (next.canPlaybackAudio) return;
+          toast.info("Toque na tela para ouvir a sala", "O navegador só libera o som depois de um toque.");
+          document.addEventListener("pointerdown", unlock, { once: true });
+        });
         // Volume que você escolheu para cada pessoa.
         const applyVolume = (p: RemoteParticipant) => p.setVolume(readVolume(p.attributes.userId ?? p.identity.slice(0, 36)) / 100);
         next.on(RoomEvent.ParticipantConnected, applyVolume);
@@ -234,8 +261,15 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           if (pub.source === "screen_share") setScreenOn(false);
           sync();
         });
-        next.on(RoomEvent.Disconnected, () => {
+        next.on(RoomEvent.Disconnected, (reason?: number) => {
           if (roomRef.current !== next) return;
+          // Entrou na voz em outro aparelho/aba: este sai sem tentar voltar (senão os dois ficam se derrubando).
+          if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
+            wantedRef.current = null;
+            reset();
+            toast.info("Voz", "Você entrou na voz em outro aparelho ou aba.");
+            return;
+          }
           // Caiu sem a pessoa pedir (rede, celular em segundo plano): volta para a mesma sala.
           // Com a aba escondida, espera ela voltar.
           reset();
@@ -254,6 +288,11 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           throw new Error("Não foi possível conectar ao servidor de voz.", { cause: e });
         }
         roomRef.current = next;
+        // Tenta liberar o som já (funciona se o toque de "entrar" ainda vale); se não, o próximo toque libera.
+        if (!next.canPlaybackAudio) {
+          void next.startAudio().catch(() => {});
+          document.addEventListener("pointerdown", unlock, { once: true });
+        }
         setCanSpeak(data.canSpeak !== false);
         setRoom(next);
         setStatus("on");

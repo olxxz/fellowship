@@ -64,7 +64,9 @@ export async function createChannelToken(
   if (!env.LIVEKIT_API_KEY || !env.LIVEKIT_API_SECRET) {
     throw new TokenRequestError("Voz indisponível: faltam LIVEKIT_API_KEY e LIVEKIT_API_SECRET no servidor.", 503);
   }
-  const identity = `${userId}-${crypto.randomUUID().slice(0, 6)}`;
+  // Identidade fixa por pessoa: entrar de novo (ou em outro aparelho) derruba a conexão antiga na hora,
+  // em vez de deixar "fantasmas" de quem fechou o app sem sair.
+  const identity = userId;
   const token = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, { identity, name, ttl: "2h", attributes: { userId, avatarUrl, color } });
   token.addGrant({ room: channelRoomName(channelId), roomJoin: true, canPublish, canSubscribe: true, canPublishData: false });
   return { token: await token.toJwt(), identity };
