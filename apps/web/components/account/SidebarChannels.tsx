@@ -5,7 +5,7 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useDroppable,
   useSensor,
@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChannelCategory, toast } from "@fellowship/ui";
+import { ChannelCategory, Icon, toast } from "@fellowship/ui";
 import type { Category, Channel } from "@fellowship/db";
 import { useState, type ReactNode } from "react";
 import styles from "@/components/shell/Sidebar.module.sass";
@@ -44,12 +44,15 @@ export function SidebarChannels({
   channels,
   canManage,
   renderRow,
+  reordering = false,
 }: {
   spaceId: string;
   categories: Category[];
   channels: Channel[];
   canManage: boolean;
   renderRow: (c: Channel) => ReactNode;
+  /** Modo Reorganizar (celular): alças visíveis, toque arrasta e os links não navegam. */
+  reordering?: boolean;
 }) {
   // Estado local para arrastar sem esperar o servidor; volta a seguir as props quando elas mudam.
   const [source, setSource] = useState({ categories, channels });
@@ -76,8 +79,9 @@ export function SidebarChannels({
   const containerOf = (id: string) => (id.startsWith("cont:") ? id.slice(5) : Object.keys(order).find((k) => order[k]!.includes(id)));
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 300, tolerance: 6 } }),
+    // Mouse arrasta direto. No toque, só no modo Reorganizar (segurar o dedo abre o menu de contexto).
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: reordering ? { distance: 4 } : { delay: 60_000, tolerance: 0 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -139,7 +143,7 @@ export function SidebarChannels({
 
   const body = (
     <>
-      <ChannelList id={LOOSE} ids={order[LOOSE] ?? []} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} />
+      <ChannelList id={LOOSE} ids={order[LOOSE] ?? []} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} reordering={reordering} />
       <SortableContext items={catOrder.map((id) => `cat:${id}`)} strategy={verticalListSortingStrategy}>
         {catOrder.map((catId) => {
           const cat = catById.get(catId);
@@ -147,8 +151,8 @@ export function SidebarChannels({
           const ids = order[catId] ?? [];
           if (!ids.length && !canManage) return null;
           return (
-            <SortableCategory key={catId} cat={cat} canManage={canManage} open={!closed.has(catId)} onOpenChange={(o) => setOpen(catId, o)}>
-              <ChannelList id={catId} ids={ids} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} />
+            <SortableCategory key={catId} cat={cat} canManage={canManage} reordering={reordering} open={!closed.has(catId)} onOpenChange={(o) => setOpen(catId, o)}>
+              <ChannelList id={catId} ids={ids} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} reordering={reordering} />
             </SortableCategory>
           );
         })}
@@ -167,7 +171,7 @@ export function SidebarChannels({
   );
 }
 
-function SortableCategory({ cat, canManage, open, onOpenChange, children }: { cat: Category; canManage: boolean; open: boolean; onOpenChange: (o: boolean) => void; children: ReactNode }) {
+function SortableCategory({ cat, canManage, reordering, open, onOpenChange, children }: { cat: Category; canManage: boolean; reordering: boolean; open: boolean; onOpenChange: (o: boolean) => void; children: ReactNode }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: `cat:${cat.id}`, disabled: !canManage });
   return (
     <ChannelCategory
@@ -176,6 +180,7 @@ function SortableCategory({ cat, canManage, open, onOpenChange, children }: { ca
       name={cat.name}
       open={open}
       onOpenChange={onOpenChange}
+      className={reordering ? styles.reorderCategory : undefined}
       barProps={{ ...(canManage ? { ...attributes, ...listeners, role: undefined, tabIndex: undefined } : {}), ...({ "data-ctx": `category:${cat.id}` } as object) }}
     >
       {children}
@@ -183,7 +188,7 @@ function SortableCategory({ cat, canManage, open, onOpenChange, children }: { ca
   );
 }
 
-function ChannelList({ id, ids, byId, renderRow, canManage, dragging }: { id: string; ids: string[]; byId: Map<string, Channel>; renderRow: (c: Channel) => ReactNode; canManage: boolean; dragging: boolean }) {
+function ChannelList({ id, ids, byId, renderRow, canManage, dragging, reordering }: { id: string; ids: string[]; byId: Map<string, Channel>; renderRow: (c: Channel) => ReactNode; canManage: boolean; dragging: boolean; reordering: boolean }) {
   const { setNodeRef, isOver } = useDroppable({ id: `cont:${id}`, disabled: !canManage });
   if (!canManage) return <div>{ids.map((cid) => byId.get(cid) && renderRow(byId.get(cid)!))}</div>;
   return (
@@ -192,7 +197,7 @@ function ChannelList({ id, ids, byId, renderRow, canManage, dragging }: { id: st
         {ids.map((cid) => {
           const c = byId.get(cid);
           return c ? (
-            <SortableRow key={cid} id={cid}>
+            <SortableRow key={cid} id={cid} reordering={reordering}>
               {renderRow(c)}
             </SortableRow>
           ) : null;
@@ -203,11 +208,22 @@ function ChannelList({ id, ids, byId, renderRow, canManage, dragging }: { id: st
   );
 }
 
-function SortableRow({ id, children }: { id: string; children: ReactNode }) {
+function SortableRow({ id, reordering, children }: { id: string; reordering: boolean; children: ReactNode }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id });
   return (
-    <div ref={setNodeRef} style={{ transform: CSS.Translate.toString(transform), transition, opacity: isDragging ? 0.4 : undefined }} {...attributes} {...listeners} tabIndex={-1}>
+    <div
+      ref={setNodeRef}
+      className={reordering ? styles.reorderRow : undefined}
+      data-no-swipe={reordering ? "" : undefined}
+      style={{ transform: CSS.Translate.toString(transform), transition, opacity: isDragging ? 0.4 : undefined }}
+      {...attributes}
+      {...listeners}
+      tabIndex={-1}
+      // Reorganizando, tocar no canal não abre o canal.
+      onClickCapture={reordering ? (e) => (e.preventDefault(), e.stopPropagation()) : undefined}
+    >
       {children}
+      {reordering && <Icon name="menu" size={16} className={styles.reorderGrip} aria-hidden="true" />}
     </div>
   );
 }

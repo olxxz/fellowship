@@ -40,6 +40,7 @@ export function SidebarContextMenu({
   onCreateChannel,
   onCreateCampaign,
   onInvite,
+  onReorder,
   children,
 }: {
   spaceId: string;
@@ -52,6 +53,7 @@ export function SidebarContextMenu({
   onCreateChannel: (categoryId: string | null) => void;
   onCreateCampaign: () => void;
   onInvite: () => void;
+  onReorder: () => void;
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -84,6 +86,9 @@ export function SidebarContextMenu({
             <Menu.Item icon="plus" onClick={() => onCreateChannel(channel.category_id)}>
               Criar canal aqui
             </Menu.Item>
+            <Menu.Item icon="menu" onClick={onReorder}>
+              Reorganizar
+            </Menu.Item>
             <Menu.Separator />
             <Menu.Item
               icon="trash"
@@ -115,6 +120,9 @@ export function SidebarContextMenu({
         </Menu.Item>
         <Menu.Item icon="menu" onClick={() => setDialog({ kind: "category", category: null })}>
           Nova categoria
+        </Menu.Item>
+        <Menu.Item icon="menu" onClick={onReorder}>
+          Reorganizar
         </Menu.Item>
         <Menu.Separator />
         <Menu.Item
@@ -203,6 +211,9 @@ export function SidebarContextMenu({
               </Menu.Item>
               <Menu.Item icon="menu" onClick={() => setDialog({ kind: "category", category: null })}>
                 Criar categoria
+              </Menu.Item>
+              <Menu.Item icon="menu" onClick={onReorder}>
+                Reorganizar
               </Menu.Item>
             </>
           )}

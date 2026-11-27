@@ -49,6 +49,7 @@ export function AccountSpaceSidebar({
   const { closeDrawer } = useShell();
   const [inviting, setInviting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
   const canManageChannels = (permissions & Permission.MANAGE_CHANNELS) !== 0;
   const [creatingIn, setCreatingIn] = useState<{ open: boolean; categoryId: string | null }>({ open: false, categoryId: null });
@@ -154,7 +155,16 @@ export function AccountSpaceSidebar({
         onCreateChannel={(categoryId) => setCreatingIn({ open: true, categoryId })}
         onCreateCampaign={() => setCreatingCampaign(true)}
         onInvite={() => setInviting(true)}
+        onReorder={() => setReordering(true)}
       >
+      {reordering && (
+        <div className={styles.reorderBar} role="status">
+          <span>Arraste os canais e as categorias</span>
+          <button type="button" className={styles.reorderDone} onClick={() => setReordering(false)}>
+            Concluir
+          </button>
+        </div>
+      )}
       <div className={styles.scroll}>
         {/* Campanhas no topo, como canais: entrar abre a barra da campanha. */}
         {campaigns.length > 0 && (
@@ -180,6 +190,7 @@ export function AccountSpaceSidebar({
           channels={channels}
           canManage={canManageChannels}
           renderRow={row}
+          reordering={reordering}
         />
       </div>
       </SidebarContextMenu>

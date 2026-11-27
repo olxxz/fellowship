@@ -334,3 +334,43 @@ button.banner
   padding-bottom: var(--space-2)
   margin-bottom: var(--space-1)
   border-bottom: 1px solid var(--border)
+
+// Modo Reorganizar (celular): o toque arrasta em vez de rolar; alça à direita de cada canal.
+.reorderBar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: var(--space-2)
+  margin: var(--space-2) var(--space-2) 0
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  background: var(--bg-raised)
+  @include text-caption
+  color: var(--text-muted)
+
+.reorderDone
+  @include reset-interactive
+  padding: var(--space-1) var(--space-2)
+  border-radius: var(--radius-sm)
+  color: var(--accent-text)
+  @include text-label
+  &:focus-visible
+    @include focus-ring
+
+.reorderRow
+  position: relative
+  touch-action: none
+  user-select: none
+  -webkit-user-select: none
+
+.reorderGrip
+  position: absolute
+  top: 50%
+  right: 10px
+  transform: translateY(-50%)
+  color: var(--text-faint, var(--text-muted))
+  pointer-events: none
+
+.reorderCategory > div:first-child
+  touch-action: none
+  user-select: none
