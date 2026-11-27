@@ -10,6 +10,11 @@ import styles from "./Adventure.module.sass";
 type Check = { roll: number; bonus: number; total: number; cd: number; ok: boolean; stat: string };
 type Saved = { state: AdventureState; check: Check | null };
 
+/** d20 do navegador (aventura solo: não há com quem trapacear, então não precisa do servidor). */
+function rollD20() {
+  return 1 + (crypto.getRandomValues(new Uint32Array(1))[0]! % 20);
+}
+
 const KEY = (id: string) => `fellowship:aventura:${id}`;
 const noop = () => () => {};
 
@@ -61,7 +66,7 @@ export function AdventurePlayer({ adventure: a }: { adventure: Adventure }) {
       top.current?.scrollIntoView({ block: "start" });
       return;
     }
-    const roll = 1 + Math.floor(Math.random() * 20);
+    const roll = rollD20();
     setRolling(true);
     dice.current?.show({ formula: "1d20", total: roll, modifier: 0, dice: [{ value: roll, sides: 20 }] }, "#7a1e2b");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
