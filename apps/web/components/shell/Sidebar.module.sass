@@ -291,8 +291,13 @@
     @include text-body-sm
 
 // Banner clicável: abre o menu do Cenário.
+// Sem reset-interactive (ele zera fundo e espaçamento, e o banner sumia): só tira a borda e herda a fonte.
 button.banner
-  @include reset-interactive
+  border: 0
+  margin: 0
+  font: inherit
+  color: inherit
+  appearance: none
   width: 100%
   text-align: left
   cursor: pointer
