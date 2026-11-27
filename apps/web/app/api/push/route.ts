@@ -1,7 +1,7 @@
 // Envia as notificações de uma mensagem nova. Quem chama é o autor (conferido pelo banco, com o login dele);
 // quem recebe é decidido por push_targets (menções que podem ver o canal; a outra pessoa da conversa).
 import { createClient as createServiceClient } from "@supabase/supabase-js";
-import webpush from "web-push";
+import * as webpush from "web-push";
 import { authEnabled } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
