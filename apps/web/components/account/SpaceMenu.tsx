@@ -33,6 +33,7 @@ export function SpaceMenu({
   onClose,
   onInvite,
   onCreateChannel,
+  onCreateCampaign,
 }: {
   space: Space;
   permissions: number;
@@ -43,6 +44,7 @@ export function SpaceMenu({
   onClose: () => void;
   onInvite: () => void;
   onCreateChannel: () => void;
+  onCreateCampaign: () => void;
 }) {
   const router = useRouter();
   const presence = usePresenceMap();
@@ -80,7 +82,7 @@ export function SpaceMenu({
             { icon: "menu", label: "Criar categoria", onSelect: () => setNewCategory("") },
           ] as Item[])
         : []),
-      ...(has(Permission.CREATE_CAMPAIGNS) ? ([{ icon: "dice", label: "Criar campanha", hint: "Fase 1", disabled: true }] as Item[]) : []),
+      ...(has(Permission.CREATE_CAMPAIGNS) ? ([{ icon: "dice", label: "Criar campanha", onSelect: then(onCreateCampaign) }] as Item[]) : []),
     ],
     [
       ...(has(Permission.MANAGE_ROLES) ? ([{ icon: "shield", label: "Cargos", onSelect: settings("cargos") }] as Item[]) : []),

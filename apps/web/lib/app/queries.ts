@@ -1,5 +1,5 @@
 import "server-only";
-import type { Category, Channel, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
+import type { Campaign, CampaignMember, Category, Channel, Character, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
 import { CHANNEL_COLUMNS, DM_COLUMNS, toChatMsg, type ChatMsg } from "@/lib/chat/source";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notFound, redirect } from "next/navigation";
@@ -37,7 +37,7 @@ export const getSpaceView = cache(async (supabase: SupabaseClient, spaceId: stri
   const [space, categories, channels, roles, members, memberRoles, perms] = await Promise.all([
     supabase.from("spaces").select("id, kind, name, short, description, color, owner_id, is_public, icon_url, banner_url").eq("id", spaceId).maybeSingle<Space>(),
     supabase.from("categories").select("id, space_id, name, position").eq("space_id", spaceId).order("position"),
-    supabase.from("channels").select("id, space_id, category_id, kind, name, topic, icon, position").eq("space_id", spaceId).order("position"),
+    supabase.from("channels").select("id, space_id, category_id, kind, name, topic, icon, position, campaign_id").eq("space_id", spaceId).is("campaign_id", null).order("position"),
     supabase.from("roles").select("id, space_id, name, color, position, permissions, is_default").eq("space_id", spaceId).order("position", { ascending: false }),
     supabase.from("space_members").select("user_id, profile:profiles(id, display_name, username, avatar_url, banner_url, color, bio)").eq("space_id", spaceId),
     supabase.from("member_roles").select("user_id, role_id").eq("space_id", spaceId),
@@ -158,3 +158,34 @@ export async function getGallery(supabase: SupabaseClient, channelId: string, li
   }
   return { posts, counts };
 }
+
+export const CAMPAIGN_COLUMNS = "id, space_id, name, description, color, banner_url, system, open_to_join, position, created_by";
+export const CHARACTER_COLUMNS = "id, campaign_id, owner_id, kind, name, portrait_url, color, template, sheet, revealed, updated_at";
+
+/** Campanhas do Cenário e o papel da conta em cada uma (para a barra). */
+export const getSpaceCampaigns = cache(async (supabase: SupabaseClient, spaceId: string, meId: string) => {
+  const { data: campaigns } = await supabase.from("campaigns").select(CAMPAIGN_COLUMNS).eq("space_id", spaceId).order("position");
+  const list = (campaigns ?? []) as Campaign[];
+  const { data: mine } = list.length
+    ? await supabase.from("campaign_members").select("campaign_id, user_id, role").eq("user_id", meId).in("campaign_id", list.map((c) => c.id))
+    : { data: [] };
+  const roles = Object.fromEntries(((mine ?? []) as CampaignMember[]).map((m) => [m.campaign_id, m.role]));
+  return list.map((c) => ({ ...c, myRole: roles[c.id] ?? null }));
+});
+
+/** Tudo de uma campanha: dados, membros, canais (só aparecem para quem joga) e personagens visíveis. */
+export const getCampaignView = cache(async (supabase: SupabaseClient, campaignId: string) => {
+  const [campaign, members, channels, characters] = await Promise.all([
+    supabase.from("campaigns").select(CAMPAIGN_COLUMNS).eq("id", campaignId).maybeSingle<Campaign>(),
+    supabase.from("campaign_members").select("campaign_id, user_id, role").eq("campaign_id", campaignId),
+    supabase.from("channels").select("id, space_id, category_id, kind, name, topic, icon, position, campaign_id").eq("campaign_id", campaignId).order("position"),
+    supabase.from("characters").select(CHARACTER_COLUMNS).eq("campaign_id", campaignId).order("created_at"),
+  ]);
+  if (!campaign.data) notFound();
+  return {
+    campaign: campaign.data,
+    members: (members.data ?? []) as CampaignMember[],
+    channels: (channels.data ?? []) as Channel[],
+    characters: (characters.data ?? []) as Character[],
+  };
+});

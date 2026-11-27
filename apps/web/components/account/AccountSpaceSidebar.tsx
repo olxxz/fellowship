@@ -2,7 +2,7 @@
 
 import { ChannelCategory, ChannelRow, Icon, playerColorStyle } from "@fellowship/ui";
 import { Permission } from "@fellowship/core";
-import type { Category, Channel, Space } from "@fellowship/db";
+import type { Campaign, CampaignRole, Category, Channel, Space } from "@fellowship/db";
 import Link from "next/link";
 import { PendingLink } from "@/components/nav/PendingLink";
 import { useParams } from "next/navigation";
@@ -10,7 +10,8 @@ import { useState } from "react";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
-import { appSpaceHref, campaignHref } from "@/lib/routes";
+import { appSpaceHref, campaignAppHref, campaignHref } from "@/lib/routes";
+import { CreateCampaignDialog } from "./CreateCampaignDialog";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
 import { SidebarChannels } from "./SidebarChannels";
@@ -27,6 +28,7 @@ export function AccountSpaceSidebar({
   permissions,
   meId,
   memberIds,
+  campaigns,
   initialUnread,
 }: {
   space: Space;
@@ -35,9 +37,17 @@ export function AccountSpaceSidebar({
   permissions: number;
   meId: string;
   memberIds: string[];
+  campaigns: Array<Campaign & { myRole: CampaignRole | null }>;
   initialUnread: Record<string, { unread: number; mentions: number }>;
 }) {
-  const { channel: activeId } = useParams<{ channel?: string }>();
+  const { channel: activeId, campaign: activeCampaign } = useParams<{ channel?: string; campaign?: string }>();
+  const canCreateCampaign = (permissions & Permission.CREATE_CAMPAIGNS) !== 0;
+  const [creatingCampaign, setCreatingCampaign] = useState(false);
+  const addCampaignButton = (
+    <button type="button" className={styles.addChannel} aria-label="Criar campanha" title="Criar campanha" onClick={() => setCreatingCampaign(true)}>
+      <Icon name="plus" size={16} />
+    </button>
+  );
   const { closeDrawer } = useShell();
   const [inviting, setInviting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -115,6 +125,7 @@ export function AccountSpaceSidebar({
         onClose={() => setMenuOpen(false)}
         onInvite={() => setInviting(true)}
         onCreateChannel={() => setCreatingIn({ open: true, categoryId: null })}
+        onCreateCampaign={() => setCreatingCampaign(true)}
       />
       {canManageChannels && (
         <CreateChannelDialog
@@ -141,15 +152,32 @@ export function AccountSpaceSidebar({
             Criar canal
           </button>
         )}
-        <ChannelCategory name="Campanhas">
-          <p className={styles.note}>
-            Campanhas chegam na fase 1. Enquanto isso,{" "}
-            <Link href={campaignHref("vel", "maldicao")} style={{ color: "var(--accent-text)" }}>
-              veja a Mesa no protótipo
-            </Link>
-            .
-          </p>
+        <ChannelCategory name="Campanhas" action={canCreateCampaign ? addCampaignButton : undefined}>
+          {campaigns.length === 0 ? (
+            <p className={styles.note}>
+              Nenhuma campanha ainda.{" "}
+              {canCreateCampaign ? "Crie a primeira no + ao lado." : "Quem pode criar campanhas abre a primeira."}{" "}
+              <Link href={campaignHref("vel", "maldicao")} style={{ color: "var(--accent-text)" }}>
+                Veja a Mesa no protótipo
+              </Link>
+              .
+            </p>
+          ) : (
+            campaigns.map((c) => (
+              <ChannelRow
+                key={c.id}
+                icon="dice"
+                name={c.name}
+                active={activeCampaign === c.id}
+                href={campaignAppHref(space.id, c.id)}
+                linkAs={PendingLink}
+                onClick={closeDrawer}
+                meta={c.myRole === "mestre" ? "mestre" : c.myRole === "espectador" ? "assistindo" : undefined}
+              />
+            ))
+          )}
         </ChannelCategory>
+        {canCreateCampaign && <CreateCampaignDialog spaceId={space.id} open={creatingCampaign} onOpenChange={setCreatingCampaign} />}
       </div>
     </div>
   );

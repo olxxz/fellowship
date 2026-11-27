@@ -1,0 +1,81 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.wrap
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+
+.head
+  display: flex
+  gap: var(--space-4)
+  align-items: flex-start
+  flex-wrap: wrap
+
+.portrait
+  flex-shrink: 0
+  // O campo de imagem traz rótulo e botões; aqui só o quadro e os botões, compactos.
+  > div > span:first-child
+    display: none
+
+.portraitImg
+  display: grid
+  place-items: center
+  width: 120px
+  height: 120px
+  border: 3px solid var(--player-color)
+  border-radius: var(--radius-xl)
+  background: color-mix(in srgb, var(--player-color) 25%, var(--bg-raised))
+  background-size: cover
+  background-position: center
+  font-family: var(--font-display)
+  font-size: 48px
+  font-weight: 700
+  color: var(--player-color)
+
+.identity
+  flex: 1
+  min-width: 220px
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+
+.name
+  width: 100%
+  border: 0
+  border-radius: var(--radius-md)
+  background: transparent
+  color: var(--player-color)
+  font-family: var(--font-display)
+  font-size: 32px
+  font-weight: 700
+  &:focus-visible
+    @include focus-ring
+
+.meta
+  @include text-body-sm
+  color: var(--text-muted)
+
+.save
+  color: var(--text-faint)
+
+.actions
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-2)
+  margin-top: var(--space-2)
+
+.reveal
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  @include text-body-sm
+  input
+    accent-color: var(--accent)
+
+.colorBox
+  summary
+    cursor: pointer
+    @include text-body-sm
+    color: var(--text-muted)

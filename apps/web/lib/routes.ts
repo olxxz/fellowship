@@ -16,3 +16,5 @@ export const userHref = (username: string) => `/u/${username}`;
 export const dmHref = (username: string) => `/mensagens/${username}`;
 /** Link de amizade e de convite para o app: quem abre cria conta (se precisar) e já pede amizade. */
 export const friendLinkHref = (username: string) => `/amigo/${username}`;
+export const campaignAppHref = (spaceId: string, campaignId: string, tab?: string) => `/c/${spaceId}/k/${campaignId}${tab ? `/${tab}` : ""}`;
+export const characterHref = (spaceId: string, campaignId: string, characterId: string) => `/c/${spaceId}/k/${campaignId}/personagens/${characterId}`;

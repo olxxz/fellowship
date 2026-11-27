@@ -4,17 +4,18 @@ import { AccountRail } from "@/components/account/AccountRail";
 import { AccountSpaceSidebar } from "@/components/account/AccountSpaceSidebar";
 import { toRailSpaces } from "@/components/account/railSpaces";
 import { AppShell } from "@/components/shell/AppShell";
-import { getChannelUnread, getMySpaces, getSpaceUnread, getSpaceView, requireAccount } from "@/lib/app/queries";
+import { getChannelUnread, getMySpaces, getSpaceCampaigns, getSpaceUnread, getSpaceView, requireAccount } from "@/lib/app/queries";
 import { appHomeHref, createSpaceHref } from "@/lib/routes";
 
 export default async function SpaceLayout({ children, params }: { children: ReactNode; params: Promise<{ space: string }> }) {
   const { space: spaceId } = await params;
   const { supabase, profile } = await requireAccount(`/c/${spaceId}`);
-  const [spaces, view, spaceUnread, channelUnread] = await Promise.all([
+  const [spaces, view, spaceUnread, channelUnread, campaigns] = await Promise.all([
     getMySpaces(supabase),
     getSpaceView(supabase, spaceId),
     getSpaceUnread(supabase),
     getChannelUnread(supabase, spaceId),
+    getSpaceCampaigns(supabase, spaceId, profile.id),
   ]);
   return (
     <AppShell
@@ -28,6 +29,7 @@ export default async function SpaceLayout({ children, params }: { children: Reac
           permissions={view.permissions}
           meId={profile.id}
           memberIds={view.members.map((m) => m.user_id)}
+          campaigns={campaigns}
           initialUnread={channelUnread}
         />
       }
