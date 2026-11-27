@@ -16,12 +16,9 @@ export interface ReactionGroup {
   names: string[];
 }
 
+// O dia aparece no separador entre as mensagens; aqui só a hora.
 function formatTime(iso: string) {
-  const date = new Date(iso);
-  const today = new Date();
-  const time = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(date);
-  if (date.toDateString() === today.toDateString()) return `hoje ${time}`;
-  return `${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(date)} ${time}`;
+  return new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 }
 
 const TOKEN = /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])|((?:^|(?<=\s))@[a-z0-9_.]{3,20}\b)/g;

@@ -12,10 +12,57 @@
   flex: 1
   min-height: 0
   overflow-y: auto
+  // Mensagens presas à base: com poucas mensagens, ficam embaixo; cada nova empurra as outras para cima.
+  display: flex
+  flex-direction: column
   margin: 0
   padding: var(--space-2) 0 var(--space-4)
   list-style: none
   overscroll-behavior: contain
+  overflow-anchor: none
+  > :first-child
+    margin-top: auto
+
+.olderSkeleton
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  padding: var(--space-4) 0
+
+.daySeparator
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  margin: var(--space-4) var(--space-5) var(--space-1)
+  @include text-caption
+  font-weight: 600
+  color: var(--text-muted)
+  &::before, &::after
+    content: ""
+    flex: 1
+    height: 1px
+    background: var(--border)
+
+.jump
+  @include reset-interactive
+  position: absolute
+  left: 50%
+  bottom: 96px
+  z-index: 3
+  transform: translateX(-50%)
+  display: inline-flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: 36px
+  padding: 0 var(--space-4)
+  border-radius: var(--radius-full)
+  background: var(--accent)
+  color: var(--on-accent)
+  box-shadow: var(--shadow-popover)
+  @include text-body-sm
+  font-weight: 600
+  &:focus-visible
+    @include focus-ring
 
 .intro
   display: flex

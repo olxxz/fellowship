@@ -1,9 +1,9 @@
 "use client";
 
-import { Icon, toast } from "@fellowship/ui";
+import { ChatMessage, Icon, toast } from "@fellowship/ui";
 import type { Reaction, Sticker } from "@fellowship/db";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   attachmentPrefix,
   belongs,
@@ -27,6 +27,19 @@ import { MessageItem, type ReactionGroup } from "./MessageItem";
 import styles from "./ChatRoom.module.sass";
 
 const GROUP_WINDOW_MS = 5 * 60 * 1000;
+/** Mensagens por página: a primeira vem do servidor; as antigas, de 50 em 50 ao rolar para cima. */
+export const CHAT_PAGE = 60;
+const OLDER_PAGE = 50;
+
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Hoje";
+  if (d.toDateString() === yesterday.toDateString()) return "Ontem";
+  return new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long", ...(d.getFullYear() !== today.getFullYear() ? { year: "numeric" } : {}) }).format(d);
+}
 
 export interface ChatRoomProps {
   source: ChatSource;
@@ -54,6 +67,12 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
   const [editing, setEditing] = useState<string | null>(null);
   const logRef = useRef<HTMLOListElement>(null);
   const stick = useRef(true);
+  const [hasMore, setHasMore] = useState(initialMessages.length >= CHAT_PAGE);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [unseen, setUnseen] = useState(0);
+  const [atBottom, setAtBottom] = useState(true);
+  // Ao inserir mensagens antigas no topo, mantém a mesma mensagem na tela (sem pular).
+  const anchor = useRef<number | null>(null);
   const table = tableOf(source);
   const rTable = reactionsTableOf(source);
   const key = sourceKey(source);
@@ -91,7 +110,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
       });
 
     const catchUp = async () => {
-      let q = supabase.from(table).select(columnsOf(source)).order("created_at", { ascending: false }).limit(60);
+      let q = supabase.from(table).select(columnsOf(source)).order("created_at", { ascending: false }).limit(CHAT_PAGE);
       q = source.type === "channel" ? q.eq("channel_id", source.id) : q.eq("user_a", source.userA).eq("user_b", source.userB);
       const { data } = await q;
       if (disposed || !data) return;
@@ -171,10 +190,57 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
   }, [key]);
 
   // Rola para o fim quando chega mensagem, se a pessoa já estava no fim.
-  useEffect(() => {
+  const lastId = messages[messages.length - 1]?.id;
+  useLayoutEffect(() => {
     const el = logRef.current;
-    if (el && stick.current) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    if (anchor.current !== null) {
+      el.scrollTop += el.scrollHeight - anchor.current;
+      anchor.current = null;
+      return;
+    }
+    if (stick.current) el.scrollTop = el.scrollHeight;
   }, [messages.length]);
+
+  // Chegou mensagem nova com a pessoa lendo mais acima: conta para o botão "mais novas".
+  const prevLast = useRef(lastId);
+  useEffect(() => {
+    if (prevLast.current && lastId !== prevLast.current && !stick.current) setUnseen((n) => n + 1);
+    prevLast.current = lastId;
+  }, [lastId]);
+
+  const loadOlder = useCallback(async () => {
+    if (loadingOlder || !hasMore) return;
+    const oldest = messages.find((m) => !m.pending);
+    if (!oldest) return;
+    setLoadingOlder(true);
+    let q = getBrowserClient()
+      .from(table)
+      .select(columnsOf(source))
+      .lt("created_at", oldest.created_at)
+      .order("created_at", { ascending: false })
+      .limit(OLDER_PAGE);
+    q = source.type === "channel" ? q.eq("channel_id", source.id) : q.eq("user_a", source.userA).eq("user_b", source.userB);
+    const { data } = await q;
+    const rows = ((data ?? []) as unknown as ChatMsg[]).map(toChatMsg).reverse();
+    if (rows.length) {
+      anchor.current = logRef.current?.scrollHeight ?? null;
+      setMessages((all) => [...rows.filter((r) => !all.some((m) => m.id === r.id)), ...all]);
+      const ids = rows.map((r) => r.id);
+      const { data: rs } = await getBrowserClient().from(rTable).select("message_id, user_id, emoji").in("message_id", ids);
+      if (rs) setReactions((all) => [...all, ...(rs as Reaction[])]);
+    }
+    setHasMore(rows.length >= OLDER_PAGE);
+    setLoadingOlder(false);
+  }, [loadingOlder, hasMore, messages, table, rTable, source]);
+
+  function scrollToBottom() {
+    const el = logRef.current;
+    if (!el) return;
+    stick.current = true;
+    setUnseen(0);
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }
 
   const reactionGroups = useMemo(() => {
     const map = new Map<string, Map<string, ReactionGroup>>();
@@ -214,7 +280,13 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
     setMessages((all) => [...all, optimistic]);
     const reply = replyTo;
     setReplyTo(null);
-    const payload: Record<string, unknown> = { ...insertBase(source, me.id), content: text, reply_to: reply, attachments, ...(source.type === "channel" ? { mentions } : {}) };
+    const payload: Record<string, unknown> = {
+      ...insertBase(source, me.id),
+      content: text,
+      reply_to: reply,
+      attachments,
+      ...(source.type === "channel" ? { mentions } : {}),
+    };
     const { data, error: err } = await supabase.from(table).insert(payload).select(columnsOf(source)).single();
     if (err || !data) {
       setMessages((all) => all.filter((m) => m.id !== tempId));
@@ -297,50 +369,83 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
         aria-label={`Mensagens de ${source.name}`}
         onScroll={(e) => {
           const el = e.currentTarget;
-          stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+          const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+          stick.current = near;
+          if (near !== atBottom) setAtBottom(near);
+          if (near && unseen) setUnseen(0);
+          if (el.scrollTop < 300) void loadOlder();
         }}
       >
-        <li className={styles.intro}>
-          <h2 className={styles.introTitle}>{intro.title}</h2>
-          <p className={styles.introText}>{intro.text}</p>
-        </li>
+        {hasMore ? (
+          <li className={styles.olderSkeleton} aria-hidden={!loadingOlder}>
+            {[0, 1, 2].map((i) => (
+              <ChatMessage.Skeleton key={i} seed={i + 3} />
+            ))}
+          </li>
+        ) : (
+          <li className={styles.intro}>
+            <h2 className={styles.introTitle}>{intro.title}</h2>
+            <p className={styles.introText}>{intro.text}</p>
+          </li>
+        )}
         {messages.map((m, i) => {
           const prev = messages[i - 1];
+          const newDay = !prev || new Date(prev.created_at).toDateString() !== new Date(m.created_at).toDateString();
           const continuation =
-            !!prev && prev.author_id === m.author_id && new Date(m.created_at).getTime() - new Date(prev.created_at).getTime() < GROUP_WINDOW_MS;
+            !newDay && !!prev && prev.author_id === m.author_id && new Date(m.created_at).getTime() - new Date(prev.created_at).getTime() < GROUP_WINDOW_MS;
           const replied = m.reply_to ? byId.get(m.reply_to) : undefined;
           return (
-            <li key={m.id}>
-              <MessageItem
-                msg={m}
-                author={allAuthors[m.author_id]}
-                authors={allAuthors}
-                meId={me.id}
-                continuation={continuation}
-                reply={m.reply_to ? { msg: replied, author: replied ? allAuthors[replied.author_id] : undefined } : undefined}
-                reactions={[...(reactionGroups.get(m.id)?.values() ?? [])]}
-                canDelete={m.author_id === me.id || canManage}
-                canReact={canSend || source.type === "channel"}
-                editing={editing === m.id}
-                onReply={() => setReplyTo(m.id)}
-                onStartEdit={() => setEditing(m.id)}
-                onSaveEdit={(c) => void saveEdit(m.id, c)}
-                onCancelEdit={() => setEditing(null)}
-                onDelete={() => void remove(m.id)}
-                onToggleReaction={(e) => void toggleReaction(m.id, e)}
-                onJumpTo={jumpTo}
-              />
-            </li>
+            <Fragment key={m.id}>
+              {newDay && (
+                <li className={styles.daySeparator} role="separator">
+                  <span>{dayLabel(m.created_at)}</span>
+                </li>
+              )}
+              <li>
+                <MessageItem
+                  msg={m}
+                  author={allAuthors[m.author_id]}
+                  authors={allAuthors}
+                  meId={me.id}
+                  continuation={continuation}
+                  reply={m.reply_to ? { msg: replied, author: replied ? allAuthors[replied.author_id] : undefined } : undefined}
+                  reactions={[...(reactionGroups.get(m.id)?.values() ?? [])]}
+                  canDelete={m.author_id === me.id || canManage}
+                  canReact={canSend || source.type === "channel"}
+                  editing={editing === m.id}
+                  onReply={() => setReplyTo(m.id)}
+                  onStartEdit={() => setEditing(m.id)}
+                  onSaveEdit={(c) => void saveEdit(m.id, c)}
+                  onCancelEdit={() => setEditing(null)}
+                  onDelete={() => void remove(m.id)}
+                  onToggleReaction={(e) => void toggleReaction(m.id, e)}
+                  onJumpTo={jumpTo}
+                />
+              </li>
+            </Fragment>
           );
         })}
       </ol>
+      {!atBottom && (
+        <button type="button" className={styles.jump} onClick={scrollToBottom}>
+          <Icon name="chevronDown" size={16} />
+          {unseen ? `${unseen} ${unseen === 1 ? "mensagem nova" : "mensagens novas"}` : "Ir para as mais novas"}
+        </button>
+      )}
       {canSend ? (
         <Composer
           placeholder={source.type === "channel" ? `Conversar em ${source.name}` : `Mensagem para ${source.name}`}
           authors={allAuthors}
           meId={me.id}
           stickers={stickers}
-          replyTo={reply ? { name: allAuthors[reply.author_id]?.display_name ?? "Alguém", text: reply.kind === "figurinha" ? "figurinha" : reply.content.slice(0, 80) || "anexo" } : null}
+          replyTo={
+            reply
+              ? {
+                  name: allAuthors[reply.author_id]?.display_name ?? "Alguém",
+                  text: reply.kind === "figurinha" ? "figurinha" : reply.content.slice(0, 80) || "anexo",
+                }
+              : null
+          }
           onCancelReply={() => setReplyTo(null)}
           onSend={send}
           onSticker={(s) => void sendSticker(s)}
