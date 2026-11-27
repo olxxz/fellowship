@@ -39,7 +39,8 @@ export function AccountSpaceSidebar({
   const [inviting, setInviting] = useState(false);
   const [openingSettings, startSettings] = useTransition();
   const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
-  const canManage = (permissions & Permission.MANAGE_THEME) !== 0;
+  // Todo membro abre as configurações (ao menos para sair do Cenário); o que aparece depende das permissões.
+  const canManage = true;
   const canManageChannels = (permissions & Permission.MANAGE_CHANNELS) !== 0;
   const [creatingIn, setCreatingIn] = useState<{ open: boolean; categoryId: string | null }>({ open: false, categoryId: null });
   const addButton = (categoryId: string | null, label: string) => (

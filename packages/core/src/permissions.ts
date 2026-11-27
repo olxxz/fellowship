@@ -13,6 +13,7 @@ export const Permission = {
   MANAGE_CHANNELS: 1 << 8,
   MANAGE_ROLES: 1 << 9,
   MANAGE_THEME: 1 << 10,
+  KICK_MEMBERS: 1 << 11,
 } as const;
 
 export type PermissionName = keyof typeof Permission;

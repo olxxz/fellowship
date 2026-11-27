@@ -127,7 +127,7 @@ describe("cada conta vê só o que pode", () => {
     const sql = await as(db, bruno, async () => (await one<{ p: number }>("select public.channel_permissions($1) as p", [channel.Geral])).p);
     const roles = await all<{ permissions: number }>("select permissions from public.roles where id in ($1, $2)", [defaultRole, memberRole]);
     expect(sql).toBe(resolveChannelPermissions({ isOwner: false, isMember: true, rolePermissions: roles.map((r) => r.permissions) }));
-    expect(await as(db, ana, async () => (await one<{ p: number }>("select public.channel_permissions($1) as p", [channel.Geral])).p)).toBe(2047);
+    expect(await as(db, ana, async () => (await one<{ p: number }>("select public.channel_permissions($1) as p", [channel.Geral])).p)).toBe(4095);
   });
 
   it("não deixa o membro editar o Cenário de outra pessoa nem trocar o dono", async () => {

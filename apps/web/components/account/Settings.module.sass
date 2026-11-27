@@ -393,3 +393,136 @@
     position: absolute
     top: 0
     right: 0
+
+// ── Gerenciar o Cenário ──
+.manageGroup
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+
+.manageGroupHeader
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: 44px
+  border-bottom: 1px solid var(--border)
+
+.manageGroupTitle
+  flex: 1
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-muted)
+
+.manageRow
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  min-height: 48px
+  padding: 0 0 0 var(--space-2)
+  border-radius: var(--radius-md)
+  color: var(--text-muted)
+  > .personName
+    flex: 1
+    color: var(--text)
+  > .personText
+    flex: 1
+  .personName
+    color: var(--text)
+
+.managePanel
+  margin: 0 0 var(--space-2)
+  padding: var(--space-4)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+  list-style: none
+
+.flipUp svg
+  transform: rotate(180deg)
+
+.permRow
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-2) 0
+  & + &
+    border-top: 1px solid var(--border)
+  > .personText
+    flex: 1
+
+.segmented
+  display: inline-flex
+  flex-shrink: 0
+  padding: 2px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  button
+    @include reset-interactive
+    display: grid
+    place-items: center
+    width: 40px
+    height: 32px
+    border-radius: var(--radius-sm)
+    color: var(--text-muted)
+    font-weight: 700
+    &[aria-checked="true"][data-tone="negar"]
+      background: var(--danger-soft)
+      color: var(--danger)
+    &[aria-checked="true"][data-tone="herdar"]
+      background: var(--bg-raised)
+      color: var(--text)
+    &[aria-checked="true"][data-tone="permitir"]
+      background: color-mix(in srgb, var(--success) 18%, transparent)
+      color: var(--success)
+    &:focus-visible
+      @include focus-ring
+
+.hiddenText
+  @include visually-hidden
+
+.roleDot
+  width: 14px
+  height: 14px
+  flex-shrink: 0
+  margin-left: var(--space-1)
+  border-radius: var(--radius-full)
+  background: var(--player-color, var(--text-faint))
+
+.swatches
+  display: flex
+  gap: var(--space-2)
+  align-items: center
+  min-height: var(--size-touch)
+
+.swatch
+  @include reset-interactive
+  width: 28px
+  height: 28px
+  border: 2px solid var(--border-strong)
+  border-radius: var(--radius-full)
+  background: var(--player-color, transparent)
+  &[aria-checked="true"]
+    box-shadow: 0 0 0 2px var(--bg-content), 0 0 0 4px var(--text)
+  &:focus-visible
+    @include focus-ring
+
+.roleChips
+  display: flex
+  flex-wrap: wrap
+  gap: 4px
+  margin-top: 2px
+
+.roleChip
+  display: inline-flex
+  align-items: center
+  gap: 4px
+  padding: 0 8px
+  border-radius: var(--radius-full)
+  background: color-mix(in srgb, var(--player-color, var(--text-faint)) 18%, transparent)
+  @include text-caption
+  color: var(--text)
+
+.roleChecks
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2) var(--space-5)
