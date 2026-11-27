@@ -2,6 +2,7 @@ import "@fellowship/ui/styles/globals.sass";
 import "./fonts.css";
 
 import type { Metadata, Viewport } from "next";
+import { Toaster } from "@fellowship/ui";
 import { Inter, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { APP_ICON_SVG_DATA_URI } from "@/lib/appIcon";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <DemoProvider>{children}</DemoProvider>
+        <Toaster />
       </body>
     </html>
   );

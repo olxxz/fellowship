@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, ColorPicker } from "@fellowship/ui";
+import { Avatar, Button, ColorPicker, toast } from "@fellowship/ui";
 import type { Profile } from "@fellowship/db";
 import { useActionState, useEffect, useState } from "react";
 import { avatarColor } from "@/lib/avatarColor";
@@ -16,6 +16,10 @@ export function WelcomeForm({ profile, next }: { profile: Profile; next: string 
   const [avatar, setAvatar] = useState(profile.avatar_url ?? "");
   const [color, setColor] = useState(profile.color);
   const [free, setFree] = useState<boolean | null>(true);
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+  }, [state]);
 
   // Cor inicial combinando com a foto (a do Google tem um fundo colorido).
   useEffect(() => {

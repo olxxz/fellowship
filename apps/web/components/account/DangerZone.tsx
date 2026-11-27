@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@fellowship/ui";
+import { Button, toast } from "@fellowship/ui";
 import { useState, useTransition } from "react";
 import { deleteSpaceAction, leaveSpaceAction } from "@/lib/app/manage-actions";
 import styles from "./Settings.module.sass";
@@ -8,14 +8,12 @@ import styles from "./Settings.module.sass";
 /** Sair do Cenário (membros) ou apagar o Cenário (dono, confirmando o nome). */
 export function DangerZone({ spaceId, spaceName, isOwner }: { spaceId: string; spaceName: string; isOwner: boolean }) {
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [typed, setTyped] = useState("");
   const run = (fn: () => Promise<{ error?: string }>) =>
     start(async () => {
-      setError(null);
       const r = await fn();
-      if (r?.error) setError(r.error);
+      if (r?.error) toast.error(r.error);
     });
 
   return (
@@ -49,11 +47,6 @@ export function DangerZone({ spaceId, spaceName, isOwner }: { spaceId: string; s
             </Button>
           )}
         </>
-      )}
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@fellowship/ui";
+import { Button, toast } from "@fellowship/ui";
 import type { Invite } from "@fellowship/db";
 import { useState, useTransition } from "react";
 import { revokeInviteAction } from "@/lib/app/space-actions";
@@ -13,7 +13,6 @@ export function InviteList({ spaceId, spaceName, invites, canInvite }: { spaceId
   const [open, setOpen] = useState(false);
   const [revoking, setRevoking] = useState<string | null>(null);
   const [, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const active = invites;
 
   return (
@@ -31,18 +30,13 @@ export function InviteList({ spaceId, spaceName, invites, canInvite }: { spaceId
                 setRevoking(invite.code);
                 startTransition(async () => {
                   const result = await revokeInviteAction(spaceId, invite.code);
-                  setError(result.error ?? null);
+                  if (result.error) toast.error(result.error);
                   setRevoking(null);
                 });
               }}
             />
           ))}
         </ul>
-      )}
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
       )}
       {canInvite && (
         <div className={styles.actions}>

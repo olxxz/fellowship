@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ButtonLink, playerColorStyle } from "@fellowship/ui";
+import { Button, ButtonLink, playerColorStyle, toast } from "@fellowship/ui";
 import type { PublicSpace } from "@fellowship/db";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
@@ -12,7 +12,6 @@ export function ExploreList({ initial }: { initial: PublicSpace[] }) {
   const [spaces, setSpaces] = useState(initial);
   const [query, setQuery] = useState("");
   const [joining, setJoining] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [, start] = useTransition();
 
   // Busca com uma pausa curta enquanto a pessoa digita.
@@ -35,11 +34,6 @@ export function ExploreList({ initial }: { initial: PublicSpace[] }) {
         placeholder="Buscar pelo nome"
         aria-label="Buscar Cenários públicos"
       />
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
       {spaces.length === 0 ? (
         <p className={styles.help}>{query ? "Nenhum Cenário público com esse nome." : "Ainda não há Cenários públicos. Torne o seu público nas configurações dele."}</p>
       ) : (
@@ -68,10 +62,9 @@ export function ExploreList({ initial }: { initial: PublicSpace[] }) {
                     loadingLabel="Entrando…"
                     onClick={() => {
                       setJoining(s.id);
-                      setError(null);
                       start(async () => {
                         const result = await joinPublicSpaceAction(s.id);
-                        if (result?.error) setError(result.error);
+                        if (result?.error) toast.error(result.error);
                         setJoining(null);
                       });
                     }}

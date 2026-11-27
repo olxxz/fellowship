@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Icon, IconButton, Popover } from "@fellowship/ui";
+import { Avatar, Icon, IconButton, Popover, toast } from "@fellowship/ui";
 import type { Sticker } from "@fellowship/db";
 import { useEffect, useId, useMemo, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from "react";
 import type { ChatAuthor } from "@/lib/chat/source";
@@ -32,7 +32,6 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
   const [text, setText] = useState("");
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [mention, setMention] = useState<{ query: string; start: number; index: number } | null>(null);
   const [dragging, setDragging] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -56,7 +55,7 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
   function addFiles(list: FileList | File[]) {
     const files = [...list];
     const tooBig = files.find((f) => f.size > MAX_ATTACHMENT);
-    if (tooBig) setError(`${tooBig.name} passa de 25 MB.`);
+    if (tooBig) toast.error(`${tooBig.name} passa de 25 MB.`);
     const ok = files.filter((f) => f.size <= MAX_ATTACHMENT).slice(0, 10 - drafts.length);
     setDrafts((d) => [...d, ...ok.map((file) => ({ id: crypto.randomUUID(), file, preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined }))]);
     input.current?.focus();
@@ -102,16 +101,15 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
   async function send() {
     const content = text.trim();
     if ((!content && drafts.length === 0) || sending) return;
-    if (content.length > 4000) return setError("A mensagem passou de 4000 caracteres.");
+    if (content.length > 4000) return toast.error("A mensagem passou de 4000 caracteres.");
     setSending(true);
-    setError(null);
     try {
       await onSend(content, drafts.map((d) => d.file));
       setText("");
       setDrafts([]);
       if (input.current) input.current.style.height = "auto";
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Não foi possível enviar. Confira a conexão e tente de novo.");
+      toast.error(e instanceof Error ? e.message : "Não foi possível enviar. Confira a conexão e tente de novo.");
     } finally {
       setSending(false);
     }
@@ -220,7 +218,6 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
             placeholder={placeholder}
             aria-label={placeholder}
             aria-describedby={hintId}
-            aria-invalid={error ? true : undefined}
             maxLength={4000}
             onChange={(e) => {
               onChange(e.target.value, e.target.selectionStart);
@@ -256,15 +253,9 @@ export function Composer({ placeholder, authors, meId, stickers, replyTo, onCanc
           onClick={() => void send()}
         />
       </div>
-      {error ? (
-        <p className={styles.error} id={hintId} role="alert">
-          {error}
-        </p>
-      ) : (
-        <p className={styles.hint} id={hintId}>
-          Enter envia · Shift+Enter quebra a linha · @ menciona · cole ou arraste arquivos
-        </p>
-      )}
+      <p className={styles.hint} id={hintId}>
+        Enter envia · Shift+Enter quebra a linha · @ menciona · cole ou arraste arquivos
+      </p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ButtonLink } from "@fellowship/ui";
+import { Button, ButtonLink, toast } from "@fellowship/ui";
 import type { FriendshipState } from "@fellowship/db";
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -10,14 +10,12 @@ import { dmHref } from "@/lib/routes";
 /** Botões do perfil de outra pessoa, conforme a amizade. */
 export function ProfileActions({ id, username, initial }: { id: string; username: string; initial: FriendshipState }) {
   const [state, setState] = useState(initial);
-  const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const run = (fn: () => Promise<FriendshipState | { error?: string }>, next?: FriendshipState) =>
     start(async () => {
-      setError(null);
       const r = await fn();
       if (typeof r === "string") setState(r);
-      else if (r.error) setError(r.error);
+      else if (r.error) toast.error(r.error);
       else if (next) setState(next);
     });
 
@@ -58,11 +56,6 @@ export function ProfileActions({ id, username, initial }: { id: string; username
             Recusar
           </Button>
         </>
-      )}
-      {error && (
-        <p role="alert" style={{ flexBasis: "100%", color: "var(--danger)", fontSize: 13 }}>
-          {error}
-        </p>
       )}
     </>
   );

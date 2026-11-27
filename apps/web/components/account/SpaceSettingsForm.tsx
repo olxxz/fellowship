@@ -1,14 +1,20 @@
 "use client";
 
-import { Button, ColorPicker, playerColorStyle } from "@fellowship/ui";
+import { Button, ColorPicker, playerColorStyle , toast } from "@fellowship/ui";
 import type { Space } from "@fellowship/db";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { updateSpaceAction, type FormState } from "@/lib/app/space-actions";
 import { ImageUploadField } from "./ImageUploadField";
 import styles from "./Settings.module.sass";
 
 export function SpaceSettingsForm({ space }: { space: Space }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateSpaceAction.bind(null, space.id), {});
+
+  // Resultado do formulário em aviso (popup).
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+    else if (state.saved) toast.success("Alterações salvas");
+  }, [state]);
   const [name, setName] = useState(space.name);
   const [short, setShort] = useState(space.short);
   const [color, setColor] = useState(space.color);
@@ -73,16 +79,6 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
         </span>
       </label>
       <ColorPicker label="Cor do Cenário" name="color" value={color} onChange={setColor} help="Aparece no ícone da barra de Cenários, no banner e nos convites." />
-      {state.error && (
-        <p className={styles.error} role="alert">
-          {state.error}
-        </p>
-      )}
-      {state.saved && !pending && (
-        <p className={styles.saved} role="status">
-          Alterações salvas.
-        </p>
-      )}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" loading={pending} loadingLabel="Salvando…">
           Salvar alterações

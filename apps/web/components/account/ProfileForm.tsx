@@ -1,8 +1,8 @@
 "use client";
 
-import { Avatar, Button, ColorPicker } from "@fellowship/ui";
+import { Avatar, Button, ColorPicker , toast } from "@fellowship/ui";
 import type { Profile } from "@fellowship/db";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { updateProfileAction, type FormState } from "@/lib/app/space-actions";
 import { ImageUploadField } from "./ImageUploadField";
 import { avatarColor } from "@/lib/avatarColor";
@@ -10,6 +10,12 @@ import styles from "./Settings.module.sass";
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateProfileAction, {});
+
+  // Resultado do formulário em aviso (popup).
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+    else if (state.saved) toast.success("Perfil salvo");
+  }, [state]);
   const [name, setName] = useState(profile.display_name);
   const [color, setColor] = useState(profile.color);
   const [avatar, setAvatar] = useState(profile.avatar_url ?? "");
@@ -78,16 +84,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <textarea className={styles.textarea} name="bio" maxLength={300} defaultValue={profile.bio ?? ""} placeholder="Mestre de quinta, jogador de domingo." />
       </label>
       <ColorPicker label="Sua cor" name="color" value={color} onChange={setColor} help="Aparece no seu avatar e no seu perfil. Nos personagens, cada campanha tem a cor dela." />
-      {state.error && (
-        <p className={styles.error} role="alert">
-          {state.error}
-        </p>
-      )}
-      {state.saved && !pending && (
-        <p className={styles.saved} role="status">
-          Perfil salvo.
-        </p>
-      )}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" loading={pending} loadingLabel="Salvando…">
           Salvar alterações

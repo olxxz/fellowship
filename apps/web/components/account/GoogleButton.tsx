@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@fellowship/ui";
+import { Button, toast } from "@fellowship/ui";
 import { useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { NEXT_COOKIE } from "@/lib/supabase/config";
@@ -8,11 +8,9 @@ import { NEXT_COOKIE } from "@/lib/supabase/config";
 /** Entra com o Google pelo Supabase Auth. Na volta, /auth/callback cria a sessão. */
 export function GoogleButton({ next, label = "Entrar com Google" }: { next: string; label?: string }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function signIn() {
     setLoading(true);
-    setError(null);
     document.cookie = `${NEXT_COOKIE}=${encodeURIComponent(next)}; path=/; max-age=900; samesite=lax; secure`;
     const { error } = await getBrowserClient().auth.signInWithOAuth({
       provider: "google",
@@ -20,7 +18,7 @@ export function GoogleButton({ next, label = "Entrar com Google" }: { next: stri
     });
     if (error) {
       setLoading(false);
-      setError("Não foi possível abrir o login do Google. Confira se o provedor Google está ligado no Supabase.");
+      toast.error("Não foi possível abrir o login do Google. Confira se o provedor Google está ligado no Supabase.");
     }
   }
 
@@ -35,11 +33,6 @@ export function GoogleButton({ next, label = "Entrar com Google" }: { next: stri
         </svg>
         {label}
       </Button>
-      {error && (
-        <p role="alert" style={{ color: "var(--vital-hp)", fontSize: 13 }}>
-          {error}
-        </p>
-      )}
     </>
   );
 }

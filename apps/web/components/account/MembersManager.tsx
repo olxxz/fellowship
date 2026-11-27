@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, cx, playerColorStyle, type AccentColor } from "@fellowship/ui";
+import { Avatar, Button, cx, playerColorStyle, type AccentColor, toast } from "@fellowship/ui";
 import type { Role } from "@fellowship/db";
 import { useState, useTransition } from "react";
 import type { SpaceMemberView } from "@/lib/app/queries";
@@ -28,17 +28,16 @@ export function MembersManager({
   canKick: boolean;
 }) {
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const assignable = roles.filter((r) => !r.is_default).sort((a, b) => b.position - a.position);
-  const topOf = (m: SpaceMemberView) => (m.user_id === ownerId ? Infinity : Math.max(-1, ...roles.filter((r) => m.roleIds.includes(r.id)).map((r) => r.position)));
+  const topOf = (m: SpaceMemberView) =>
+    m.user_id === ownerId ? Infinity : Math.max(-1, ...roles.filter((r) => m.roleIds.includes(r.id)).map((r) => r.position));
   const run = (fn: () => Promise<{ error?: string }>) =>
     start(async () => {
-      setError(null);
       const r = await fn();
-      if (r.error) setError(r.error);
+      if (r.error) toast.error(r.error);
     });
 
   const list = members
@@ -47,12 +46,14 @@ export function MembersManager({
 
   return (
     <div className={styles.dialogSection}>
-      <input className={styles.input} type="search" value={query} placeholder="Buscar membro" aria-label="Buscar membro" onChange={(e) => setQuery(e.target.value)} />
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
+      <input
+        className={styles.input}
+        type="search"
+        value={query}
+        placeholder="Buscar membro"
+        aria-label="Buscar membro"
+        onChange={(e) => setQuery(e.target.value)}
+      />
       <ul className={styles.list}>
         {list.map((m) => {
           const isOwner = m.user_id === ownerId;
@@ -84,9 +85,21 @@ export function MembersManager({
                       Cargos
                     </Button>
                   )}
-                  {canKick && below && !isOwner &&
+                  {canKick &&
+                    below &&
+                    !isOwner &&
                     (confirm === m.user_id ? (
-                      <Button variant="danger" disabled={pending} onClick={() => run(() => kickMemberAction(spaceId, m.user_id))}>
+                      <Button
+                        variant="danger"
+                        disabled={pending}
+                        onClick={() =>
+                          run(async () => {
+                            const r = await kickMemberAction(spaceId, m.user_id);
+                            if (!r.error) toast.success("Membro expulso");
+                            return r;
+                          })
+                        }
+                      >
                         Expulsar mesmo
                       </Button>
                     ) : (
@@ -107,7 +120,9 @@ export function MembersManager({
                           type="checkbox"
                           checked={has}
                           disabled={!allowed || pending}
-                          onChange={(e) => run(() => setMemberRolesAction(spaceId, m.user_id, e.target.checked ? [...m.roleIds, r.id] : m.roleIds.filter((id) => id !== r.id)))}
+                          onChange={(e) =>
+                            run(() => setMemberRolesAction(spaceId, m.user_id, e.target.checked ? [...m.roleIds, r.id] : m.roleIds.filter((id) => id !== r.id)))
+                          }
                         />
                         <span className={styles.label}>{r.name}</span>
                       </label>

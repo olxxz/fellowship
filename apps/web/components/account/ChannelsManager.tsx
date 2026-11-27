@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Icon, IconButton } from "@fellowship/ui";
+import { Button, Icon, IconButton, toast } from "@fellowship/ui";
 import type { Category, Channel, Role } from "@fellowship/db";
 import { Fragment, useEffect, useState, useTransition } from "react";
 import { channelIcon } from "@/lib/app/channels";
@@ -28,14 +28,12 @@ const move = <T,>(list: T[], i: number, d: number) => {
 /** Canais e categorias: renomear, mover, apagar e ajustar permissões por cargo em cada canal. */
 export function ChannelsManager({ spaceId, categories, channels, roles }: { spaceId: string; categories: Category[]; channels: Channel[]; roles: Role[] }) {
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<{ id: string; panel: "edit" | "perms" } | null>(null);
   const [newCat, setNewCat] = useState("");
   const run = (fn: () => Promise<{ error?: string }>) =>
     start(async () => {
-      setError(null);
       const r = await fn();
-      if (r.error) setError(r.error);
+      if (r.error) toast.error(r.error);
     });
 
   const loose = channels.filter((c) => !c.category_id);
@@ -53,31 +51,66 @@ export function ChannelsManager({ spaceId, categories, channels, roles }: { spac
           if (newCat.trim())
             run(async () => {
               const result = await createCategoryAction(spaceId, newCat);
+              if (!result.error) toast.success("Categoria criada");
               if (!result.error) setNewCat("");
               return result;
             });
         }}
       >
-        <input className={styles.input} value={newCat} maxLength={40} placeholder="Nova categoria" aria-label="Nome da nova categoria" onChange={(e) => setNewCat(e.target.value)} />
+        <input
+          className={styles.input}
+          value={newCat}
+          maxLength={40}
+          placeholder="Nova categoria"
+          aria-label="Nome da nova categoria"
+          onChange={(e) => setNewCat(e.target.value)}
+        />
         <Button type="submit" icon="plus" disabled={pending || !newCat.trim()}>
           Criar categoria
         </Button>
       </form>
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
       {groups.map(({ cat, items }) => (
         <section key={cat?.id ?? "sem"} className={styles.manageGroup}>
           <header className={styles.manageGroupHeader}>
             {cat ? (
               <CategoryTitle
                 cat={cat}
-                onRename={(name) => run(() => updateCategoryAction(spaceId, cat.id, name))}
-                onDelete={() => run(() => deleteCategoryAction(spaceId, cat.id))}
-                onUp={categories.indexOf(cat) > 0 ? () => run(() => reorderCategoriesAction(spaceId, move(categories, categories.indexOf(cat), -1).map((c) => c.id))) : undefined}
-                onDown={categories.indexOf(cat) < categories.length - 1 ? () => run(() => reorderCategoriesAction(spaceId, move(categories, categories.indexOf(cat), 1).map((c) => c.id))) : undefined}
+                onRename={(name) =>
+                  run(async () => {
+                    const r = await updateCategoryAction(spaceId, cat.id, name);
+                    if (!r.error) toast.success("Categoria renomeada");
+                    return r;
+                  })
+                }
+                onDelete={() =>
+                  run(async () => {
+                    const r = await deleteCategoryAction(spaceId, cat.id);
+                    if (!r.error) toast.success("Categoria apagada");
+                    return r;
+                  })
+                }
+                onUp={
+                  categories.indexOf(cat) > 0
+                    ? () =>
+                        run(() =>
+                          reorderCategoriesAction(
+                            spaceId,
+                            move(categories, categories.indexOf(cat), -1).map((c) => c.id),
+                          ),
+                        )
+                    : undefined
+                }
+                onDown={
+                  categories.indexOf(cat) < categories.length - 1
+                    ? () =>
+                        run(() =>
+                          reorderCategoriesAction(
+                            spaceId,
+                            move(categories, categories.indexOf(cat), 1).map((c) => c.id),
+                          ),
+                        )
+                    : undefined
+                }
                 busy={pending}
               />
             ) : (
@@ -92,10 +125,51 @@ export function ChannelsManager({ spaceId, categories, channels, roles }: { spac
                   <Icon name={channelIcon(c)} size={18} />
                   <span className={styles.personName}>{c.name}</span>
                   <span className={styles.personActions}>
-                    <IconButton icon="chevronDown" label={`Subir ${c.name}`} variant="ghost" className={styles.flipUp} disabled={pending || i === 0} onClick={() => run(() => reorderChannelsAction(spaceId, cat?.id ?? null, move(items, i, -1).map((x) => x.id)))} />
-                    <IconButton icon="chevronDown" label={`Descer ${c.name}`} variant="ghost" disabled={pending || i === items.length - 1} onClick={() => run(() => reorderChannelsAction(spaceId, cat?.id ?? null, move(items, i, 1).map((x) => x.id)))} />
-                    <IconButton icon="pencil" label={`Editar ${c.name}`} variant="ghost" aria-pressed={open?.id === c.id && open.panel === "edit"} onClick={() => setOpen(open?.id === c.id && open.panel === "edit" ? null : { id: c.id, panel: "edit" })} />
-                    <IconButton icon="lock" label={`Permissões de ${c.name}`} variant="ghost" aria-pressed={open?.id === c.id && open.panel === "perms"} onClick={() => setOpen(open?.id === c.id && open.panel === "perms" ? null : { id: c.id, panel: "perms" })} />
+                    <IconButton
+                      icon="chevronDown"
+                      label={`Subir ${c.name}`}
+                      variant="ghost"
+                      className={styles.flipUp}
+                      disabled={pending || i === 0}
+                      onClick={() =>
+                        run(() =>
+                          reorderChannelsAction(
+                            spaceId,
+                            cat?.id ?? null,
+                            move(items, i, -1).map((x) => x.id),
+                          ),
+                        )
+                      }
+                    />
+                    <IconButton
+                      icon="chevronDown"
+                      label={`Descer ${c.name}`}
+                      variant="ghost"
+                      disabled={pending || i === items.length - 1}
+                      onClick={() =>
+                        run(() =>
+                          reorderChannelsAction(
+                            spaceId,
+                            cat?.id ?? null,
+                            move(items, i, 1).map((x) => x.id),
+                          ),
+                        )
+                      }
+                    />
+                    <IconButton
+                      icon="pencil"
+                      label={`Editar ${c.name}`}
+                      variant="ghost"
+                      aria-pressed={open?.id === c.id && open.panel === "edit"}
+                      onClick={() => setOpen(open?.id === c.id && open.panel === "edit" ? null : { id: c.id, panel: "edit" })}
+                    />
+                    <IconButton
+                      icon="lock"
+                      label={`Permissões de ${c.name}`}
+                      variant="ghost"
+                      aria-pressed={open?.id === c.id && open.panel === "perms"}
+                      onClick={() => setOpen(open?.id === c.id && open.panel === "perms" ? null : { id: c.id, panel: "perms" })}
+                    />
                   </span>
                 </li>
                 {open?.id === c.id && open.panel === "edit" && (
@@ -107,6 +181,7 @@ export function ChannelsManager({ spaceId, categories, channels, roles }: { spac
                       onSave={(name, topic, categoryId) =>
                         run(async () => {
                           const result = await updateChannelAction(spaceId, c.id, name, topic, categoryId);
+                          if (!result.error) toast.success("Canal salvo");
                           if (!result.error) setOpen(null);
                           return result;
                         })
@@ -114,6 +189,7 @@ export function ChannelsManager({ spaceId, categories, channels, roles }: { spac
                       onDelete={() =>
                         run(async () => {
                           const result = await deleteChannelAction(spaceId, c.id);
+                          if (!result.error) toast.success("Canal apagado");
                           if (!result.error) setOpen(null);
                           return result;
                         })
@@ -135,7 +211,21 @@ export function ChannelsManager({ spaceId, categories, channels, roles }: { spac
   );
 }
 
-function CategoryTitle({ cat, onRename, onDelete, onUp, onDown, busy }: { cat: Category; onRename: (n: string) => void; onDelete: () => void; onUp?: () => void; onDown?: () => void; busy: boolean }) {
+function CategoryTitle({
+  cat,
+  onRename,
+  onDelete,
+  onUp,
+  onDown,
+  busy,
+}: {
+  cat: Category;
+  onRename: (n: string) => void;
+  onDelete: () => void;
+  onUp?: () => void;
+  onDown?: () => void;
+  busy: boolean;
+}) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(cat.name);
   const [confirm, setConfirm] = useState(false);
@@ -175,7 +265,19 @@ function CategoryTitle({ cat, onRename, onDelete, onUp, onDown, busy }: { cat: C
   );
 }
 
-function ChannelEdit({ channel, categories, busy, onSave, onDelete }: { channel: Channel; categories: Category[]; busy: boolean; onSave: (name: string, topic: string, categoryId: string | null) => void; onDelete: () => void }) {
+function ChannelEdit({
+  channel,
+  categories,
+  busy,
+  onSave,
+  onDelete,
+}: {
+  channel: Channel;
+  categories: Category[];
+  busy: boolean;
+  onSave: (name: string, topic: string, categoryId: string | null) => void;
+  onDelete: () => void;
+}) {
   const [name, setName] = useState(channel.name);
   const [topic, setTopic] = useState(channel.topic ?? "");
   const [category, setCategory] = useState(channel.category_id ?? "");
@@ -233,12 +335,13 @@ type Tri = "herdar" | "permitir" | "negar";
 function ChannelPermissions({ spaceId, channel, roles }: { spaceId: string; channel: Channel; roles: Role[] }) {
   const [overrides, setOverrides] = useState<Record<string, { allow: number; deny: number }> | null>(null);
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const [roleId, setRoleId] = useState(roles.find((r) => r.is_default)?.id ?? roles[0]?.id ?? "");
 
   useEffect(() => {
     let alive = true;
-    void getChannelOverridesAction(channel.id).then((list) => alive && setOverrides(Object.fromEntries(list.map((o) => [o.role_id, { allow: o.allow, deny: o.deny }]))));
+    void getChannelOverridesAction(channel.id).then(
+      (list) => alive && setOverrides(Object.fromEntries(list.map((o) => [o.role_id, { allow: o.allow, deny: o.deny }]))),
+    );
     return () => {
       alive = false;
     };
@@ -253,9 +356,8 @@ function ChannelPermissions({ spaceId, channel, roles }: { spaceId: string; chan
     const deny = tri === "negar" ? current.deny | bit : current.deny & ~bit;
     setOverrides({ ...overrides, [roleId]: { allow, deny } });
     start(async () => {
-      setError(null);
       const r = await setChannelOverrideAction(spaceId, channel.id, roleId, allow, deny);
-      if (r.error) setError(r.error);
+      if (r.error) toast.error(r.error);
     });
   };
   const sorted = [...roles].sort((a, b) => (a.is_default ? 1 : b.is_default ? -1 : b.position - a.position));
@@ -299,11 +401,6 @@ function ChannelPermissions({ spaceId, channel, roles }: { spaceId: string; chan
           );
         })}
       </ul>
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

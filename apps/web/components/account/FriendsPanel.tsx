@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, ButtonLink, IconButton } from "@fellowship/ui";
+import { Avatar, Button, ButtonLink, IconButton, toast } from "@fellowship/ui";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { FriendProfile } from "@/lib/app/queries";
@@ -41,7 +41,6 @@ export function FriendsPanel({
   outgoing: FriendProfile[];
 }) {
   const [nick, setNick] = useState("");
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [pending, start] = useTransition();
   const [busy, startBusy] = useTransition();
@@ -52,9 +51,9 @@ export function FriendsPanel({
     if (!nick.trim()) return;
     start(async () => {
       const result = await requestFriendAction(nick);
-      if (result.error) setMessage({ ok: false, text: result.error });
+      if (result.error) toast.error(result.error);
       else {
-        setMessage({ ok: true, text: STATE_TEXT[result.state!] ?? "Feito." });
+        toast.success(STATE_TEXT[result.state!] ?? "Feito.");
         setNick("");
       }
     });
@@ -83,11 +82,6 @@ export function FriendsPanel({
             Enviar pedido
           </Button>
         </form>
-        {message && (
-          <p className={message.ok ? styles.saved : styles.error} role={message.ok ? "status" : "alert"}>
-            {message.text}
-          </p>
-        )}
         <p className={styles.help}>
           Seu nick é <strong>@{me.username}</strong>. Pode trocar em <Link href="/conta">Editar perfil</Link>.
         </p>
@@ -103,6 +97,7 @@ export function FriendsPanel({
             onClick={() =>
               void navigator.clipboard.writeText(link).then(() => {
                 setCopied(true);
+                toast.success("Link copiado");
                 setTimeout(() => setCopied(false), 2000);
               })
             }

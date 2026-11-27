@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Modal, SkeletonText } from "@fellowship/ui";
+import { Button, Modal, SkeletonText, toast } from "@fellowship/ui";
 import type { Invite } from "@fellowship/db";
 import { useEffect, useState, useTransition } from "react";
 import { createInviteAction, listInvitesAction } from "@/lib/app/space-actions";
@@ -31,7 +31,6 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
   const [fresh, setFresh] = useState<string | null>(null);
   const [expires, setExpires] = useState("2");
   const [uses, setUses] = useState("0");
-  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -46,11 +45,10 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
   }, [open, spaceId]);
 
   function create() {
-    setError(null);
     startTransition(async () => {
       const result = await createInviteAction(spaceId, EXPIRES[Number(expires)]![1], USES[Number(uses)]![1]);
       if (!("code" in result) || !result.code) {
-        setError(result.error ?? "Não foi possível criar o convite agora.");
+        toast.error(result.error ?? "Não foi possível criar o convite agora.");
         return;
       }
       const code = result.code;
@@ -70,7 +68,6 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
         onOpenChange(o);
         if (!o) {
           setFresh(null);
-          setError(null);
           setInvites(null);
         }
       }}
@@ -119,11 +116,6 @@ export function InviteDialog({ spaceId, spaceName, open, onOpenChange }: { space
         <Button variant={invites && invites.length > 0 ? "secondary" : "primary"} icon="link" onClick={create} loading={pending} loadingLabel="Criando…">
           Criar e copiar link
         </Button>
-        {error && (
-          <p className={styles.error} role="alert">
-            {error}
-          </p>
-        )}
       </section>
     </Modal>
   );

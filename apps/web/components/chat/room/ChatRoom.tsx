@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@fellowship/ui";
+import { Icon, toast } from "@fellowship/ui";
 import type { Reaction, Sticker } from "@fellowship/db";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -52,7 +52,6 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const logRef = useRef<HTMLOListElement>(null);
   const stick = useRef(true);
   const table = tableOf(source);
@@ -236,7 +235,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
       .insert({ ...insertBase(source, me.id), kind: "figurinha", content: sticker.url })
       .select(columnsOf(source))
       .single();
-    if (err || !data) return setError("Não foi possível enviar a figurinha.");
+    if (err || !data) return toast.error("Não foi possível enviar a figurinha.");
     stick.current = true;
     const saved = toChatMsg(data as unknown as ChatMsg);
     if (source.type === "dm") notifyPush("dm", saved.id);
@@ -253,7 +252,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
     const { error: err } = await getBrowserClient().from(table).update(patch).eq("id", id);
     if (err) {
       setMessages((all) => all.map((m) => (m.id === id ? old : m)));
-      setError("Não foi possível editar a mensagem.");
+      toast.error("Não foi possível editar a mensagem.");
     }
   }
 
@@ -263,7 +262,7 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
     const { error: err } = await getBrowserClient().from(table).delete().eq("id", id);
     if (err && old) {
       setMessages((all) => [...all, old].sort((a, b) => a.created_at.localeCompare(b.created_at)));
-      setError("Não foi possível apagar a mensagem.");
+      toast.error("Não foi possível apagar a mensagem.");
     }
   }
 
@@ -335,11 +334,6 @@ export function ChatRoom({ source, me, authors, initialMessages, initialReaction
           );
         })}
       </ol>
-      {error && (
-        <p className={styles.floatingError} role="alert" onClick={() => setError(null)}>
-          {error}
-        </p>
-      )}
       {canSend ? (
         <Composer
           placeholder={source.type === "channel" ? `Conversar em ${source.name}` : `Mensagem para ${source.name}`}

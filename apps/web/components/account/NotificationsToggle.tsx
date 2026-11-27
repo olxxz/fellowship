@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@fellowship/ui";
+import { Button, toast } from "@fellowship/ui";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { currentSubscription, disablePush, enablePush, pushSupport, type PushSupport } from "@/lib/push";
 import styles from "./Settings.module.sass";
@@ -18,7 +18,6 @@ export function NotificationsToggle() {
   const support = useSyncExternalStore(noop, pushSupport, () => null);
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (support === "ok") void currentSubscription().then((sub) => setOn(!!sub && Notification.permission === "granted"));
@@ -38,13 +37,12 @@ export function NotificationsToggle() {
           loadingLabel={on ? "Desligando…" : "Ligando…"}
           onClick={async () => {
             setBusy(true);
-            setError(null);
             try {
               if (on) await disablePush();
               else await enablePush();
               setOn(!on);
             } catch (e) {
-              setError(e instanceof Error ? e.message : "Não foi possível agora.");
+              toast.error(e instanceof Error ? e.message : "Não foi possível agora.");
             } finally {
               setBusy(false);
             }
@@ -53,11 +51,6 @@ export function NotificationsToggle() {
           {on ? "Desligar notificações neste aparelho" : "Ligar notificações neste aparelho"}
         </Button>
       </div>
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

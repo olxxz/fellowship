@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, cx } from "@fellowship/ui";
+import { Button, cx, toast } from "@fellowship/ui";
 import { useId, useRef, useState, type ReactNode } from "react";
 import { prepareImage, uploadPublic, type ImageShape } from "@/lib/upload";
 import styles from "./Settings.module.sass";
@@ -33,18 +33,16 @@ export function ImageUploadField({
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const id = useId();
 
   async function pick(file: File | undefined) {
     if (!file) return;
     setBusy(true);
-    setError(null);
     try {
       const blob = await prepareImage(file, shape);
       onChange(await uploadPublic(bucket, folder, name.replace(/_url$/, ""), blob));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Não foi possível enviar a imagem.");
+      toast.error(e instanceof Error ? e.message : "Não foi possível enviar a imagem.");
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -71,13 +69,7 @@ export function ImageUploadField({
       </div>
       <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => void pick(e.target.files?.[0])} />
       <input type="hidden" name={name} value={value} />
-      {error ? (
-        <span className={styles.error} role="alert">
-          {error}
-        </span>
-      ) : (
-        help && <span className={styles.help}>{help}</span>
-      )}
+      {help && <span className={styles.help}>{help}</span>}
     </div>
   );
 }

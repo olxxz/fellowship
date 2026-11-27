@@ -1,0 +1,90 @@
+@use "../../styles/mixins" as *
+@use "../../styles/typography" as *
+
+// Pilha no canto inferior direito (no celular, centralizada embaixo). Só opacidade e um deslize curto.
+.viewport
+  position: fixed
+  right: var(--space-4)
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom))
+  z-index: 100
+  display: flex
+  flex-direction: column-reverse
+  gap: var(--space-2)
+  width: min(380px, calc(100vw - var(--space-4) * 2))
+  outline: none
+  @include mobile
+    left: 50%
+    right: auto
+    transform: translateX(-50%)
+    bottom: calc(var(--space-6) + env(safe-area-inset-bottom))
+
+.toast
+  display: flex
+  align-items: flex-start
+  gap: var(--space-3)
+  padding: var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-content)
+  box-shadow: var(--shadow-popover)
+  transition: opacity 160ms ease-out, transform 160ms ease-out
+  &[data-starting-style], &[data-ending-style]
+    opacity: 0
+    transform: translateY(6px)
+  &[data-limited]
+    display: none
+  @include reduced-motion
+    transition: opacity 120ms linear
+    &[data-starting-style], &[data-ending-style]
+      transform: none
+
+.icon
+  display: grid
+  place-items: center
+  flex-shrink: 0
+  width: 24px
+  height: 24px
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  color: var(--text)
+
+.sucesso .icon
+  background: color-mix(in srgb, var(--success) 22%, transparent)
+  color: var(--success)
+
+.erro .icon
+  background: var(--danger-soft)
+  color: var(--danger)
+
+.content
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: 2px
+  padding-top: 2px
+
+.title
+  @include text-body-sm
+  font-weight: 600
+  color: var(--text)
+
+.description
+  @include text-caption
+  color: var(--text-muted)
+  &:empty
+    display: none
+
+.close
+  @include reset-interactive
+  display: grid
+  place-items: center
+  flex-shrink: 0
+  width: 28px
+  height: 28px
+  border-radius: var(--radius-sm)
+  color: var(--text-muted)
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, IconButton } from "@fellowship/ui";
+import { Button, IconButton, toast } from "@fellowship/ui";
 import type { Sticker } from "@fellowship/db";
 import { useRef, useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
@@ -12,14 +12,12 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
   const [stickers, setStickers] = useState(initial);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const file = useRef<HTMLInputElement>(null);
 
   async function add(f: File | undefined) {
     if (!f) return;
     const label = name.trim() || f.name.replace(/\.[^.]+$/, "").slice(0, 32);
     setBusy(true);
-    setError(null);
     try {
       const url = await uploadPublic("cenarios", `${spaceId}/figurinhas`, "figurinha", await prepareImage(f, "square"));
       const { data, error: err } = await getBrowserClient()
@@ -30,8 +28,9 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
       if (err || !data) throw new Error("Não foi possível salvar a figurinha.");
       setStickers((all) => [...all, data]);
       setName("");
+      toast.success("Figurinha adicionada");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Não foi possível enviar.");
+      toast.error(e instanceof Error ? e.message : "Não foi possível enviar.");
     } finally {
       setBusy(false);
       if (file.current) file.current.value = "";
@@ -56,11 +55,6 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
         </Button>
         <input ref={file} type="file" accept="image/png,image/webp,image/gif,image/jpeg" hidden onChange={(e) => void add(e.target.files?.[0])} />
       </div>
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
       {stickers.length === 0 ? (
         <p className={styles.help}>Nenhuma figurinha ainda. PNG com fundo transparente ou GIF animado ficam melhores (até 4 MB).</p>
       ) : (

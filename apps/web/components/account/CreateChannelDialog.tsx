@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, Icon, Modal, type IconName } from "@fellowship/ui";
+import { Button, Icon, Modal, type IconName, toast } from "@fellowship/ui";
 import type { Category } from "@fellowship/db";
-import { useId, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { createChannelAction, type NewChannelKind } from "@/lib/app/space-actions";
 import styles from "./Settings.module.sass";
 
@@ -34,9 +34,7 @@ export function CreateChannelDialog({
   const [topic, setTopic] = useState("");
   const [category, setCategory] = useState<string>(initialCategoryId ?? NO_CATEGORY);
   const [newCategory, setNewCategory] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const ids = useId();
 
   // Reabrir pelo + de outra categoria já escolhe aquela categoria.
   const [lastInitial, setLastInitial] = useState(initialCategoryId);
@@ -50,14 +48,12 @@ export function CreateChannelDialog({
     setName("");
     setTopic("");
     setNewCategory("");
-    setError(null);
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return setError("Dê um nome ao canal.");
-    if (category === NEW_CATEGORY && !newCategory.trim()) return setError("Dê um nome à categoria nova.");
-    setError(null);
+    if (!name.trim()) return toast.error("Dê um nome ao canal.");
+    if (category === NEW_CATEGORY && !newCategory.trim()) return toast.error("Dê um nome à categoria nova.");
     startTransition(async () => {
       const result = await createChannelAction({
         spaceId,
@@ -68,7 +64,7 @@ export function CreateChannelDialog({
         newCategory: category === NEW_CATEGORY ? newCategory : undefined,
       });
       // Sucesso redireciona para o canal novo; só volta aqui com erro.
-      if (result?.error) setError(result.error);
+      if (result?.error) toast.error(result.error);
       else {
         onOpenChange(false);
         reset();
@@ -111,7 +107,6 @@ export function CreateChannelDialog({
             autoComplete="off"
             placeholder={kind === "voz" ? "Taverna" : "planos-da-sessao"}
             onChange={(e) => setName(e.target.value)}
-            aria-describedby={error ? `${ids}-erro` : undefined}
           />
         </label>
 
@@ -143,12 +138,6 @@ export function CreateChannelDialog({
             </span>
             <input className={styles.input} value={topic} maxLength={200} autoComplete="off" onChange={(e) => setTopic(e.target.value)} />
           </label>
-        )}
-
-        {error && (
-          <p className={styles.error} id={`${ids}-erro`} role="alert">
-            {error}
-          </p>
         )}
         <div className={styles.actions}>
           <Button type="submit" variant="primary" icon="plus" loading={pending} loadingLabel="Criando…">

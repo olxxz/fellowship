@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Modal } from "@fellowship/ui";
+import { Button, Modal, toast } from "@fellowship/ui";
 import type { LocalAudioTrack, Participant, RemoteParticipant, Room } from "livekit-client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { readPref, useFlag, usePref, writePref } from "@/lib/prefs";
@@ -314,6 +314,11 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     joinRef.current = join;
   }, [join]);
+
+  // Erros de voz também aparecem em aviso (popup), em qualquer página.
+  useEffect(() => {
+    if (error) toast.error("Voz", error);
+  }, [error]);
 
   useEffect(() => {
     void import("@livekit/krisp-noise-filter")

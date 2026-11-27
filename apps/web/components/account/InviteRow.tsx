@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, IconButton } from "@fellowship/ui";
+import { Button, IconButton, toast } from "@fellowship/ui";
 import type { Invite } from "@fellowship/db";
 import { useState } from "react";
 import { publicOrigin } from "@/lib/site";
@@ -26,6 +26,7 @@ export function InviteRow({ invite, copiedInitially, onRevoke, revoking }: { inv
     try {
       await navigator.clipboard.writeText(inviteLink(invite.code));
       setCopied(true);
+      toast.success("Link do convite copiado");
       setFailed(false);
     } catch {
       setFailed(true);
