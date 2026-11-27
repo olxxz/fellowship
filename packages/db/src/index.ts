@@ -12,6 +12,8 @@ export interface Profile {
   /** Cor livre em hex (#rrggbb). */
   color: string;
   bio: string | null;
+  /** Já passou pelas boas-vindas (escolheu o nick). */
+  onboarded?: boolean;
 }
 
 /** Relação entre a conta logada e outra pessoa. */

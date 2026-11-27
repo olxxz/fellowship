@@ -100,3 +100,16 @@ describe("Cenários públicos", () => {
     })).rejects.toThrow(/sem permissão/);
   });
 });
+
+describe("boas-vindas", () => {
+  it("conta nova começa sem boas-vindas; nick livre ou ocupado", async () => {
+    const db = await createTestDb();
+    const ana = await createUser(db, "Ana");
+    const bruno = await createUser(db, "Bruno");
+    expect((await one<{ onboarded: boolean }>(db, "select onboarded from public.profiles where id = $1", [ana])).onboarded).toBe(false);
+    await as(db, ana, () => db.query("update public.profiles set username = 'mestre', onboarded = true where id = $1", [ana]));
+    expect((await as(db, bruno, () => one<{ ok: boolean }>(db, "select public.username_available('mestre') as ok"))).ok).toBe(false);
+    expect((await as(db, ana, () => one<{ ok: boolean }>(db, "select public.username_available('mestre') as ok"))).ok).toBe(true);
+    expect((await as(db, bruno, () => one<{ ok: boolean }>(db, "select public.username_available('Tem Espaço') as ok"))).ok).toBe(false);
+  });
+});

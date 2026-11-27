@@ -5,6 +5,7 @@ import type { Profile } from "@fellowship/db";
 import { useActionState, useState } from "react";
 import { updateProfileAction, type FormState } from "@/lib/app/space-actions";
 import { ImageUploadField } from "./ImageUploadField";
+import { avatarColor } from "@/lib/avatarColor";
 import styles from "./Settings.module.sass";
 
 export function ProfileForm({ profile }: { profile: Profile }) {
@@ -24,7 +25,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         label="Foto"
         name="avatar_url"
         value={avatar}
-        onChange={setAvatar}
+        onChange={(url) => {
+          setAvatar(url);
+          // Foto nova: a cor do perfil passa a combinar com o fundo dela (dá para trocar abaixo).
+          if (url) void avatarColor(url).then((c) => c && setColor(c));
+        }}
         shape="square"
         bucket="perfis"
         folder={profile.id}

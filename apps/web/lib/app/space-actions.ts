@@ -126,6 +126,26 @@ export async function updateProfileAction(_prev: FormState, form: FormData): Pro
   return { saved: true };
 }
 
+/** Boas-vindas: grava nick, nome, foto e cor e marca a conta como pronta. */
+export async function completeWelcomeAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const { supabase, user } = await requireAccount("/bem-vindo", { welcome: true });
+  const username = String(form.get("username") ?? "").trim().toLowerCase().replace(/^@/, "");
+  const display_name = String(form.get("display_name") ?? "").trim();
+  const color = String(form.get("color") ?? "").trim().toLowerCase();
+  const next = String(form.get("next") ?? "/inicio");
+  if (!/^[a-z0-9_.]{3,20}$/.test(username)) return { error: "O nick tem de 3 a 20 caracteres: letras minúsculas, números, ponto e sublinhado." };
+  if (display_name.length < 1 || display_name.length > 60) return { error: "O nome precisa ter de 1 a 60 caracteres." };
+  if (!HEX.test(color)) return { error: "Escolha uma cor válida." };
+  const { data: current } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).single<{ avatar_url: string | null }>();
+  const avatar_url = imageUrl(form, "avatar_url", "perfis", user.id, current?.avatar_url);
+  if (avatar_url === undefined) return { error: "Imagem inválida. Envie de novo." };
+  const { error } = await supabase.from("profiles").update({ username, display_name, color, avatar_url, onboarded: true }).eq("id", user.id);
+  if (error?.code === "23505") return { error: `O nick @${username} já está em uso.` };
+  if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
+  revalidatePath("/", "layout");
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/inicio");
+}
+
 // ───────── Canais ─────────
 
 const CHANNEL_KINDS = ["texto", "anuncios", "voz", "galeria", "funcional"] as const;

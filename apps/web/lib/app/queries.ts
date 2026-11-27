@@ -10,13 +10,15 @@ import { getUser } from "@/lib/supabase/server";
 // Todas as consultas passam pelo RLS: cada conta só recebe o que pode ver.
 
 /** Conta logada com perfil, ou vai para /entrar. Uma consulta por requisição (cache). */
-export const requireAccount = cache(async (next: string = "/inicio") => {
+export const requireAccount = cache(async (next: string = "/inicio", { welcome = false }: { welcome?: boolean } = {}) => {
   // Sem Supabase configurado (ex.: CI), /entrar explica que o login não está disponível.
   if (!authEnabled) redirect("/entrar");
   const { supabase, user } = await getUser();
   if (!user) redirect(`/entrar?next=${encodeURIComponent(next)}`);
-  const { data: profile } = await supabase.from("profiles").select("id, display_name, username, avatar_url, banner_url, color, bio").eq("id", user.id).single<Profile>();
+  const { data: profile } = await supabase.from("profiles").select("id, display_name, username, avatar_url, banner_url, color, bio, onboarded").eq("id", user.id).single<Profile>();
   if (!profile) redirect("/entrar?erro=perfil");
+  // Conta nova: escolhe o nick (e confere nome, foto e cor) antes de usar o app.
+  if (!welcome && !profile.onboarded) redirect(`/bem-vindo?next=${encodeURIComponent(next)}`);
   return { supabase, user, profile };
 });
 
@@ -93,7 +95,7 @@ export const getFriendsView = cache(async (supabase: SupabaseClient, meId: strin
   const otherOf = (r: (typeof list)[number]) => (r.user_a === meId ? r.user_b : r.user_a);
   const ids = list.map(otherOf);
   const { data: profiles } = ids.length
-    ? await supabase.from("profiles").select("id, display_name, username, avatar_url, banner_url, color, bio").in("id", ids)
+    ? await supabase.from("profiles").select("id, display_name, username, avatar_url, banner_url, color, bio, onboarded").in("id", ids)
     : { data: [] };
   const byId = new Map(((profiles ?? []) as FriendProfile[]).map((p) => [p.id, p]));
   const pick = (filter: (r: (typeof list)[number]) => boolean) =>
