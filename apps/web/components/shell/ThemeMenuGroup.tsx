@@ -16,9 +16,15 @@ export function ThemeMenuGroup() {
           applyTheme(value);
         }}
       >
-        <Menu.RadioItem value="dark">Escuro</Menu.RadioItem>
-        <Menu.RadioItem value="light">Claro</Menu.RadioItem>
-        <Menu.RadioItem value="system">Seguir o sistema</Menu.RadioItem>
+        <Menu.RadioItem value="dark" icon="moon">
+          Escuro
+        </Menu.RadioItem>
+        <Menu.RadioItem value="light" icon="sun">
+          Claro
+        </Menu.RadioItem>
+        <Menu.RadioItem value="system" icon="screen">
+          Seguir o sistema
+        </Menu.RadioItem>
       </Menu.RadioGroup>
     </Menu.Group>
   );

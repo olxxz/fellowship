@@ -67,22 +67,42 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
             render={<IconButton icon="settings" label="Configurações" />}
           />
           <Menu.Popup side="top" align="end">
-            <Menu.LinkItem render={<Link href={editProfileHref} />}>Editar perfil</Menu.LinkItem>
-            <Menu.LinkItem render={<Link href={friendsHref} />}>Amigos</Menu.LinkItem>
-            {voice?.enabled && <Menu.Item onClick={() => voice.setSettingsOpen(true)}>Voz e vídeo</Menu.Item>}
+            <Menu.Header>
+              <span className={styles.menuWho}>
+                <Avatar name={profile.display_name} src={profile.avatar_url ?? undefined} color={profile.color} size={36} />
+                <span className={styles.who}>
+                  <span className={styles.name}>{profile.display_name}</span>
+                  <span className={styles.status}>@{profile.username}</span>
+                </span>
+              </span>
+            </Menu.Header>
+            <Menu.LinkItem icon="users" render={<Link href={myProfileHref} />}>
+              Ver perfil
+            </Menu.LinkItem>
+            <Menu.LinkItem icon="pencil" render={<Link href={editProfileHref} />}>
+              Editar perfil
+            </Menu.LinkItem>
+            <Menu.LinkItem icon="userPlus" render={<Link href={friendsHref} />}>
+              Amigos
+            </Menu.LinkItem>
+            {voice?.enabled && (
+              <Menu.Item icon="mic" onClick={() => voice.setSettingsOpen(true)}>
+                Voz e vídeo
+              </Menu.Item>
+            )}
             <Menu.Separator />
             <ThemeMenuGroup />
             <Menu.Separator />
-            <Menu.LinkItem
-              render={<Link href={campaignHref("vel", "maldicao")} />}
-            >
-              Protótipo da Mesa
-            </Menu.LinkItem>
-            <Menu.LinkItem render={<Link href="/design-system" />}>
-              Design system
-            </Menu.LinkItem>
+            <Menu.Group label="Explorar">
+              <Menu.LinkItem icon="dice" render={<Link href={campaignHref("vel", "maldicao")} />}>
+                Protótipo da Mesa
+              </Menu.LinkItem>
+              <Menu.LinkItem icon="grid" render={<Link href="/design-system" />}>
+                Design system
+              </Menu.LinkItem>
+            </Menu.Group>
             <Menu.Separator />
-            <Menu.Item onClick={() => logout.current?.requestSubmit()}>
+            <Menu.Item icon="leave" tone="danger" onClick={() => logout.current?.requestSubmit()}>
               Sair da conta
             </Menu.Item>
           </Menu.Popup>

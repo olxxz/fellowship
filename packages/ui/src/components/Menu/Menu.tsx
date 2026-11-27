@@ -4,6 +4,7 @@ import { Menu as BaseMenu } from "@base-ui/react/menu";
 import type { ComponentProps, ReactNode } from "react";
 import { cx } from "../../cx";
 import { Icon } from "../Icon/Icon";
+import type { IconName } from "../Icon/icons";
 import styles from "./Menu.module.sass";
 
 type WithClass<T> = Omit<T, "className"> & { className?: string };
@@ -25,19 +26,56 @@ function Popup({ side = "bottom", align = "start", children, className }: PopupP
   );
 }
 
-function Item({ className, ...props }: WithClass<ComponentProps<typeof BaseMenu.Item>>) {
-  return <BaseMenu.Item className={cx(styles.item, className)} {...props} />;
+interface Extra {
+  /** Ícone à esquerda (18px, apagado). */
+  icon?: IconName;
+  /** `danger`: ação destrutiva (sair, apagar), em vermelho. */
+  tone?: "danger";
+  /** Texto menor à direita (atalho, contagem). */
+  hint?: ReactNode;
+}
+
+function ItemContent({ icon, hint, children }: Extra & { children?: ReactNode }) {
+  return (
+    <>
+      {icon && <Icon name={icon} size={18} className={styles.icon} />}
+      <span className={styles.label}>{children}</span>
+      {hint && <span className={styles.hint}>{hint}</span>}
+    </>
+  );
+}
+
+function Item({ className, icon, tone, hint, children, ...props }: WithClass<ComponentProps<typeof BaseMenu.Item>> & Extra) {
+  return (
+    <BaseMenu.Item className={cx(styles.item, tone === "danger" && styles.danger, className)} {...props}>
+      <ItemContent icon={icon} hint={hint}>
+        {children as ReactNode}
+      </ItemContent>
+    </BaseMenu.Item>
+  );
 }
 
 /** Item que navega (use `render={<Link href="…" />}` com o Link do Next.js). */
-function LinkItem({ className, ...props }: WithClass<ComponentProps<typeof BaseMenu.LinkItem>>) {
-  return <BaseMenu.LinkItem className={cx(styles.item, className)} {...props} />;
+function LinkItem({ className, icon, tone, hint, children, ...props }: WithClass<ComponentProps<typeof BaseMenu.LinkItem>> & Extra) {
+  return (
+    <BaseMenu.LinkItem className={cx(styles.item, tone === "danger" && styles.danger, className)} {...props}>
+      <ItemContent icon={icon} hint={hint}>
+        {children as ReactNode}
+      </ItemContent>
+    </BaseMenu.LinkItem>
+  );
 }
 
-function RadioItem({ className, children, ...props }: WithClass<ComponentProps<typeof BaseMenu.RadioItem>> & { children: ReactNode }) {
+/** Cabeçalho do menu (ex.: quem está logado). Não é clicável por si; ponha um LinkItem dentro se precisar. */
+function Header({ children }: { children: ReactNode }) {
+  return <div className={styles.header}>{children}</div>;
+}
+
+function RadioItem({ className, children, icon, ...props }: WithClass<ComponentProps<typeof BaseMenu.RadioItem>> & { children: ReactNode; icon?: IconName }) {
   return (
     <BaseMenu.RadioItem className={cx(styles.item, className)} {...props}>
-      {children}
+      {icon && <Icon name={icon} size={18} className={styles.icon} />}
+      <span className={styles.label}>{children}</span>
       <BaseMenu.RadioItemIndicator className={styles.indicator}>
         <Icon name="check" size={16} />
       </BaseMenu.RadioItemIndicator>
@@ -69,4 +107,5 @@ export const Menu = {
   RadioItem,
   Group,
   Separator,
+  Header,
 };
