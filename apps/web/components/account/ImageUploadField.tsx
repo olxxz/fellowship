@@ -2,7 +2,8 @@
 
 import { Button, cx, toast } from "@fellowship/ui";
 import { useId, useRef, useState, type ReactNode } from "react";
-import { prepareImage, uploadPublic, type ImageShape } from "@/lib/upload";
+import { prepareImage, uploadPublic, type CropRect, type ImageShape } from "@/lib/upload";
+import { CropDialog } from "./CropDialog";
 import styles from "./Settings.module.sass";
 
 /**
@@ -18,6 +19,7 @@ export function ImageUploadField({
   bucket,
   folder,
   help,
+  round,
   preview,
 }: {
   label: string;
@@ -28,6 +30,8 @@ export function ImageUploadField({
   bucket: "perfis" | "cenarios";
   folder: string;
   help?: string;
+  /** Moldura redonda no editor de corte (avatar). */
+  round?: boolean;
   /** Como fica (avatar redondo, banner largo…), recebendo o endereço atual. */
   preview: (url: string) => ReactNode;
 }) {
@@ -35,17 +39,26 @@ export function ImageUploadField({
   const [busy, setBusy] = useState(false);
   const id = useId();
 
-  async function pick(file: File | undefined) {
+  const [editing, setEditing] = useState<{ file: File; url: string } | null>(null);
+
+  // Imagem escolhida: abre o editor de corte. GIF sobe direto (cortar perderia a animação).
+  function pick(file: File | undefined) {
+    if (input.current) input.current.value = "";
     if (!file) return;
+    if (!file.type.startsWith("image/")) return toast.error("Escolha uma imagem (JPG, PNG, WebP ou GIF).");
+    if (file.type === "image/gif") return void upload(file);
+    setEditing({ file, url: URL.createObjectURL(file) });
+  }
+
+  async function upload(file: File, crop?: CropRect) {
     setBusy(true);
     try {
-      const blob = await prepareImage(file, shape);
+      const blob = await prepareImage(file, shape, crop);
       onChange(await uploadPublic(bucket, folder, name.replace(/_url$/, ""), blob));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível enviar a imagem.");
     } finally {
       setBusy(false);
-      if (input.current) input.current.value = "";
     }
   }
 
@@ -67,8 +80,26 @@ export function ImageUploadField({
           )}
         </div>
       </div>
-      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => void pick(e.target.files?.[0])} />
+      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => pick(e.target.files?.[0])} />
       <input type="hidden" name={name} value={value} />
+      {editing && (
+        <CropDialog
+          src={editing.url}
+          shape={shape}
+          round={round}
+          title={`Ajustar ${label.toLowerCase()}`}
+          onCancel={() => {
+            URL.revokeObjectURL(editing.url);
+            setEditing(null);
+          }}
+          onConfirm={(crop) => {
+            const file = editing.file;
+            URL.revokeObjectURL(editing.url);
+            setEditing(null);
+            void upload(file, crop);
+          }}
+        />
+      )}
       {help && <span className={styles.help}>{help}</span>}
     </div>
   );

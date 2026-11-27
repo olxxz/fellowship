@@ -94,6 +94,7 @@ export function AccountSpaceSidebar({
         type="button"
         className={styles.banner}
         style={playerColorStyle(space.color, space.banner_url ? { ["--banner-image" as string]: `url("${space.banner_url}")` } : undefined)}
+        data-image={space.banner_url ? "" : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         onClick={() => setMenuOpen((o) => !o)}

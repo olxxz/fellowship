@@ -6,9 +6,22 @@ import { getBrowserClient } from "@/lib/supabase/client";
 // Upload no navegador (ADR 0016): imagens são recortadas, reduzidas e convertidas antes de subir (isso também
 // tira os metadados da foto, como localização). GIF sobe como está, para continuar animado.
 
-export type ImageShape = "square" | "banner";
+/** square: avatar, ícone e figurinha (1:1). banner: perfil (3:1). spaceBanner: topo da barra do Cenário (2:1). */
+export type ImageShape = "square" | "banner" | "spaceBanner";
 
-const SHAPES: Record<ImageShape, { w: number; h: number }> = { square: { w: 512, h: 512 }, banner: { w: 1800, h: 600 } };
+export const SHAPES: Record<ImageShape, { w: number; h: number }> = {
+  square: { w: 512, h: 512 },
+  banner: { w: 1800, h: 600 },
+  spaceBanner: { w: 1200, h: 600 },
+};
+
+/** Área escolhida no editor de corte, em pixels da imagem original. */
+export interface CropRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 const MAX_PUBLIC = 4 * 1024 * 1024;
 export const MAX_ATTACHMENT = 25 * 1024 * 1024;
 
@@ -22,8 +35,8 @@ async function encode(canvas: HTMLCanvasElement, quality = 0.86): Promise<Blob> 
 
 const ext = (mime: string) => (mime === "image/webp" ? "webp" : mime === "image/gif" ? "gif" : mime === "image/png" ? "png" : "jpg");
 
-/** Recorta no centro na proporção pedida e reduz (avatar/ícone 512×512, banner 1800×600). */
-export async function prepareImage(file: File, shape: ImageShape): Promise<Blob> {
+/** Recorta (na área escolhida, ou no centro) na proporção pedida e reduz (avatar/ícone 512×512, banners 1800×600 e 1200×600). */
+export async function prepareImage(file: File, shape: ImageShape, crop?: CropRect): Promise<Blob> {
   if (!file.type.startsWith("image/")) throw new Error("Escolha uma imagem (JPG, PNG, WebP ou GIF).");
   if (file.type === "image/gif") {
     if (file.size > MAX_PUBLIC) throw new Error("GIF de até 4 MB.");
@@ -38,11 +51,16 @@ export async function prepareImage(file: File, shape: ImageShape): Promise<Blob>
     sh = bitmap.height;
     sw = sh * ratio;
   }
+  let sx = (bitmap.width - sw) / 2;
+  let sy = (bitmap.height - sh) / 2;
+  if (crop) ({ x: sx, y: sy, width: sw, height: sh } = crop);
   const scale = Math.min(1, target.w / sw);
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(sw * scale);
   canvas.height = Math.round(sh * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, (bitmap.width - sw) / 2, (bitmap.height - sh) / 2, sw, sh, 0, 0, canvas.width, canvas.height);
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
   bitmap.close();
   const blob = await encode(canvas);
   if (blob.size > MAX_PUBLIC) throw new Error("A imagem ficou grande demais. Tente outra.");

@@ -37,6 +37,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           if (url) void avatarColor(url).then((c) => c && setColor(c));
         }}
         shape="square"
+        round
         bucket="perfis"
         folder={profile.id}
         help="JPG, PNG, WebP ou GIF animado (até 4 MB). Fica quadrada."
@@ -50,7 +51,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         shape="banner"
         bucket="perfis"
         folder={profile.id}
-        help="Aparece no topo do seu perfil e do cartão. Proporção 3:1; GIF também vale."
+        help="Aparece no topo do seu perfil e do cartão. Você escolhe a área ao enviar; GIF também vale."
         preview={(url) => <div className={styles.bannerPreview} style={{ ["--player-color" as string]: color, ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
       />
       <label className={styles.field}>

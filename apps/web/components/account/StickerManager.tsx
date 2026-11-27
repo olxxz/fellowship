@@ -4,7 +4,8 @@ import { Button, IconButton, toast } from "@fellowship/ui";
 import type { Sticker } from "@fellowship/db";
 import { useRef, useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
-import { prepareImage, uploadPublic } from "@/lib/upload";
+import { prepareImage, uploadPublic, type CropRect } from "@/lib/upload";
+import { CropDialog } from "./CropDialog";
 import styles from "./Settings.module.sass";
 
 /** Figurinhas do Cenário: quem gerencia o tema sobe (PNG, WebP ou GIF animado) e apaga. */
@@ -14,12 +15,21 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
   const [busy, setBusy] = useState(false);
   const file = useRef<HTMLInputElement>(null);
 
-  async function add(f: File | undefined) {
+  const [editing, setEditing] = useState<{ file: File; url: string } | null>(null);
+
+  // Figurinha escolhida: ajusta o corte (GIF sobe direto para não perder a animação).
+  function pick(f: File | undefined) {
+    if (file.current) file.current.value = "";
     if (!f) return;
+    if (f.type === "image/gif") return void add(f);
+    setEditing({ file: f, url: URL.createObjectURL(f) });
+  }
+
+  async function add(f: File, crop?: CropRect) {
     const label = name.trim() || f.name.replace(/\.[^.]+$/, "").slice(0, 32);
     setBusy(true);
     try {
-      const url = await uploadPublic("cenarios", `${spaceId}/figurinhas`, "figurinha", await prepareImage(f, "square"));
+      const url = await uploadPublic("cenarios", `${spaceId}/figurinhas`, "figurinha", await prepareImage(f, "square", crop));
       const { data, error: err } = await getBrowserClient()
         .from("stickers")
         .insert({ space_id: spaceId, name: label, url, created_by: meId })
@@ -33,7 +43,6 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
       toast.error(e instanceof Error ? e.message : "Não foi possível enviar.");
     } finally {
       setBusy(false);
-      if (file.current) file.current.value = "";
     }
   }
 
@@ -48,12 +57,29 @@ export function StickerManager({ spaceId, meId, initial }: { spaceId: string; me
 
   return (
     <div className={styles.dialogSection}>
+      {editing && (
+        <CropDialog
+          src={editing.url}
+          shape="square"
+          title="Ajustar figurinha"
+          onCancel={() => {
+            URL.revokeObjectURL(editing.url);
+            setEditing(null);
+          }}
+          onConfirm={(crop) => {
+            const f = editing.file;
+            URL.revokeObjectURL(editing.url);
+            setEditing(null);
+            void add(f, crop);
+          }}
+        />
+      )}
       <div className={styles.inlineForm}>
         <input className={styles.input} value={name} maxLength={32} placeholder="Nome (opcional)" aria-label="Nome da figurinha" onChange={(e) => setName(e.target.value)} />
         <Button icon="plus" loading={busy} loadingLabel="Enviando…" onClick={() => file.current?.click()}>
           Adicionar figurinha
         </Button>
-        <input ref={file} type="file" accept="image/png,image/webp,image/gif,image/jpeg" hidden onChange={(e) => void add(e.target.files?.[0])} />
+        <input ref={file} type="file" accept="image/png,image/webp,image/gif,image/jpeg" hidden onChange={(e) => pick(e.target.files?.[0])} />
       </div>
       {stickers.length === 0 ? (
         <p className={styles.help}>Nenhuma figurinha ainda. PNG com fundo transparente ou GIF animado ficam melhores (até 4 MB).</p>

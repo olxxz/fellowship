@@ -89,6 +89,7 @@ export function WelcomeForm({ profile, next }: { profile: Profile; next: string 
           if (url) void avatarColor(url).then((c) => c && setColor(c));
         }}
         shape="square"
+        round
         bucket="perfis"
         folder={profile.id}
         help="Opcional. Sem foto, aparece a sua inicial na sua cor."

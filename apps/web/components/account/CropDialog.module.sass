@@ -1,0 +1,55 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.wrap
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+
+.frame
+  position: relative
+  width: 100%
+  max-height: 60dvh
+  overflow: hidden
+  border-radius: var(--radius-lg)
+  background: var(--bg-rail)
+  cursor: grab
+  touch-action: none
+  user-select: none
+  &:active
+    cursor: grabbing
+
+// Avatar: mostra a área redonda; o resto fica escurecido.
+.round::after
+  content: ""
+  position: absolute
+  inset: 0
+  border-radius: 50%
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.55)
+  pointer-events: none
+
+.image
+  position: absolute
+  top: 0
+  left: 0
+  max-width: none
+  pointer-events: none
+
+.zoom
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  color: var(--text-muted)
+  font-weight: 700
+  input
+    flex: 1
+    accent-color: var(--accent)
+
+.help
+  @include text-caption
+  color: var(--text-muted)
+
+.actions
+  display: flex
+  justify-content: flex-end
+  gap: var(--space-2)

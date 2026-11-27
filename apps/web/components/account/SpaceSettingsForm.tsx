@@ -61,11 +61,11 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
         name="banner_url"
         value={banner}
         onChange={setBanner}
-        shape="banner"
+        shape="spaceBanner"
         bucket="cenarios"
         folder={space.id}
-        help="Topo da barra do Cenário e cartão em Explorar. Proporção 3:1; GIF também vale."
-        preview={(url) => <div className={styles.bannerPreview} style={{ ...playerColorStyle(color), ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
+        help="Topo da barra do Cenário e cartão em Explorar. Você escolhe a área ao enviar; GIF também vale."
+        preview={(url) => <div className={styles.bannerPreview} style={{ aspectRatio: "2 / 1", ...playerColorStyle(color), ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
       />
       <label className={styles.field}>
         <span className={styles.label}>Descrição</span>
