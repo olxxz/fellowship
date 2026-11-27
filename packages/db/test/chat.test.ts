@@ -82,3 +82,17 @@ describe("notificações", () => {
     await expect(as(db, ana, () => db.query("select * from public.push_targets('canal', $1)", [msg]))).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("galeria", () => {
+  it("membro publica e comenta num canal de galeria", async () => {
+    const db = await createTestDb();
+    const ana = await createUser(db, "Ana");
+    const space = await as(db, ana, async () => (await one<{ id: string }>(db, "select public.create_space('Vel') as id")).id);
+    const gal = await as(db, ana, async () => (await one<{ id: string }>(db, "select public.create_channel($1, null, 'galeria', 'mural') as id", [space])).id);
+    const post = await as(db, ana, async () =>
+      (await one<{ id: string }>(db, "insert into public.messages (space_id, channel_id, author_id, content, attachments) values ($1, $2, $3, 'Mapa #vel', $4) returning id", [space, gal, ana, JSON.stringify([{ path: `c/${gal}/x/m.webp`, name: "m.webp", size: 1, mime: "image/webp" }])])).id,
+    );
+    await as(db, ana, () => db.query("insert into public.messages (space_id, channel_id, author_id, content, reply_to) values ($1, $2, $3, 'Lindo', $4)", [space, gal, ana, post]));
+    expect((await one<{ n: number }>(db, "select count(*)::int as n from public.messages where channel_id = $1", [gal])).n).toBe(2);
+  });
+});

@@ -1,5 +1,5 @@
-import { FormSkeleton } from "@/components/common/PageSkeleton";
+import { SettingsSkeleton } from "@/components/common/PageSkeleton";
 
 export default function Loading() {
-  return <FormSkeleton />;
+  return <SettingsSkeleton />;
 }

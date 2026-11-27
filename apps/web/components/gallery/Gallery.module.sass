@@ -1,0 +1,244 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.gallery
+  flex: 1
+  min-height: 0
+  overflow-y: auto
+  padding: var(--space-4) var(--space-5) var(--space-8)
+
+.toolbar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: var(--space-3)
+  margin-bottom: var(--space-4)
+  flex-wrap: wrap
+
+.tags
+  display: flex
+  gap: var(--space-1)
+  flex-wrap: wrap
+
+.tag
+  @include reset-interactive
+  min-height: 32px
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-full)
+  @include text-caption
+  font-weight: 600
+  color: var(--text-muted)
+  &:hover
+    color: var(--text)
+  &:focus-visible
+    @include focus-ring
+
+.tagActive
+  border-color: var(--accent)
+  background: color-mix(in srgb, var(--accent) 14%, transparent)
+  color: var(--text)
+
+// Mural em colunas (masonry com CSS columns): imagens de alturas diferentes se encaixam.
+.masonry
+  columns: 4 220px
+  column-gap: var(--space-3)
+  margin: 0
+  padding: 0
+  list-style: none
+
+.card
+  break-inside: avoid
+  margin-bottom: var(--space-3)
+  overflow: hidden
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+
+.cardButton
+  @include reset-interactive
+  position: relative
+  display: block
+  width: 100%
+  cursor: zoom-in
+  img
+    display: block
+    width: 100%
+    height: auto
+  &:focus-visible
+    @include focus-ring
+
+.more
+  position: absolute
+  top: var(--space-2)
+  right: var(--space-2)
+  padding: 2px 8px
+  border-radius: var(--radius-full)
+  background: var(--bg-overlay)
+  color: #fff
+  @include text-caption
+  font-weight: 700
+
+.cardMeta
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  padding: var(--space-2) var(--space-3)
+
+.cardText
+  flex: 1
+  min-width: 0
+  @include text-caption
+  color: var(--text)
+  @include truncate
+
+.count
+  display: inline-flex
+  align-items: center
+  gap: 3px
+  @include text-caption
+  color: var(--text-muted)
+
+.empty
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-12) var(--space-4)
+  color: var(--text-muted)
+  text-align: center
+
+// Nova publicação
+.form
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+
+.drop
+  @include reset-interactive
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--space-2)
+  min-height: 160px
+  border: 2px dashed var(--border-strong)
+  border-radius: var(--radius-lg)
+  color: var(--text-muted)
+  @include text-body-sm
+  &:hover
+    border-color: var(--accent)
+    color: var(--text)
+  &:focus-visible
+    @include focus-ring
+
+.previews
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr))
+  gap: var(--space-2)
+  margin: 0
+  padding: 0
+  list-style: none
+  li
+    position: relative
+  img
+    width: 100%
+    aspect-ratio: 1
+    object-fit: cover
+    border-radius: var(--radius-md)
+  button
+    @include reset-interactive
+    position: absolute
+    top: 4px
+    right: 4px
+    display: grid
+    place-items: center
+    width: 24px
+    height: 24px
+    border-radius: var(--radius-full)
+    background: var(--bg-content)
+    color: var(--text)
+
+.field
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  @include text-label
+  textarea
+    padding: 10px var(--space-3)
+    border: 1px solid var(--border-strong)
+    border-radius: var(--radius-lg)
+    background: var(--bg-input)
+    color: var(--text)
+    @include text-body
+    resize: vertical
+
+.actions
+  display: flex
+  justify-content: flex-end
+
+// Publicação aberta
+.detail
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  max-height: 75dvh
+  overflow-y: auto
+
+.detailImages
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  img
+    display: block
+    width: 100%
+    max-height: 60dvh
+    object-fit: contain
+    border-radius: var(--radius-md)
+    background: var(--bg-raised)
+
+.detailText
+  white-space: pre-wrap
+  overflow-wrap: anywhere
+
+.detailMeta
+  @include text-caption
+  color: var(--text-muted)
+
+.commentsTitle
+  @include text-label
+  margin-top: var(--space-2)
+
+.commentsLoading
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+
+.comments
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  margin: 0
+  padding: 0
+  list-style: none
+  li
+    display: flex
+    gap: var(--space-2)
+    align-items: flex-start
+    @include text-body-sm
+  strong
+    font-weight: 600
+
+.commentForm
+  display: flex
+  gap: var(--space-2)
+  input
+    flex: 1
+    min-width: 0
+    min-height: var(--size-touch)
+    padding: 0 var(--space-3)
+    border: 1px solid var(--border-strong)
+    border-radius: var(--radius-lg)
+    background: var(--bg-input)
+    color: var(--text)
+    @include text-body

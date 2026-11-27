@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AccountChannelView } from "@/components/account/AccountChannelView";
 import { isChatChannel } from "@/lib/app/channels";
-import { getChannelMessages, getChannelPermissions, getReactions, getSpaceView, getStickers, requireAccount } from "@/lib/app/queries";
+import { getChannelMessages, getChannelPermissions, getGallery, getReactions, getSpaceView, getStickers, requireAccount } from "@/lib/app/queries";
 
 type Params = Promise<{ space: string; channel: string }>;
 
@@ -28,7 +28,10 @@ export default async function ChannelPage({ params }: { params: Params }) {
     getChannelPermissions(supabase, channelId),
     chat ? getStickers(supabase, spaceId) : [],
   ]);
-  const reactions = await getReactions(supabase, "message_reactions", messages.map((m) => m.id));
+  const [reactions, gallery] = await Promise.all([
+    getReactions(supabase, "message_reactions", messages.map((m) => m.id)),
+    channel.kind === "galeria" ? getGallery(supabase, channelId) : null,
+  ]);
   const canSend = (perms & Permission.SEND_MESSAGES) !== 0 && (channel.kind !== "anuncios" || (perms & Permission.PUBLISH_ANNOUNCEMENTS) !== 0);
 
   return (
@@ -39,6 +42,7 @@ export default async function ChannelPage({ params }: { params: Params }) {
       members={view.members}
       initialMessages={messages}
       initialReactions={reactions}
+      gallery={gallery}
       stickers={stickers}
       canManage={(perms & Permission.MANAGE_MESSAGES) !== 0}
       me={profile}

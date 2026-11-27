@@ -10,6 +10,7 @@ const KINDS: Array<{ kind: NewChannelKind; icon: IconName; label: string; help: 
   { kind: "texto", icon: "chat", label: "Texto", help: "Conversa com mensagens." },
   { kind: "voz", icon: "mic", label: "Voz", help: "Sala para falar, com câmera opcional." },
   { kind: "anuncios", icon: "announcement", label: "Anúncios", help: "Todos leem; só quem pode publicar escreve." },
+  { kind: "galeria", icon: "gallery", label: "Galeria", help: "Mural de imagens com descrição, #tags e comentários." },
 ];
 
 const NEW_CATEGORY = "__nova__";

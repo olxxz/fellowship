@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Icon, IconButton, toast } from "@fellowship/ui";
+import { Button, Icon, IconButton, Skeleton, toast } from "@fellowship/ui";
 import type { Category, Channel, Role } from "@fellowship/db";
 import { Fragment, useEffect, useState, useTransition } from "react";
 import { channelIcon } from "@/lib/app/channels";
@@ -347,7 +347,14 @@ function ChannelPermissions({ spaceId, channel, roles }: { spaceId: string; chan
     };
   }, [channel.id]);
 
-  if (overrides === null) return <p className={styles.help}>Carregando…</p>;
+  if (overrides === null)
+    return (
+      <div className={styles.dialogSection} aria-busy="true">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} height={40} style={{ borderRadius: "var(--radius-md)" }} />
+        ))}
+      </div>
+    );
 
   const current = overrides[roleId] ?? { allow: 0, deny: 0 };
   const stateOf = (bit: number): Tri => (current.allow & bit ? "permitir" : current.deny & bit ? "negar" : "herdar");

@@ -75,3 +75,55 @@
   min-height: calc(56px + env(safe-area-inset-top))
   padding: env(safe-area-inset-top) var(--space-4) 0
   border-bottom: 1px solid var(--border)
+
+.row
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+
+.rowText
+  flex: 1
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.profileCard, .exploreCard
+  overflow: hidden
+  border: 1px solid var(--border)
+  border-radius: var(--radius-xl)
+  background: var(--bg-sidebar)
+
+.profileCard
+  max-width: 480px
+
+.profileBody
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  padding: 0 var(--space-5) var(--space-5)
+  .exploreCard &
+    padding-top: var(--space-3)
+
+.tabs
+  display: flex
+  gap: var(--space-5)
+  padding-bottom: var(--space-3)
+  border-bottom: 1px solid var(--border)
+
+.galleryPage
+  flex: 1
+  min-height: 0
+  overflow: hidden
+  padding: var(--space-4) var(--space-5)
+
+.masonry
+  columns: 4 220px
+  column-gap: var(--space-3)
+
+.voiceGrid
+  flex: 1
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))
+  align-content: center
+  gap: 12px
+  padding: var(--space-4)

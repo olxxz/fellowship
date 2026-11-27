@@ -9,13 +9,13 @@ import { MembersList, type MemberEntry } from "@/components/shell/MembersList";
 import { channelIcon, isChatChannel } from "@/lib/app/channels";
 import type { SpaceMemberView } from "@/lib/app/queries";
 import { ChatRoom } from "@/components/chat/room/ChatRoom";
+import { GalleryView } from "@/components/gallery/GalleryView";
 import { usePresenceMap } from "@/lib/presence/PresenceProvider";
 import type { PresenceStatus } from "@fellowship/ui";
 import type { ChatAuthor, ChatMsg } from "@/lib/chat/source";
 import { VoiceRoom } from "./VoiceRoom";
 
 const PLACEHOLDER = {
-  galeria: { title: "A galeria chega na fase 1", text: "Um mural de imagens em colunas, com descrição, tags e comentários." },
   funcional: { title: "Ferramenta em construção", text: "Este canal vai virar uma ferramenta: regras da casa, agenda de sessões, enquete de data." },
 } as const;
 
@@ -46,6 +46,7 @@ export interface AccountChannelViewProps {
   members: SpaceMemberView[];
   initialMessages: ChatMsg[];
   initialReactions: Reaction[];
+  gallery: { posts: ChatMsg[]; counts: Record<string, number> } | null;
   stickers: Sticker[];
   canManage: boolean;
   me: Pick<Profile, "id" | "display_name" | "username" | "avatar_url" | "color">;
@@ -53,7 +54,7 @@ export interface AccountChannelViewProps {
   readOnlyReason: string;
 }
 
-export function AccountChannelView({ space, channel, roles, members, initialMessages, initialReactions, stickers, canManage, me, canSend, readOnlyReason }: AccountChannelViewProps) {
+export function AccountChannelView({ space, channel, roles, members, initialMessages, initialReactions, gallery, stickers, canManage, me, canSend, readOnlyReason }: AccountChannelViewProps) {
   const authors = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.profile])) as Record<string, ChatAuthor>, [members]);
   const presence = usePresenceMap();
   const groups = useMemo(() => memberGroups(space, roles, members, presence), [space, roles, members, presence]);
@@ -76,6 +77,19 @@ export function AccountChannelView({ space, channel, roles, members, initialMess
               canManage={canManage}
               readOnlyReason={readOnlyReason}
               intro={{ title: channel.name, text: channel.topic ?? `O começo do canal ${channel.name}.` }}
+            />
+          ) : channel.kind === "galeria" && gallery ? (
+            <GalleryView
+              key={channel.id}
+              channelId={channel.id}
+              spaceId={space.id}
+              channelName={channel.name}
+              me={me}
+              authors={authors}
+              initialPosts={gallery.posts}
+              initialCommentCounts={gallery.counts}
+              canPost={canSend}
+              canManage={canManage}
             />
           ) : channel.kind === "voz" || channel.kind === "voz_dinamica" ? (
             <VoiceRoom channel={channel} profiles={authors} />

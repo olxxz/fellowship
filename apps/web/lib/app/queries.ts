@@ -140,3 +140,21 @@ export async function getDirectUnread(supabase: SupabaseClient) {
   const { data } = await supabase.rpc("direct_unread");
   return Object.fromEntries(((data ?? []) as { other_id: string; unread: number }[]).map((r) => [r.other_id, r.unread]));
 }
+
+/** Galeria: as publicações mais novas (sem os comentários) e quantos comentários cada uma tem. */
+export async function getGallery(supabase: SupabaseClient, channelId: string, limit = 30) {
+  const { data } = await supabase
+    .from("messages")
+    .select(CHANNEL_COLUMNS)
+    .eq("channel_id", channelId)
+    .is("reply_to", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  const posts = ((data ?? []) as unknown as ChatMsg[]).map(toChatMsg);
+  const counts: Record<string, number> = {};
+  if (posts.length) {
+    const { data: replies } = await supabase.from("messages").select("reply_to").in("reply_to", posts.map((p) => p.id));
+    for (const r of (replies ?? []) as { reply_to: string }[]) counts[r.reply_to] = (counts[r.reply_to] ?? 0) + 1;
+  }
+  return { posts, counts };
+}

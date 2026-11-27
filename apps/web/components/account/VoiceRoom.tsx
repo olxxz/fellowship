@@ -7,6 +7,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
 import type { VoiceProfile } from "./VoiceTiles";
 import styles from "./VoiceRoom.module.sass";
+import { VoiceSkeleton } from "@/components/common/PageSkeleton";
 
 const VoiceTiles = dynamic(() => import("./VoiceTiles"), { ssr: false });
 
@@ -108,6 +109,9 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
       </div>
     );
   }
+
+  // Conectando nesta sala: quadros no lugar das pessoas que já estão lá.
+  if (here && voice.status === "connecting") return <VoiceSkeleton count={Math.max(1, present.length + 1)} />;
 
   const elsewhere = voice.current && !here ? voice.current.name : null;
   return (
