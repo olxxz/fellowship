@@ -45,6 +45,7 @@ export function SidebarChannels({
   canManage,
   renderRow,
   reordering = false,
+  activeId,
 }: {
   spaceId: string;
   categories: Category[];
@@ -53,6 +54,8 @@ export function SidebarChannels({
   renderRow: (c: Channel) => ReactNode;
   /** Modo Reorganizar (celular): alças visíveis, toque arrasta e os links não navegam. */
   reordering?: boolean;
+  /** Canal aberto: continua visível com a categoria dele fechada. */
+  activeId?: string;
 }) {
   // Estado local para arrastar sem esperar o servidor; volta a seguir as props quando elas mudam.
   const [source, setSource] = useState({ categories, channels });
@@ -151,7 +154,15 @@ export function SidebarChannels({
           const ids = order[catId] ?? [];
           if (!ids.length && !canManage) return null;
           return (
-            <SortableCategory key={catId} cat={cat} canManage={canManage} reordering={reordering} open={!closed.has(catId)} onOpenChange={(o) => setOpen(catId, o)}>
+            <SortableCategory
+              key={catId}
+              cat={cat}
+              canManage={canManage}
+              reordering={reordering}
+              open={!closed.has(catId)}
+              onOpenChange={(o) => setOpen(catId, o)}
+              collapsedContent={activeId && ids.includes(activeId) && byId.get(activeId) ? renderRow(byId.get(activeId)!) : undefined}
+            >
               <ChannelList id={catId} ids={ids} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} reordering={reordering} />
             </SortableCategory>
           );
@@ -171,7 +182,7 @@ export function SidebarChannels({
   );
 }
 
-function SortableCategory({ cat, canManage, reordering, open, onOpenChange, children }: { cat: Category; canManage: boolean; reordering: boolean; open: boolean; onOpenChange: (o: boolean) => void; children: ReactNode }) {
+function SortableCategory({ cat, canManage, reordering, open, onOpenChange, collapsedContent, children }: { cat: Category; canManage: boolean; reordering: boolean; open: boolean; onOpenChange: (o: boolean) => void; collapsedContent?: ReactNode; children: ReactNode }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: `cat:${cat.id}`, disabled: !canManage });
   return (
     <ChannelCategory
@@ -180,6 +191,7 @@ function SortableCategory({ cat, canManage, reordering, open, onOpenChange, chil
       name={cat.name}
       open={open}
       onOpenChange={onOpenChange}
+      collapsedContent={collapsedContent}
       className={reordering ? styles.reorderCategory : undefined}
       barProps={{ ...(canManage ? { ...attributes, ...listeners, role: undefined, tabIndex: undefined } : {}), ...({ "data-ctx": `category:${cat.id}` } as object) }}
     >

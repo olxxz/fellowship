@@ -12,6 +12,11 @@ import styles from "./Settings.module.sass";
 /** Alvo do clique direito: marcado nas linhas da barra com `data-ctx="tipo:id"`. */
 type Target = { kind: "space" } | { kind: "channel"; id: string } | { kind: "category"; id: string } | { kind: "campaign"; id: string };
 
+function targetOf(node: HTMLElement): Target {
+  const [kind, id] = (node.closest<HTMLElement>("[data-ctx]")?.dataset.ctx ?? "").split(":");
+  return kind === "channel" || kind === "category" || kind === "campaign" ? { kind, id: id! } : { kind: "space" };
+}
+
 export const ctx = (kind: "channel" | "category" | "campaign", id: string) => ({ "data-ctx": `${kind}:${id}` });
 
 export interface SidebarCampaign {
@@ -240,10 +245,10 @@ export function SidebarContextMenu({
         <ContextMenu.Trigger
           render={<div />}
           style={{ display: "contents" }}
+          // No celular, o menu abre por toque longo (sem evento contextmenu): o alvo é lido já no toque.
+          onPointerDownCapture={(e) => setTarget(targetOf(e.target as HTMLElement))}
           onContextMenuCapture={(e) => {
-            const el = (e.target as HTMLElement).closest<HTMLElement>("[data-ctx]");
-            const [kind, id] = (el?.dataset.ctx ?? "").split(":");
-            const next: Target = kind === "channel" || kind === "category" || kind === "campaign" ? { kind, id: id! } : { kind: "space" };
+            const next = targetOf(e.target as HTMLElement);
             const empty =
               (next.kind === "category" && !canManage) || (next.kind === "space" && !canManage && !canCreateCampaign && !canInvite);
             // Sem nada a oferecer: deixa o menu do navegador.

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatMessage, cx, Icon, Popover, RollCard } from "@fellowship/ui";
+import { ChatMessage, cx, Icon, Popover, RollCard, ContextMenu, Menu, Modal, Button, toast } from "@fellowship/ui";
 import type { RollPayload } from "@fellowship/db";
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { QUICK_REACTIONS } from "@/lib/chat/emoji";
@@ -111,8 +111,13 @@ export function MessageItem(props: MessageItemProps) {
   const firstUrl = msg.kind === "texto" ? msg.content.match(URL_RE)?.[0] : undefined;
   const [confirming, setConfirming] = useState(false);
 
+  const [askDelete, setAskDelete] = useState(false);
+  const canCopy = msg.kind === "texto" && !!msg.content;
+  const hasMenu = !msg.pending && !editing && (canReact || canCopy || (mine && msg.kind === "texto") || canDelete);
+
   return (
-    <div className={cx(styles.item, mentionsMe && styles.itemMention)} id={`msg-${msg.id}`}>
+    <ContextMenu.Root disabled={!hasMenu}>
+    <ContextMenu.Trigger render={<div className={cx(styles.item, mentionsMe && styles.itemMention)} id={`msg-${msg.id}`} />}>
       {reply && (
         <button type="button" className={styles.replyQuote} onClick={() => reply.msg && props.onJumpTo(reply.msg.id)}>
           <Icon name="reply" size={14} />
@@ -210,7 +215,70 @@ export function MessageItem(props: MessageItemProps) {
             ))}
         </div>
       )}
-    </div>
+    </ContextMenu.Trigger>
+    {hasMenu && (
+      <ContextMenu.Popup>
+        {canReact && (
+          <div className={styles.menuReactions} role="group" aria-label="Reagir">
+            {QUICK_REACTIONS.map((e) => (
+              <Menu.Item key={e} className={styles.menuEmoji} aria-label={`Reagir com ${e}`} onClick={() => props.onToggleReaction(e)}>
+                {e}
+              </Menu.Item>
+            ))}
+          </div>
+        )}
+        {canReact && (
+          <Menu.Item icon="reply" onClick={props.onReply}>
+            Responder
+          </Menu.Item>
+        )}
+        {canCopy && (
+          <Menu.Item
+            icon="copy"
+            onClick={() =>
+              void navigator.clipboard?.writeText(msg.content).then(
+                () => toast.success("Texto copiado"),
+                () => toast.error("Não foi possível copiar."),
+              )
+            }
+          >
+            Copiar texto
+          </Menu.Item>
+        )}
+        {mine && msg.kind === "texto" && (
+          <Menu.Item icon="pencil" onClick={props.onStartEdit}>
+            Editar
+          </Menu.Item>
+        )}
+        {canDelete && (
+          <>
+            <Menu.Separator />
+            <Menu.Item icon="trash" tone="danger" onClick={() => setAskDelete(true)}>
+              Apagar mensagem
+            </Menu.Item>
+          </>
+        )}
+      </ContextMenu.Popup>
+    )}
+    {askDelete && (
+      <Modal open onOpenChange={(o) => !o && setAskDelete(false)} title="Apagar mensagem?" description="Some para todo mundo. Não dá para desfazer.">
+        <div className={styles.confirmActions}>
+          <Button variant="ghost" onClick={() => setAskDelete(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setAskDelete(false);
+              props.onDelete();
+            }}
+          >
+            Apagar
+          </Button>
+        </div>
+      </Modal>
+    )}
+    </ContextMenu.Root>
   );
 }
 

@@ -191,6 +191,7 @@ export function AccountSpaceSidebar({
           canManage={canManageChannels}
           renderRow={row}
           reordering={reordering}
+          activeId={activeId}
         />
       </div>
       </SidebarContextMenu>

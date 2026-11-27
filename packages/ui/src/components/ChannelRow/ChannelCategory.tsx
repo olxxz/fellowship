@@ -19,12 +19,14 @@ export interface ChannelCategoryProps {
   rootRef?: Ref<HTMLDivElement>;
   style?: CSSProperties;
   className?: string;
+  /** Fechada, ainda mostra isto (ex.: o canal em que a pessoa está, como no Discord). */
+  collapsedContent?: ReactNode;
   /** As linhas (`ChannelRow`). Cada uma vira um item de lista. */
   children: ReactNode;
 }
 
 /** Categoria recolhível acima das linhas, em `overline`. */
-export function ChannelCategory({ name, defaultOpen = true, open: openProp, onOpenChange, action, barProps, rootRef, style, className, children }: ChannelCategoryProps) {
+export function ChannelCategory({ name, defaultOpen = true, open: openProp, onOpenChange, action, barProps, rootRef, style, className, collapsedContent, children }: ChannelCategoryProps) {
   const [openState, setOpenState] = useState(defaultOpen);
   const open = openProp ?? openState;
   const listId = useId();
@@ -48,6 +50,7 @@ export function ChannelCategory({ name, defaultOpen = true, open: openProp, onOp
           <li key={isValidElement(child) && child.key != null ? child.key : i}>{child}</li>
         ))}
       </ul>
+      {!open && collapsedContent}
     </div>
   );
 }
