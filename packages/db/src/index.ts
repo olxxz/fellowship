@@ -7,6 +7,8 @@ export interface Profile {
   /** Nick único (@usuario): 3 a 20 caracteres a-z, 0-9, ponto e sublinhado. */
   username: string;
   avatar_url: string | null;
+  /** Banner do perfil (imagem pública no bucket "perfis"). */
+  banner_url?: string | null;
   /** Cor livre em hex (#rrggbb). */
   color: string;
   bio: string | null;
@@ -28,6 +30,16 @@ export interface Friendship {
   created_at: string;
 }
 
+/** Arquivo anexado a uma mensagem (caminho no bucket privado "anexos"). */
+export interface Attachment {
+  path: string;
+  name: string;
+  size: number;
+  mime: string;
+  width?: number;
+  height?: number;
+}
+
 export interface DirectMessage {
   id: string;
   user_a: string;
@@ -35,6 +47,7 @@ export interface DirectMessage {
   author_id: string;
   content: string;
   created_at: string;
+  attachments?: Attachment[];
 }
 
 /** Cenário público listado em Explorar. */
@@ -44,6 +57,8 @@ export interface PublicSpace {
   short: string;
   description: string | null;
   color: string;
+  icon_url: string | null;
+  banner_url: string | null;
   member_count: number;
   is_member: boolean;
 }
@@ -59,6 +74,8 @@ export interface Space {
   owner_id: string;
   /** Público: aparece em Explorar e qualquer conta entra sem convite. */
   is_public: boolean;
+  icon_url?: string | null;
+  banner_url?: string | null;
 }
 
 export interface Role {
@@ -101,6 +118,7 @@ export interface Message {
   kind: "texto" | "rolagem" | "sistema";
   content: string;
   created_at: string;
+  attachments?: Attachment[];
 }
 
 export type ChannelTemplate = "padrao" | "vazio";
@@ -124,6 +142,8 @@ export interface InvitePreview {
   short: string;
   description: string | null;
   color: string;
+  icon_url: string | null;
+  banner_url: string | null;
   member_count: number;
   inviter: string;
   status: InviteStatus;

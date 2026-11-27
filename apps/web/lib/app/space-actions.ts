@@ -8,6 +8,15 @@ import { appSpaceHref } from "@/lib/routes";
 
 const HEX = /^#[0-9a-f]{6}$/;
 
+/** Endereço de imagem aceito: vazio, o que já estava, ou um arquivo no bucket público dentro da pasta certa. */
+function imageUrl(form: FormData, field: string, bucket: string, folder: string, current: string | null | undefined) {
+  const value = String(form.get(field) ?? "").trim();
+  if (!value) return null;
+  if (value === current) return value;
+  const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${folder}/`;
+  return value.startsWith(base) ? value : undefined;
+}
+
 /** Erros do banco que já vêm em português (raise exception com errcode de validação ou permissão). */
 function dbMessage(error: { code?: string; message: string } | null, fallback: string) {
   if (error && ["22023", "28000", "42501"].includes(error.code ?? "")) return error.message;
@@ -72,6 +81,10 @@ export async function updateSpaceAction(spaceId: string, _prev: FormState, form:
   const description = String(form.get("description") ?? "").trim();
   const color = String(form.get("color") ?? "").trim().toLowerCase();
   const is_public = form.get("is_public") === "on";
+  const { data: current } = await supabase.from("spaces").select("icon_url, banner_url").eq("id", spaceId).maybeSingle<{ icon_url: string | null; banner_url: string | null }>();
+  const icon_url = imageUrl(form, "icon_url", "cenarios", spaceId, current?.icon_url);
+  const banner_url = imageUrl(form, "banner_url", "cenarios", spaceId, current?.banner_url);
+  if (icon_url === undefined || banner_url === undefined) return { error: "Imagem inválida. Envie de novo." };
   if (name.length < 2 || name.length > 60) return { error: "O nome precisa ter entre 2 e 60 caracteres." };
   if (short.length < 1 || short.length > 3) return { error: "As iniciais do ícone têm de 1 a 3 caracteres." };
   if (description.length > 300) return { error: "A descrição vai até 300 caracteres." };
@@ -79,7 +92,7 @@ export async function updateSpaceAction(spaceId: string, _prev: FormState, form:
 
   const { data, error } = await supabase
     .from("spaces")
-    .update({ name, short, description: description || null, color, is_public })
+    .update({ name, short, description: description || null, color, is_public, icon_url, banner_url })
     .eq("id", spaceId)
     .select("id");
   if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
@@ -98,11 +111,15 @@ export async function updateProfileAction(_prev: FormState, form: FormData): Pro
   const color = String(form.get("color") ?? "").trim().toLowerCase();
   const username = String(form.get("username") ?? "").trim().toLowerCase().replace(/^@/, "");
   if (display_name.length < 1 || display_name.length > 60) return { error: "O nome precisa ter de 1 a 60 caracteres." };
+  const { data: current } = await supabase.from("profiles").select("avatar_url, banner_url").eq("id", user.id).single<{ avatar_url: string | null; banner_url: string | null }>();
+  const avatar_url = imageUrl(form, "avatar_url", "perfis", user.id, current?.avatar_url);
+  const banner_url = imageUrl(form, "banner_url", "perfis", user.id, current?.banner_url);
+  if (avatar_url === undefined || banner_url === undefined) return { error: "Imagem inválida. Envie de novo." };
   if (!/^[a-z0-9_.]{3,20}$/.test(username)) return { error: "O nick tem de 3 a 20 caracteres: letras minúsculas, números, ponto e sublinhado." };
   if (bio.length > 300) return { error: "A bio vai até 300 caracteres." };
   if (!HEX.test(color)) return { error: "Escolha uma cor válida." };
 
-  const { error } = await supabase.from("profiles").update({ display_name, username, bio: bio || null, color }).eq("id", user.id);
+  const { error } = await supabase.from("profiles").update({ display_name, username, bio: bio || null, color, avatar_url, banner_url }).eq("id", user.id);
   if (error?.code === "23505") return { error: `O nick @${username} já está em uso.` };
   if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
   revalidatePath("/", "layout");

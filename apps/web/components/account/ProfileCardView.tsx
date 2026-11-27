@@ -6,6 +6,7 @@ export interface ProfileCardData {
   display_name: string;
   username: string;
   avatar_url: string | null;
+  banner_url?: string | null;
   color: string;
   bio: string | null;
 }
@@ -17,7 +18,7 @@ export interface ProfileCardData {
 export function ProfileCardView({ profile, compact, children }: { profile: ProfileCardData; compact?: boolean; children?: ReactNode }) {
   return (
     <article className={`${styles.card} ${compact ? styles.compact : ""}`} style={playerColorStyle(profile.color)}>
-      <div className={styles.banner} aria-hidden="true" />
+      <div className={styles.banner} aria-hidden="true" style={profile.banner_url ? { backgroundImage: `url("${profile.banner_url}")` } : undefined} />
       <div className={styles.body}>
         <span className={styles.avatar}>
           <Avatar name={profile.display_name} src={profile.avatar_url ?? undefined} color={profile.color} size={compact ? 64 : 96} />

@@ -46,8 +46,8 @@ export function ExploreList({ initial }: { initial: PublicSpace[] }) {
         <ul className={styles.exploreGrid}>
           {spaces.map((s) => (
             <li key={s.id} className={styles.exploreCard} style={playerColorStyle(s.color)}>
-              <div className={styles.exploreBanner}>
-                <span className={styles.previewIcon} aria-hidden="true">
+              <div className={styles.exploreBanner} style={s.banner_url ? { backgroundImage: `url("${s.banner_url}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
+                <span className={styles.previewIcon} aria-hidden="true" style={s.icon_url ? { backgroundImage: `url("${s.icon_url}")`, backgroundSize: "cover", color: "transparent" } : undefined}>
                   {s.short}
                 </span>
               </div>

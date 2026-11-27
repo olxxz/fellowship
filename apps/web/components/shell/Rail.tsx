@@ -11,6 +11,7 @@ export interface RailSpace {
   short: string;
   color: AccentColor;
   href: string;
+  iconUrl?: string | null;
 }
 
 export interface RailProps {
@@ -43,13 +44,13 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
               <PendingIconLink
                 href={space.href}
                 className={styles.icon}
-                style={playerColorStyle(space.color)}
+                style={playerColorStyle(space.color, space.iconUrl ? { backgroundImage: `url("${space.iconUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined)}
                 aria-label={space.name}
                 aria-current={active ? "page" : undefined}
                 title={space.name}
                 onClick={closeDrawer}
               >
-                {space.short}
+                {!space.iconUrl && space.short}
               </PendingIconLink>
             </li>
           );

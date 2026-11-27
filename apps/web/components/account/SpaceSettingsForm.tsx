@@ -4,6 +4,7 @@ import { Button, ColorPicker, playerColorStyle } from "@fellowship/ui";
 import type { Space } from "@fellowship/db";
 import { useActionState, useState } from "react";
 import { updateSpaceAction, type FormState } from "@/lib/app/space-actions";
+import { ImageUploadField } from "./ImageUploadField";
 import styles from "./Settings.module.sass";
 
 export function SpaceSettingsForm({ space }: { space: Space }) {
@@ -11,11 +12,13 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
   const [name, setName] = useState(space.name);
   const [short, setShort] = useState(space.short);
   const [color, setColor] = useState(space.color);
+  const [icon, setIcon] = useState(space.icon_url ?? "");
+  const [banner, setBanner] = useState(space.banner_url ?? "");
 
   return (
     <form className={styles.form} action={action}>
       <div className={styles.preview} style={playerColorStyle(color)}>
-        <span className={styles.previewIcon} aria-hidden="true">
+        <span className={styles.previewIcon} aria-hidden="true" style={icon ? { backgroundImage: `url("${icon}")`, backgroundSize: "cover", color: "transparent" } : undefined}>
           {short || "?"}
         </span>
         <span className={styles.previewName}>{name || "Nome do Cenário"}</span>
@@ -30,6 +33,34 @@ export function SpaceSettingsForm({ space }: { space: Space }) {
           <input className={styles.input} name="short" required maxLength={3} value={short} onChange={(e) => setShort(e.target.value.toUpperCase())} />
         </label>
       </div>
+      <div className={styles.row}>
+        <ImageUploadField
+          label="Ícone"
+          name="icon_url"
+          value={icon}
+          onChange={setIcon}
+          shape="square"
+          bucket="cenarios"
+          folder={space.id}
+          help="Na barra de Cenários e nos convites. Sem imagem, usa as iniciais."
+          preview={(url) => (
+            <span className={styles.iconPreview} style={{ ...playerColorStyle(color), ...(url ? { backgroundImage: `url("${url}")`, color: "transparent" } : {}) }}>
+              {short || "?"}
+            </span>
+          )}
+        />
+      </div>
+      <ImageUploadField
+        label="Banner"
+        name="banner_url"
+        value={banner}
+        onChange={setBanner}
+        shape="banner"
+        bucket="cenarios"
+        folder={space.id}
+        help="Topo da barra do Cenário e cartão em Explorar. Proporção 3:1; GIF também vale."
+        preview={(url) => <div className={styles.bannerPreview} style={{ ...playerColorStyle(color), ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
+      />
       <label className={styles.field}>
         <span className={styles.label}>Descrição</span>
         <textarea className={styles.textarea} name="description" maxLength={300} defaultValue={space.description ?? ""} />

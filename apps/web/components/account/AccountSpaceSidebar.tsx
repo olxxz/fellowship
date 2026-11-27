@@ -81,7 +81,7 @@ export function AccountSpaceSidebar({
 
   return (
     <div className={styles.sidebar}>
-      <header className={`${styles.banner} ${canManage ? styles.bannerWithAction : ""}`} style={playerColorStyle(space.color)}>
+      <header className={`${styles.banner} ${canManage ? styles.bannerWithAction : ""}`} style={playerColorStyle(space.color, space.banner_url ? { ["--banner-image" as string]: `url("${space.banner_url}")` } : undefined)}>
         {canManage && (
           <IconButton
             className={styles.bannerAction}

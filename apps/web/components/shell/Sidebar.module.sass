@@ -33,7 +33,8 @@
   gap: 2px
   min-height: calc(96px + env(safe-area-inset-top))
   padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4) var(--space-4)
-  background: linear-gradient(160deg, color-mix(in srgb, var(--player-color) 45%, var(--bg-sidebar)) 0%, var(--bg-sidebar) 85%)
+  // Com imagem (--banner-image), um véu embaixo garante a leitura do nome; sem, o gradiente na cor do Cenário.
+  background: linear-gradient(180deg, transparent 30%, color-mix(in srgb, var(--bg-sidebar) 88%, transparent) 100%), var(--banner-image, linear-gradient(160deg, color-mix(in srgb, var(--player-color) 45%, var(--bg-sidebar)) 0%, var(--bg-sidebar) 85%)) center / cover no-repeat
   @include desktop
     border-top-left-radius: var(--radius-xl)
     // O canto arredondado do conteúdo, ao lado, mostra a cor do banner em vez do fundo do trilho.

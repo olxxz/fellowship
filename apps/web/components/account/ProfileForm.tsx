@@ -4,19 +4,44 @@ import { Avatar, Button, ColorPicker } from "@fellowship/ui";
 import type { Profile } from "@fellowship/db";
 import { useActionState, useState } from "react";
 import { updateProfileAction, type FormState } from "@/lib/app/space-actions";
+import { ImageUploadField } from "./ImageUploadField";
 import styles from "./Settings.module.sass";
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateProfileAction, {});
   const [name, setName] = useState(profile.display_name);
   const [color, setColor] = useState(profile.color);
+  const [avatar, setAvatar] = useState(profile.avatar_url ?? "");
+  const [banner, setBanner] = useState(profile.banner_url ?? "");
 
   return (
     <form className={styles.form} action={action}>
       <div className={styles.preview} style={{ ["--player-color" as string]: color }}>
-        <Avatar name={name || "?"} src={profile.avatar_url ?? undefined} color={color} size={56} />
+        <Avatar name={name || "?"} src={avatar || undefined} color={color} size={56} />
         <span className={styles.previewName}>{name || "Seu nome"}</span>
       </div>
+      <ImageUploadField
+        label="Foto"
+        name="avatar_url"
+        value={avatar}
+        onChange={setAvatar}
+        shape="square"
+        bucket="perfis"
+        folder={profile.id}
+        help="JPG, PNG, WebP ou GIF animado (até 4 MB). Fica quadrada."
+        preview={(url) => <Avatar name={name || "?"} src={url || undefined} color={color} size={72} />}
+      />
+      <ImageUploadField
+        label="Banner do perfil"
+        name="banner_url"
+        value={banner}
+        onChange={setBanner}
+        shape="banner"
+        bucket="perfis"
+        folder={profile.id}
+        help="Aparece no topo do seu perfil e do cartão. Proporção 3:1; GIF também vale."
+        preview={(url) => <div className={styles.bannerPreview} style={{ ["--player-color" as string]: color, ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
+      />
       <label className={styles.field}>
         <span className={styles.label}>Nome exibido</span>
         <input className={styles.input} name="display_name" required maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />

@@ -1,0 +1,83 @@
+"use client";
+
+import { Button, cx } from "@fellowship/ui";
+import { useId, useRef, useState, type ReactNode } from "react";
+import { prepareImage, uploadPublic, type ImageShape } from "@/lib/upload";
+import styles from "./Settings.module.sass";
+
+/**
+ * Campo de imagem (avatar, ícone ou banner): escolhe, recorta/reduz no navegador, sobe e grava o endereço
+ * num input escondido do formulário. "Remover" volta para o placeholder gerado.
+ */
+export function ImageUploadField({
+  label,
+  name,
+  value,
+  onChange,
+  shape,
+  bucket,
+  folder,
+  help,
+  preview,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (url: string) => void;
+  shape: ImageShape;
+  bucket: "perfis" | "cenarios";
+  folder: string;
+  help?: string;
+  /** Como fica (avatar redondo, banner largo…), recebendo o endereço atual. */
+  preview: (url: string) => ReactNode;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const id = useId();
+
+  async function pick(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const blob = await prepareImage(file, shape);
+      onChange(await uploadPublic(bucket, folder, name.replace(/_url$/, ""), blob));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Não foi possível enviar a imagem.");
+    } finally {
+      setBusy(false);
+      if (input.current) input.current.value = "";
+    }
+  }
+
+  return (
+    <div className={styles.field}>
+      <span className={styles.label} id={`${id}-l`}>
+        {label}
+      </span>
+      <div className={cx(styles.imageField, shape === "banner" && styles.imageFieldBanner)}>
+        {preview(value)}
+        <div className={styles.actions}>
+          <Button icon="plus" loading={busy} loadingLabel="Enviando…" onClick={() => input.current?.click()} aria-describedby={`${id}-l`}>
+            {value ? "Trocar" : "Enviar imagem"}
+          </Button>
+          {value && !busy && (
+            <Button variant="ghost" onClick={() => onChange("")}>
+              Remover
+            </Button>
+          )}
+        </div>
+      </div>
+      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => void pick(e.target.files?.[0])} />
+      <input type="hidden" name={name} value={value} />
+      {error ? (
+        <span className={styles.error} role="alert">
+          {error}
+        </span>
+      ) : (
+        help && <span className={styles.help}>{help}</span>
+      )}
+    </div>
+  );
+}
