@@ -30,6 +30,12 @@ export function CampaignChannelView(props: {
   const { channel, me, profiles, members, characters } = props;
   const presence = usePresenceMap();
   const authors = useMemo(() => profiles as Record<string, ChatAuthor>, [profiles]);
+  // Na voz da mesa, cada jogador aparece como o (primeiro) personagem dele.
+  const voiceCharacters = useMemo(() => {
+    const map: Record<string, { name: string; portrait_url: string | null; color: string }> = {};
+    for (const c of characters) if (c.kind === "pc" && c.owner_id && !map[c.owner_id]) map[c.owner_id] = { name: c.name, portrait_url: c.portrait_url, color: c.color };
+    return map;
+  }, [characters]);
   const groups = useMemo(() => {
     const entry = (m: CampaignMember): MemberEntry => {
       const p = profiles[m.user_id];
@@ -48,7 +54,7 @@ export function CampaignChannelView(props: {
     <div className={channelStyles.body}>
       <main className={channelStyles.main}>
         {channel.kind === "voz" || channel.kind === "voz_dinamica" ? (
-          <VoiceRoom channel={channel} profiles={authors} />
+          <VoiceRoom channel={channel} profiles={authors} characters={voiceCharacters} />
         ) : (
           <ChatRoom
             key={channel.id}

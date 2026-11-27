@@ -5,7 +5,7 @@ import type { Channel } from "@fellowship/db";
 import dynamic from "next/dynamic";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
-import type { VoiceProfile } from "./VoiceTiles";
+import type { VoiceCharacter, VoiceProfile } from "./VoiceTiles";
 import styles from "./VoiceRoom.module.sass";
 import { VoiceSkeleton } from "@/components/common/PageSkeleton";
 
@@ -40,7 +40,7 @@ function usePresent(spaceId: string, channelId: string, active: boolean) {
   return present;
 }
 
-export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: Record<string, VoiceProfile> }) {
+export function VoiceRoom({ channel, profiles, characters }: { channel: Channel; profiles: Record<string, VoiceProfile>; characters?: Record<string, VoiceCharacter> }) {
   const voice = useVoice();
   const here = voice.current?.id === channel.id;
   const connected = here && voice.status === "on" && voice.room;
@@ -67,7 +67,7 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
   if (connected) {
     return (
       <div className={styles.room}>
-        <VoiceTiles room={voice.room!} profiles={profiles} />
+        <VoiceTiles room={voice.room!} profiles={profiles} characters={characters} />
         {voice.error && (
           <p className={styles.controlsError} role="alert">
             {voice.error}

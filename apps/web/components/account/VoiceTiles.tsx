@@ -17,11 +17,18 @@ export interface VoiceProfile {
 const userIdOf = (p: Participant) => p.attributes.userId ?? p.identity.slice(0, 36);
 const keyOf = (t: TrackReferenceOrPlaceholder) => `${t.participant.identity}:${t.source}`;
 
-export default function VoiceTiles({ room, profiles }: { room: Room; profiles: Record<string, VoiceProfile> }) {
+/** Na campanha: o personagem de cada jogador (retrato e nome no lugar do avatar). */
+export interface VoiceCharacter {
+  name: string;
+  portrait_url: string | null;
+  color: string;
+}
+
+export default function VoiceTiles({ room, profiles, characters = {} }: { room: Room; profiles: Record<string, VoiceProfile>; characters?: Record<string, VoiceCharacter> }) {
   return (
     <RoomContext.Provider value={room}>
       <RoomAudioRenderer />
-      <Tiles profiles={profiles} />
+      <Tiles profiles={profiles} characters={characters} />
     </RoomContext.Provider>
   );
 }
@@ -63,7 +70,7 @@ function useSize<T extends HTMLElement>() {
  * reorganizam a cada pessoa que entra. Foco: um quadro grande e os outros numa faixa embaixo.
  * Clicar num quadro o põe em foco; uma tela compartilhada nova entra em foco sozinha.
  */
-function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
+function Tiles({ profiles, characters }: { profiles: Record<string, VoiceProfile>; characters: Record<string, VoiceCharacter> }) {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -83,7 +90,9 @@ function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
     const p = t.participant;
     const key = keyOf(t);
     const profile = profiles[userIdOf(p)];
-    const name = profile?.display_name ?? p.name ?? "Alguém";
+    const character = characters[userIdOf(p)];
+    const playerName = profile?.display_name ?? p.name ?? "Alguém";
+    const name = character ? character.name : playerName;
     const screen = t.source === Track.Source.ScreenShare;
     const speaking = !screen && speakers.some((s) => s.identity === p.identity);
     const video = isTrackReference(t) && !t.publication.isMuted ? t : null;
@@ -93,7 +102,7 @@ function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
       <li
         key={key}
         className={cx(styles.tile, speaking && styles.speaking, video && styles.hasVideo, screen && styles.screenTile, variant === "stage" && styles.stageTile, variant === "strip" && styles.stripTile)}
-        style={{ ...(profile ? playerColorStyle(profile.color) : {}), ...(width ? { width } : {}) }}
+        style={{ ...(character ? playerColorStyle(character.color) : profile ? playerColorStyle(profile.color) : {}), ...(width ? { width } : {}) }}
       >
         <button
           type="button"
@@ -104,12 +113,16 @@ function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
         >
           {video ? (
             <VideoTrack trackRef={video} className={cx(styles.video, (screen || variant === "stage") && styles.videoContain, p.isLocal && !screen && styles.mirror)} />
+          ) : character?.portrait_url && !screen ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className={styles.portraitImage} src={character.portrait_url} alt="" />
           ) : (
-            <Avatar name={name} src={profile?.avatar_url ?? undefined} color={profile?.color} size={variant === "strip" ? 40 : avatar} />
+            <Avatar name={name} src={character ? undefined : (profile?.avatar_url ?? undefined)} color={character?.color ?? profile?.color} size={variant === "strip" ? 40 : avatar} />
           )}
           <span className={styles.tileName}>
             {screen && <Icon name="screen" size={14} />}
             {screen ? `Tela de ${name}` : name}
+            {character && !screen && <small className={styles.playerName}>{playerName}</small>}
           </span>
           {!screen && !p.isMicrophoneEnabled && (
             <span className={styles.mutedBadge} aria-hidden>

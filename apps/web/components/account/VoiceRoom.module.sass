@@ -275,3 +275,25 @@
     width: 40px
     text-align: right
     font-variant-numeric: tabular-nums
+
+// Na campanha: retrato do personagem ocupa o quadro; o nome do jogador vai pequeno ao lado.
+.portraitImage
+  position: absolute
+  inset: 0
+  width: 100%
+  height: 100%
+  object-fit: cover
+
+.portraitImage ~ .tileName
+  position: absolute
+  left: var(--space-2)
+  bottom: var(--space-2)
+  padding: 2px var(--space-2)
+  border-radius: var(--radius-md)
+  background: var(--bg-overlay)
+  color: #fff
+
+.playerName
+  margin-left: 6px
+  opacity: 0.75
+  font-weight: 400
