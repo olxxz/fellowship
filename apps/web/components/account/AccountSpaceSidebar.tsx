@@ -26,6 +26,7 @@ export function AccountSpaceSidebar({
   channels,
   permissions,
   meId,
+  memberIds,
   initialUnread,
 }: {
   space: Space;
@@ -33,6 +34,7 @@ export function AccountSpaceSidebar({
   channels: Channel[];
   permissions: number;
   meId: string;
+  memberIds: string[];
   initialUnread: Record<string, { unread: number; mentions: number }>;
 }) {
   const { channel: activeId } = useParams<{ channel?: string }>();
@@ -107,6 +109,7 @@ export function AccountSpaceSidebar({
         permissions={permissions}
         isOwner={space.owner_id === meId}
         channelIds={channels.map((c) => c.id)}
+        memberIds={memberIds}
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         onInvite={() => setInviting(true)}

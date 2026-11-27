@@ -27,6 +27,7 @@ export default async function SpaceLayout({ children, params }: { children: Reac
           channels={view.channels}
           permissions={view.permissions}
           meId={profile.id}
+          memberIds={view.members.map((m) => m.user_id)}
           initialUnread={channelUnread}
         />
       }

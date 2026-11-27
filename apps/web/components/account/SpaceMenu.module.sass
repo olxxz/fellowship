@@ -1,0 +1,132 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.head
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: var(--space-2)
+  padding: var(--space-2) var(--space-1) var(--space-4)
+
+.icon
+  display: grid
+  place-items: center
+  width: 64px
+  height: 64px
+  border-radius: var(--radius-xl)
+  background: var(--player-color)
+  background-size: cover
+  background-position: center
+  color: var(--player-color-contrast)
+  font-family: var(--font-display)
+  font-size: 22px
+  font-weight: 700
+
+.name
+  @include text-display
+  font-size: 24px
+
+.stats
+  display: flex
+  align-items: center
+  gap: 6px
+  @include text-body-sm
+  color: var(--text-muted)
+
+.dotOnline, .dotMembers
+  width: 9px
+  height: 9px
+  border-radius: var(--radius-full)
+  background: var(--success)
+
+.dotMembers
+  margin-left: var(--space-3)
+  background: var(--text-faint)
+
+.quick
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  gap: var(--space-2)
+  margin-bottom: var(--space-4)
+
+.quickItem
+  @include reset-interactive
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: var(--space-2)
+  padding: var(--space-2) 0
+  border-radius: var(--radius-lg)
+  @include text-caption
+  color: var(--text-muted)
+  &:hover:not(:disabled) .quickIcon
+    background: var(--bg-hover-strong, color-mix(in srgb, var(--bg-raised) 80%, var(--text) 8%))
+  &:focus-visible
+    @include focus-ring
+  &:disabled
+    opacity: 0.5
+
+.quickIcon
+  display: grid
+  place-items: center
+  width: 52px
+  height: 52px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  background: var(--bg-raised)
+  color: var(--text)
+
+.group
+  margin: 0 0 var(--space-3)
+  padding: 0
+  overflow: hidden
+  border-radius: var(--radius-lg)
+  background: var(--bg-sidebar)
+  list-style: none
+  li + li
+    border-top: 1px solid var(--border)
+
+.item
+  @include reset-interactive
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  width: 100%
+  min-height: 52px
+  padding: 0 var(--space-4)
+  color: var(--text)
+  text-align: left
+  @include text-body
+  svg
+    flex-shrink: 0
+    color: var(--text-muted)
+  &:hover:not(:disabled)
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+    outline-offset: -2px
+  &:disabled
+    opacity: 0.55
+    cursor: default
+
+.itemLabel
+  flex: 1
+
+.hint
+  @include text-caption
+  color: var(--text-faint)
+
+.danger, .danger svg
+  color: var(--danger)
+
+.inline
+  padding: 0 var(--space-4) var(--space-3)
+  input
+    width: 100%
+    min-height: 44px
+    padding: 0 var(--space-3)
+    border: 1px solid var(--focus-ring)
+    border-radius: var(--radius-md)
+    background: var(--bg-input)
+    color: var(--text)
+    @include text-body
