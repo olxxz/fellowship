@@ -11,6 +11,9 @@ export default async function CampaignChannelPage({ params }: { params: Params }
   const c = await loadCampaign(space, campaign, `/c/${space}/k/${campaign}/${channelId}`);
   const channel = c.channels.find((ch) => ch.id === channelId);
   if (!channel) notFound();
+  // Os dois canais de texto da campanha aparecem como Ingame e Outgame na barra.
+  const texts = c.channels.filter((ch) => ch.kind === "texto");
+  const title = channel.id === texts[0]?.id ? "Ingame" : channel.id === texts[1]?.id ? "Outgame" : channel.name;
   const chat = channel.kind === "texto" || channel.kind === "anuncios";
   const [messages, perms, stickers] = await Promise.all([
     chat ? getChannelMessages(c.supabase, channelId) : [],
@@ -34,6 +37,8 @@ export default async function CampaignChannelPage({ params }: { params: Params }
       canSend={(perms & Permission.SEND_MESSAGES) !== 0}
       canManage={(perms & Permission.MANAGE_MESSAGES) !== 0}
       rollAs={rollAs}
+      title={title}
+      campaignName={c.campaign.name}
     />
   );
 }

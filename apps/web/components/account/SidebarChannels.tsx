@@ -16,11 +16,11 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChannelCategory, Icon, toast } from "@fellowship/ui";
+import { ChannelCategory, toast } from "@fellowship/ui";
 import type { Category, Channel } from "@fellowship/db";
 import { useState, type ReactNode } from "react";
 import styles from "@/components/shell/Sidebar.module.sass";
-import { createCategoryAction, reorderCategoriesAction, reorderChannelsAction } from "@/lib/app/manage-actions";
+import { reorderCategoriesAction, reorderChannelsAction } from "@/lib/app/manage-actions";
 import { usePref } from "@/lib/prefs";
 
 const LOOSE = "sem-categoria";
@@ -36,6 +36,7 @@ function buildOrder(categories: Category[], channels: Channel[]): Order {
 /**
  * Canais e categorias da barra. Quem gerencia canais arrasta canais (entre e para fora das categorias) e
  * categorias inteiras; no celular, segure um instante para arrastar. Categorias abrem e fecham (salvo por pessoa).
+ * Criar, editar e apagar ficam no clique direito (SidebarContextMenu).
  */
 export function SidebarChannels({
   spaceId,
@@ -43,14 +44,12 @@ export function SidebarChannels({
   channels,
   canManage,
   renderRow,
-  categoryAction,
 }: {
   spaceId: string;
   categories: Category[];
   channels: Channel[];
   canManage: boolean;
   renderRow: (c: Channel) => ReactNode;
-  categoryAction: (cat: Category) => ReactNode;
 }) {
   // Estado local para arrastar sem esperar o servidor; volta a seguir as props quando elas mudam.
   const [source, setSource] = useState({ categories, channels });
@@ -71,7 +70,6 @@ export function SidebarChannels({
   };
   const [active, setActive] = useState<string | null>(null);
   const [startContainer, setStartContainer] = useState<string | null>(null);
-  const [newCat, setNewCat] = useState<string | null>(null);
 
   const byId = new Map(channels.map((c) => [c.id, c]));
   const catById = new Map(categories.map((c) => [c.id, c]));
@@ -149,33 +147,12 @@ export function SidebarChannels({
           const ids = order[catId] ?? [];
           if (!ids.length && !canManage) return null;
           return (
-            <SortableCategory key={catId} cat={cat} canManage={canManage} open={!closed.has(catId)} onOpenChange={(o) => setOpen(catId, o)} action={categoryAction(cat)}>
+            <SortableCategory key={catId} cat={cat} canManage={canManage} open={!closed.has(catId)} onOpenChange={(o) => setOpen(catId, o)}>
               <ChannelList id={catId} ids={ids} byId={byId} renderRow={renderRow} canManage={canManage} dragging={!!activeChannel} />
             </SortableCategory>
           );
         })}
       </SortableContext>
-      {canManage &&
-        (newCat === null ? (
-          <button type="button" className={styles.addChannelRow} onClick={() => setNewCat("")}>
-            <Icon name="plus" size={18} />
-            Nova categoria
-          </button>
-        ) : (
-          <form
-            className={styles.newCategory}
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!newCat.trim()) return setNewCat(null);
-              const r = await createCategoryAction(spaceId, newCat);
-              if (r.error) toast.error(r.error);
-              else toast.success("Categoria criada");
-              setNewCat(null);
-            }}
-          >
-            <input autoFocus value={newCat} maxLength={40} placeholder="Nome da categoria" aria-label="Nome da nova categoria" onChange={(e) => setNewCat(e.target.value)} onBlur={() => !newCat.trim() && setNewCat(null)} onKeyDown={(e) => e.key === "Escape" && setNewCat(null)} />
-          </form>
-        ))}
     </>
   );
 
@@ -190,7 +167,7 @@ export function SidebarChannels({
   );
 }
 
-function SortableCategory({ cat, canManage, open, onOpenChange, action, children }: { cat: Category; canManage: boolean; open: boolean; onOpenChange: (o: boolean) => void; action: ReactNode; children: ReactNode }) {
+function SortableCategory({ cat, canManage, open, onOpenChange, children }: { cat: Category; canManage: boolean; open: boolean; onOpenChange: (o: boolean) => void; children: ReactNode }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: `cat:${cat.id}`, disabled: !canManage });
   return (
     <ChannelCategory
@@ -199,8 +176,7 @@ function SortableCategory({ cat, canManage, open, onOpenChange, action, children
       name={cat.name}
       open={open}
       onOpenChange={onOpenChange}
-      action={action}
-      barProps={canManage ? { ...attributes, ...listeners, role: undefined, tabIndex: undefined } : undefined}
+      barProps={{ ...(canManage ? { ...attributes, ...listeners, role: undefined, tabIndex: undefined } : {}), ...({ "data-ctx": `category:${cat.id}` } as object) }}
     >
       {children}
     </ChannelCategory>

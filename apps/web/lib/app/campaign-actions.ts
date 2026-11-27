@@ -109,3 +109,63 @@ export async function deleteCharacterAction(spaceId: string, campaignId: string,
   revalidatePath(campaignAppHref(spaceId, campaignId), "layout");
   redirect(campaignAppHref(spaceId, campaignId, "personagens"));
 }
+
+// ── Mesa: cena e sessões ──
+export async function setSceneAction(spaceId: string, campaignId: string, name: string, url: string): Promise<Result> {
+  const { supabase } = await requireAccount();
+  const { error } = await supabase.rpc("set_campaign_scene", { p_campaign: campaignId, p_name: name, p_url: url });
+  revalidatePath(`/c/${spaceId}`, "layout");
+  return error ? { error: message(error, "Não foi possível mudar a cena.") } : {};
+}
+
+export async function startSessionAction(spaceId: string, campaignId: string, title: string): Promise<Result & { number?: number }> {
+  const { supabase } = await requireAccount();
+  const { data, error } = await supabase.rpc("start_session", { p_campaign: campaignId, p_title: title });
+  revalidatePath(`/c/${spaceId}`, "layout");
+  return error ? { error: message(error, "Não foi possível abrir a sessão.") } : { number: data as number };
+}
+
+export async function endSessionAction(spaceId: string, campaignId: string): Promise<Result> {
+  const { supabase } = await requireAccount();
+  const { error } = await supabase.rpc("end_session", { p_campaign: campaignId });
+  revalidatePath(`/c/${spaceId}`, "layout");
+  return error ? { error: message(error, "Não foi possível encerrar a sessão.") } : {};
+}
+
+// ── Ficha da campanha (modelos) ──
+export async function setCampaignTemplateAction(spaceId: string, campaignId: string, system: CampaignSystem, templateId: string | null): Promise<Result> {
+  const { supabase } = await requireAccount();
+  const { error } = await supabase.rpc("set_campaign_template", { p_campaign: campaignId, p_system: system, p_template: templateId });
+  revalidatePath(`/c/${spaceId}`, "layout");
+  return error ? { error: message(error, "Não foi possível trocar a ficha.") } : {};
+}
+
+/**
+ * Salva um modelo de ficha. Sem `id` (ou editando um modelo que não é seu), cria um novo seu; com o seu `id`,
+ * atualiza. Depois põe o modelo na campanha.
+ */
+export async function saveTemplateAction(
+  spaceId: string,
+  campaignId: string,
+  input: { id: string | null; name: string; base: CampaignSystem; config: Record<string, unknown> },
+): Promise<Result & { id?: string }> {
+  const { supabase, profile } = await requireAccount();
+  const name = input.name.trim().slice(0, 60);
+  if (!name) return { error: "Dê um nome ao modelo." };
+  let id = input.id;
+  if (id) {
+    const { data: own } = await supabase.from("sheet_templates").select("owner_id").eq("id", id).maybeSingle<{ owner_id: string }>();
+    if (own?.owner_id !== profile.id) id = null;
+  }
+  if (id) {
+    const { error } = await supabase.from("sheet_templates").update({ name, config: input.config, updated_at: new Date().toISOString() }).eq("id", id);
+    if (error) return { error: message(error, "Não foi possível salvar o modelo.") };
+  } else {
+    const { data, error } = await supabase.from("sheet_templates").insert({ name, base: input.base, config: input.config }).select("id").single<{ id: string }>();
+    if (error || !data) return { error: message(error, "Não foi possível criar o modelo.") };
+    id = data.id;
+  }
+  const { error } = await supabase.rpc("set_campaign_template", { p_campaign: campaignId, p_system: input.base, p_template: id });
+  revalidatePath(`/c/${spaceId}`, "layout");
+  return error ? { error: message(error, "O modelo foi salvo, mas não entrou na campanha.") } : { id };
+}

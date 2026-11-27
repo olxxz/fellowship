@@ -2,13 +2,15 @@
 
 import { IconButton } from "@fellowship/ui";
 import { fillFormula, type HbAbility, type HomebrewSheet } from "@/lib/sheets/homebrew";
+import { defaultHbConfig, type HbConfig } from "@/lib/sheets/template";
 import { NumberField, Resource, RollButton, Section, StringList, TextArea, TextField } from "./fields";
 import styles from "./Sheet.module.sass";
 
 type Roll = (formula: string, label: string) => void;
 
 /** Ficha do homebrew do grupo. `roll` manda a rolagem para a mesa da campanha. */
-export function HomebrewSheetView({ sheet, set, readOnly, roll }: { sheet: HomebrewSheet; set: (s: HomebrewSheet) => void; readOnly: boolean; roll?: Roll }) {
+export function HomebrewSheetView({ sheet, set, readOnly, roll, config = defaultHbConfig() }: { sheet: HomebrewSheet; set: (s: HomebrewSheet) => void; readOnly: boolean; roll?: Roll; config?: HbConfig }) {
+  const on = config.sections;
   const patch = (p: Partial<HomebrewSheet>) => set({ ...sheet, ...p });
   const ro = readOnly;
 
@@ -67,6 +69,7 @@ export function HomebrewSheetView({ sheet, set, readOnly, roll }: { sheet: Homeb
         </div>
       </Section>
 
+      {on.habilidades && (
       <Section
         title="Habilidades"
         actions={!ro && <IconButton icon="plus" label="Nova habilidade" variant="ghost" onClick={() => patch({ habilidades: [...sheet.habilidades, { nome: "Nova habilidade", nivel: 0, max: 5, descricao: "", custo: "", formula: "" }] })} />}
@@ -99,19 +102,27 @@ export function HomebrewSheetView({ sheet, set, readOnly, roll }: { sheet: Homeb
           );
         })}
       </Section>
+      )}
 
       <div className={styles.columns}>
+        {on.pericias && (
         <Section title="Perícias">
           <StringList items={sheet.pericias} onChange={(pericias) => patch({ pericias })} readOnly={ro} placeholder="Perícia" />
         </Section>
+        )}
+        {on.vantagens && (
         <Section title="Vantagens">
           <StringList items={sheet.vantagens} onChange={(vantagens) => patch({ vantagens })} readOnly={ro} placeholder="Vantagem" />
         </Section>
+        )}
+        {on.vantagens && (
         <Section title="Desvantagens">
           <StringList items={sheet.desvantagens} onChange={(desvantagens) => patch({ desvantagens })} readOnly={ro} placeholder="Desvantagem" />
         </Section>
+        )}
       </div>
 
+      {on.corpo && (
       <Section title="Corpo">
         <div className={styles.slots}>
           {sheet.corpo.map((s, si) => (
@@ -142,20 +153,28 @@ export function HomebrewSheetView({ sheet, set, readOnly, roll }: { sheet: Homeb
           )}
         </div>
       </Section>
+      )}
 
       <div className={styles.columns}>
+        {on.mochila && (
         <Section title="Mochila">
           <NumberField label="Dinheiro" value={sheet.dinheiro} onChange={(dinheiro) => patch({ dinheiro })} readOnly={ro} />
           <StringList items={sheet.mochila} onChange={(mochila) => patch({ mochila })} readOnly={ro} placeholder="Item" />
         </Section>
+        )}
+        {on.kd && (
         <Section title="Kills">
           <StringList items={sheet.kills} onChange={(kills) => patch({ kills })} readOnly={ro} placeholder="Quem caiu" />
         </Section>
+        )}
+        {on.kd && (
         <Section title="Deaths">
           <StringList items={sheet.deaths} onChange={(deaths) => patch({ deaths })} readOnly={ro} placeholder="Quem derrubou" />
         </Section>
+        )}
       </div>
 
+      {on.artefatos && (
       <Section
         title="Armas e artefatos"
         actions={!ro && <IconButton icon="plus" label="Novo artefato" variant="ghost" onClick={() => patch({ artefatos: [...sheet.artefatos, { nome: "Novo artefato", descricao: "" }] })} />}
@@ -171,10 +190,13 @@ export function HomebrewSheetView({ sheet, set, readOnly, roll }: { sheet: Homeb
           </div>
         ))}
       </Section>
+      )}
 
+      {on.notas && (
       <Section title="Notas">
         <TextArea value={sheet.notas} onChange={(notas) => patch({ notas })} readOnly={ro} rows={5} />
       </Section>
+      )}
     </div>
   );
 }

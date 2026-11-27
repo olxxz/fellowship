@@ -1,19 +1,23 @@
 "use client";
 
 import { IconButton } from "@fellowship/ui";
-import { ABILITIES, formulaFor, modifier, proficiency, saveBonus, signed, skillBonus, SKILLS, type DndSheet } from "@/lib/sheets/dnd";
+import { formulaFor, modifier, proficiency, saveBonus, score, signed, skillBonus, type DndSheet } from "@/lib/sheets/dnd";
+import { defaultDndConfig, type DndConfig } from "@/lib/sheets/template";
 import { NumberField, Resource, RollButton, Section, StringList, TextArea, TextField } from "./fields";
 import styles from "./Sheet.module.sass";
 
 type Roll = (formula: string, label: string) => void;
 
 /** Ficha de D&D 5e (2024): modificadores, proficiência e perícias calculados a partir dos atributos e do nível. */
-export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; set: (s: DndSheet) => void; readOnly: boolean; roll?: Roll }) {
+export function DndSheetView({ sheet, set, readOnly, roll, config = defaultDndConfig() }: { sheet: DndSheet; set: (s: DndSheet) => void; readOnly: boolean; roll?: Roll; config?: DndConfig }) {
+  const { abilities, skills, sections: on } = config;
+  const dexKey = abilities.find((a) => a.key === "des")?.key ?? abilities[1]?.key ?? abilities[0]?.key ?? "des";
+  const perception = skills.find((sk) => sk.key === "percepcao");
   const patch = (p: Partial<DndSheet>) => set({ ...sheet, ...p });
   const ro = readOnly;
   const prof = proficiency(sheet.nivel);
-  const init = modifier(sheet.atributos.des);
-  const passive = 10 + skillBonus(sheet, "percepcao");
+  const init = modifier(score(sheet, dexKey));
+  const passive = perception ? 10 + skillBonus(sheet, perception) : null;
 
   return (
     <div className={styles.sheet}>
@@ -31,6 +35,7 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
         </div>
       </Section>
 
+      {on.combate && (
       <Section title="Combate">
         <div className={styles.stats}>
           <div className={styles.stat}>
@@ -50,10 +55,12 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
             <span className={styles.label}>Proficiência</span>
             <strong className={styles.statValue}>{signed(prof)}</strong>
           </div>
-          <div className={styles.stat}>
-            <span className={styles.label}>Percepção passiva</span>
-            <strong className={styles.statValue}>{passive}</strong>
-          </div>
+          {passive !== null && (
+            <div className={styles.stat}>
+              <span className={styles.label}>Percepção passiva</span>
+              <strong className={styles.statValue}>{passive}</strong>
+            </div>
+          )}
           <label className={styles.stat}>
             <span className={styles.label}>Inspiração</span>
             <input type="checkbox" checked={sheet.inspiracao} disabled={ro} onChange={(e) => patch({ inspiracao: e.target.checked })} className={styles.check} />
@@ -70,20 +77,22 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           <NumberField label="Morte: falhas" value={sheet.mortes.falhas} onChange={(falhas) => patch({ mortes: { ...sheet.mortes, falhas } })} readOnly={ro} small />
         </div>
       </Section>
+      )}
 
-      <Section title="Atributos e salvaguardas">
+      <Section title={on.salvaguardas ? "Atributos e salvaguardas" : "Atributos"}>
         <div className={styles.abilities}>
-          {ABILITIES.map((a) => {
-            const mod = modifier(sheet.atributos[a.key]);
+          {abilities.map((a) => {
+            const mod = modifier(score(sheet, a.key));
             const save = saveBonus(sheet, a.key);
             const proficient = sheet.salvaguardas.includes(a.key);
             return (
               <div key={a.key} className={styles.ability}>
                 <span className={styles.label}>{a.nome}</span>
                 <strong className={styles.abilityMod}>{signed(mod)}</strong>
-                <input className={styles.abilityScore} type="number" value={sheet.atributos[a.key]} readOnly={ro} aria-label={`${a.nome} (valor)`} onChange={(e) => patch({ atributos: { ...sheet.atributos, [a.key]: Number(e.target.value) } })} />
+                <input className={styles.abilityScore} type="number" value={score(sheet, a.key)} readOnly={ro} aria-label={`${a.nome} (valor)`} onChange={(e) => patch({ atributos: { ...sheet.atributos, [a.key]: Number(e.target.value) } })} />
                 <div className={styles.abilityActions}>
                   <RollButton label={`Teste de ${a.nome}`} onRoll={roll && (() => roll(formulaFor(mod), `Teste de ${a.nome}`))} />
+                  {on.salvaguardas && (<>
                   <label className={styles.saveToggle} title="Proficiente na salvaguarda">
                     <input
                       type="checkbox"
@@ -94,6 +103,7 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
                     Salv. {signed(save)}
                   </label>
                   <RollButton label={`Salvaguarda de ${a.nome}`} onRoll={roll && (() => roll(formulaFor(save), `Salvaguarda de ${a.nome}`))} />
+                  </>)}
                 </div>
               </div>
             );
@@ -101,12 +111,13 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
         </div>
       </Section>
 
+      {on.pericias && (
       <Section title="Perícias">
         <p className={styles.hint}>Toque no círculo: sem proficiência → proficiente → especialista.</p>
         <div className={styles.skills}>
-          {SKILLS.map((s) => {
+          {skills.map((s) => {
             const level = sheet.pericias[s.key] ?? 0;
-            const bonus = skillBonus(sheet, s.key);
+            const bonus = skillBonus(sheet, s);
             return (
               <div key={s.key} className={styles.skill}>
                 <button
@@ -117,7 +128,7 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
                   onClick={() => patch({ pericias: { ...sheet.pericias, [s.key]: ((level + 1) % 3) as 0 | 1 | 2 } })}
                 />
                 <span className={styles.skillName}>
-                  {s.nome} <small>({s.attr.toUpperCase()})</small>
+                  {s.nome} <small>({s.attr.toUpperCase().slice(0, 3)})</small>
                 </span>
                 <strong>{signed(bonus)}</strong>
                 <RollButton label={s.nome} onRoll={roll && (() => roll(formulaFor(bonus), s.nome))} />
@@ -126,10 +137,12 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           })}
         </div>
       </Section>
+      )}
 
+      {on.ataques && (
       <Section
         title="Ataques"
-        actions={!ro && <IconButton icon="plus" label="Novo ataque" variant="ghost" onClick={() => patch({ ataques: [...sheet.ataques, { nome: "Novo ataque", bonus: prof + modifier(sheet.atributos.for), dano: "1d8+" + modifier(sheet.atributos.for), tipo: "cortante" }] })} />}
+        actions={!ro && <IconButton icon="plus" label="Novo ataque" variant="ghost" onClick={() => patch({ ataques: [...sheet.ataques, { nome: "Novo ataque", bonus: prof + modifier(score(sheet, abilities[0]?.key ?? "for")), dano: "1d8+" + modifier(score(sheet, abilities[0]?.key ?? "for")), tipo: "cortante" }] })} />}
       >
         {sheet.ataques.length === 0 && <p className={styles.empty}>Nenhum ataque.</p>}
         {sheet.ataques.map((a, i) => {
@@ -147,13 +160,15 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           );
         })}
       </Section>
+      )}
 
+      {on.magias && (
       <Section title="Magias">
         <div className={styles.row}>
           <label className={styles.field}>
             <span className={styles.label}>Atributo de conjuração</span>
-            <select className={styles.input} value={sheet.magias.atributo} disabled={ro} onChange={(e) => patch({ magias: { ...sheet.magias, atributo: e.target.value as DndSheet["magias"]["atributo"] } })}>
-              {ABILITIES.map((a) => (
+            <select className={styles.input} value={sheet.magias.atributo} disabled={ro} onChange={(e) => patch({ magias: { ...sheet.magias, atributo: e.target.value } })}>
+              {abilities.map((a) => (
                 <option key={a.key} value={a.key}>
                   {a.nome}
                 </option>
@@ -162,12 +177,12 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           </label>
           <div className={styles.stat}>
             <span className={styles.label}>CD de magia</span>
-            <strong className={styles.statValue}>{8 + prof + modifier(sheet.atributos[sheet.magias.atributo])}</strong>
+            <strong className={styles.statValue}>{8 + prof + modifier(score(sheet, sheet.magias.atributo))}</strong>
           </div>
           <div className={styles.stat}>
             <span className={styles.label}>Ataque mágico</span>
-            <strong className={styles.statValue}>{signed(prof + modifier(sheet.atributos[sheet.magias.atributo]))}</strong>
-            <RollButton label="Ataque mágico" onRoll={roll && (() => roll(formulaFor(prof + modifier(sheet.atributos[sheet.magias.atributo])), "Ataque mágico"))} />
+            <strong className={styles.statValue}>{signed(prof + modifier(score(sheet, sheet.magias.atributo)))}</strong>
+            <RollButton label="Ataque mágico" onRoll={roll && (() => roll(formulaFor(prof + modifier(score(sheet, sheet.magias.atributo))), "Ataque mágico"))} />
           </div>
         </div>
         <div className={styles.slotsRow}>
@@ -203,8 +218,10 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           </button>
         )}
       </Section>
+      )}
 
       <div className={styles.columns}>
+        {on.caracteristicas && (
         <Section title="Características e talentos">
           {sheet.caracteristicas.map((c, i) => (
             <div key={i} className={styles.card}>
@@ -221,6 +238,8 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
             </button>
           )}
         </Section>
+        )}
+        {on.equipamento && (
         <Section title="Equipamento">
           <div className={styles.coins}>
             {(["pc", "pp", "pe", "po", "pl"] as const).map((k) => (
@@ -229,13 +248,16 @@ export function DndSheetView({ sheet, set, readOnly, roll }: { sheet: DndSheet; 
           </div>
           <StringList items={sheet.equipamento} onChange={(equipamento) => patch({ equipamento })} readOnly={ro} placeholder="Item" />
         </Section>
+        )}
       </div>
 
+      {on.notas && (
       <Section title="Proficiências, idiomas e notas">
         <TextArea label="Proficiências (armas, armaduras, ferramentas)" value={sheet.proficiencias} onChange={(proficiencias) => patch({ proficiencias })} readOnly={ro} rows={2} />
         <TextArea label="Idiomas" value={sheet.idiomas} onChange={(idiomas) => patch({ idiomas })} readOnly={ro} rows={1} />
         <TextArea label="Notas" value={sheet.notas} onChange={(notas) => patch({ notas })} readOnly={ro} rows={4} />
       </Section>
+      )}
     </div>
   );
 }

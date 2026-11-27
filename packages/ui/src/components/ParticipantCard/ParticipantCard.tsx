@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cx } from "../../cx";
-import { NARRATOR_COLOR, playerColorStyle, type PlayerColor } from "../../player-color";
+import { NARRATOR_COLOR, playerColorStyle, type AccentColor } from "../../player-color";
 import { Icon } from "../Icon/Icon";
 import { Skeleton } from "../Skeleton/Skeleton";
 import styles from "./ParticipantCard.module.sass";
@@ -10,7 +10,7 @@ export interface ParticipantCardProps {
   characterName: string;
   playerName: string;
   /** Cor do personagem nesta campanha. Padrão: player-4 (a do Narrador). */
-  color?: PlayerColor;
+  color?: AccentColor;
   portraitUrl?: string;
   /** Retrato desenhado (ex.: ilustração em SVG), no lugar da imagem ou da inicial. */
   portraitArt?: ReactNode;

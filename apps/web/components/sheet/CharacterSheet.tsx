@@ -9,6 +9,7 @@ import { normalizeDnd, type DndSheet } from "@/lib/sheets/dnd";
 import { normalizeHomebrew, type HomebrewSheet } from "@/lib/sheets/homebrew";
 import { importHomebrewMarkdown } from "@/lib/sheets/import-md";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { sheetModel, type SheetModel } from "@/lib/sheets/template";
 import { DndSheetView } from "./DndSheetView";
 import { HomebrewSheetView } from "./HomebrewSheetView";
 import styles from "./CharacterSheet.module.sass";
@@ -28,6 +29,8 @@ export function CharacterSheet({
   isMaster,
   ownerName,
   mesaChannelId,
+  model = sheetModel(character.template),
+  compact,
 }: {
   character: Character;
   spaceId: string;
@@ -37,12 +40,16 @@ export function CharacterSheet({
   isMaster: boolean;
   ownerName: string | null;
   mesaChannelId: string | null;
+  /** Modelo de ficha da campanha (escolhido pelo mestre): manda em qual ficha aparece. */
+  model?: SheetModel;
+  /** Na gaveta da Mesa: sem cor e sem apagar. */
+  compact?: boolean;
 }) {
   const [name, setName] = useState(character.name);
   const [color, setColor] = useState(character.color);
   const [portrait, setPortrait] = useState(character.portrait_url ?? "");
   const [revealed, setRevealed] = useState(character.revealed);
-  const [sheet, setSheet] = useState<HomebrewSheet | DndSheet>(() => (character.template === "dnd2024" ? normalizeDnd(character.sheet) : normalizeHomebrew(character.sheet)));
+  const [sheet, setSheet] = useState<HomebrewSheet | DndSheet>(() => (model.system === "dnd2024" ? normalizeDnd(character.sheet) : normalizeHomebrew(character.sheet)));
   const [save, setSave] = useState<Save>("salvo");
   const [deleting, startDelete] = useTransition();
   const first = useRef(true);
@@ -59,7 +66,7 @@ export function CharacterSheet({
       setSave("salvando");
       const { error } = await getBrowserClient()
         .from("characters")
-        .update({ name: name.trim() || "Sem nome", color, portrait_url: portrait || null, sheet, ...(isMaster ? { revealed } : {}) })
+        .update({ name: name.trim() || "Sem nome", color, portrait_url: portrait || null, template: model.system, sheet, ...(isMaster ? { revealed } : {}) })
         .eq("id", character.id);
       if (error) {
         setSave("erro");
@@ -67,7 +74,7 @@ export function CharacterSheet({
       } else setSave("salvo");
     }, 700);
     return () => clearTimeout(t);
-  }, [name, color, portrait, sheet, revealed, canEdit, isMaster, character.id]);
+  }, [name, color, portrait, sheet, revealed, canEdit, isMaster, character.id, model.system]);
 
   async function roll(formula: string, label: string) {
     if (!mesaChannelId) return toast.error("Esta campanha não tem um canal de mesa para rolar.");
@@ -113,12 +120,12 @@ export function CharacterSheet({
         <div className={styles.identity}>
           <input className={styles.name} value={name} readOnly={!canEdit} maxLength={80} aria-label="Nome do personagem" onChange={(e) => setName(e.target.value)} />
           <p className={styles.meta}>
-            {character.kind === "npc" ? "NPC do mestre" : ownerName ? `Jogado por ${ownerName}` : "Personagem"} · {character.template === "dnd2024" ? "D&D 5e (2024)" : "Homebrew"}
+            {character.kind === "npc" ? "NPC do mestre" : ownerName ? `Jogado por ${ownerName}` : "Personagem"} · {model.name}
             {canEdit && <span className={styles.save}> · {save === "salvo" ? "Salvo" : save === "erro" ? "Erro ao salvar" : "Salvando…"}</span>}
           </p>
           {canEdit && (
             <div className={styles.actions}>
-              {character.template === "homebrew" && (
+              {model.system === "homebrew" && (
                 <>
                   <Button icon="sheet" variant="ghost" onClick={() => fileRef.current?.click()}>
                     Importar .md
@@ -132,6 +139,7 @@ export function CharacterSheet({
                   <Icon name="eye" size={16} /> Visível para os jogadores
                 </label>
               )}
+              {!compact && (
               <Button
                 variant="ghost"
                 icon="trash"
@@ -146,20 +154,21 @@ export function CharacterSheet({
               >
                 Apagar
               </Button>
+              )}
             </div>
           )}
         </div>
       </header>
-      {canEdit && (
+      {canEdit && !compact && (
         <details className={styles.colorBox}>
           <summary>Cor do personagem</summary>
           <ColorPicker label="Cor" value={color} onChange={setColor} help="Pinta o nome, o retrato e as rolagens dele." />
         </details>
       )}
-      {character.template === "dnd2024" ? (
-        <DndSheetView sheet={sheet as DndSheet} set={setSheet} readOnly={!canEdit} roll={canRoll ? (f, l) => void roll(f, l) : undefined} />
+      {model.system === "dnd2024" ? (
+        <DndSheetView sheet={sheet as DndSheet} set={setSheet} readOnly={!canEdit} roll={canRoll ? (f, l) => void roll(f, l) : undefined} config={model.config} />
       ) : (
-        <HomebrewSheetView sheet={sheet as HomebrewSheet} set={setSheet} readOnly={!canEdit} roll={canRoll ? (f, l) => void roll(f, l) : undefined} />
+        <HomebrewSheetView sheet={sheet as HomebrewSheet} set={setSheet} readOnly={!canEdit} roll={canRoll ? (f, l) => void roll(f, l) : undefined} config={model.config} />
       )}
     </div>
   );

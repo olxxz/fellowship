@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Modal, playerColorStyle, toast } from "@fellowship/ui";
-import type { Campaign, Character, SheetTemplate } from "@fellowship/db";
+import type { Campaign, Character } from "@fellowship/db";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import settings from "@/components/account/Settings.module.sass";
@@ -10,6 +10,7 @@ import { emptyDnd } from "@/lib/sheets/dnd";
 import { emptyHomebrew } from "@/lib/sheets/homebrew";
 import { importHomebrewMarkdown } from "@/lib/sheets/import-md";
 import { characterHref } from "@/lib/routes";
+import type { SheetModel } from "@/lib/sheets/template";
 import styles from "./Campaign.module.sass";
 
 /** Personagens da campanha (os jogadores veem os PJs e os NPCs revelados; o mestre vê todos). */
@@ -21,6 +22,7 @@ export function CharacterList({
   isMaster,
   canCreate,
   meId,
+  model,
 }: {
   spaceId: string;
   campaign: Campaign;
@@ -29,6 +31,8 @@ export function CharacterList({
   isMaster: boolean;
   canCreate: boolean;
   meId: string;
+  /** Ficha da campanha, escolhida pelo mestre em Ajustes. */
+  model: SheetModel;
 }) {
   const [open, setOpen] = useState(false);
   const pcs = characters.filter((c) => c.kind === "pc");
@@ -71,7 +75,7 @@ export function CharacterList({
           </>
         )}
       </div>
-      {open && <NewCharacter spaceId={spaceId} campaign={campaign} isMaster={isMaster} onClose={() => setOpen(false)} />}
+      {open && <NewCharacter spaceId={spaceId} campaign={campaign} isMaster={isMaster} model={model} onClose={() => setOpen(false)} />}
     </main>
   );
 }
@@ -82,9 +86,8 @@ function sheetSummary(c: Character) {
   return parts.length ? ` · ${parts.join(", ")}` : "";
 }
 
-function NewCharacter({ spaceId, campaign, isMaster, onClose }: { spaceId: string; campaign: Campaign; isMaster: boolean; onClose: () => void }) {
+function NewCharacter({ spaceId, campaign, isMaster, model, onClose }: { spaceId: string; campaign: Campaign; isMaster: boolean; model: SheetModel; onClose: () => void }) {
   const [name, setName] = useState("");
-  const [template, setTemplate] = useState<SheetTemplate>(campaign.system);
   const [kind, setKind] = useState<"pc" | "npc">("pc");
   const [revealed, setRevealed] = useState(false);
   const [imported, setImported] = useState<{ name: string; sheet: Record<string, unknown> } | null>(null);
@@ -98,9 +101,9 @@ function NewCharacter({ spaceId, campaign, isMaster, onClose }: { spaceId: strin
           e.preventDefault();
           const finalName = name.trim() || imported?.name || "";
           if (!finalName) return toast.error("Dê um nome ao personagem.");
-          const sheet = imported?.sheet ?? (template === "dnd2024" ? emptyDnd() : emptyHomebrew());
+          const sheet = imported?.sheet ?? (model.system === "dnd2024" ? emptyDnd(model.config.abilities) : emptyHomebrew(model.config));
           start(async () => {
-            const r = await createCharacterAction(spaceId, campaign.id, { name: finalName, template: imported ? "homebrew" : template, kind, revealed, sheet: sheet as unknown as Record<string, unknown> });
+            const r = await createCharacterAction(spaceId, campaign.id, { name: finalName, template: model.system, kind, revealed, sheet: sheet as unknown as Record<string, unknown> });
             if (r?.error) toast.error(r.error);
           });
         }}
@@ -109,27 +112,12 @@ function NewCharacter({ spaceId, campaign, isMaster, onClose }: { spaceId: strin
           <span className={settings.label}>Nome</span>
           <input className={settings.input} value={name} maxLength={80} autoFocus placeholder={imported?.name ?? "Bjørn Edgardson"} onChange={(e) => setName(e.target.value)} />
         </label>
-        <fieldset className={settings.kinds}>
-          <legend className={settings.label} style={{ marginBottom: "var(--space-2)" }}>
-            Ficha
-          </legend>
-          {(
-            [
-              ["homebrew", "Homebrew do grupo"],
-              ["dnd2024", "D&D 5e (2024)"],
-            ] as const
-          ).map(([id, label]) => (
-            <label key={id} className={settings.kind}>
-              <input type="radio" name="template" checked={template === id} disabled={!!imported} onChange={() => setTemplate(id)} />
-              <span className={settings.kindText}>
-                <strong>{label}</strong>
-                {id === campaign.system && <span className={settings.help}>Padrão da campanha</span>}
-              </span>
-            </label>
-          ))}
-        </fieldset>
+        <p className={settings.help}>
+          Ficha da campanha: <strong>{model.name}</strong>. Quem escolhe é o mestre, em Ajustes.
+        </p>
+        {model.system === "homebrew" && (
         <label className={settings.field}>
-          <span className={settings.label}>Importar ficha do Obsidian (.md, homebrew)</span>
+          <span className={settings.label}>Importar ficha do Obsidian (.md)</span>
           <input
             type="file"
             accept=".md,text/markdown,text/plain"
@@ -138,11 +126,11 @@ function NewCharacter({ spaceId, campaign, isMaster, onClose }: { spaceId: strin
               if (!f) return setImported(null);
               const r = importHomebrewMarkdown(await f.text());
               setImported({ name: r.name, sheet: r.sheet as unknown as Record<string, unknown> });
-              setTemplate("homebrew");
               toast.success(`Ficha de ${r.name} lida`);
             }}
           />
         </label>
+        )}
         {isMaster && (
           <>
             <label className={settings.switchRow}>

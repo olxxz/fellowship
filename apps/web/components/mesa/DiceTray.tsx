@@ -2,13 +2,21 @@
 
 import { Button, Icon, IconButton } from "@fellowship/ui";
 import { useId, useState } from "react";
-import { rollFormula } from "@/lib/demo/dice";
+import { roll as parseRoll } from "@fellowship/core";
 import styles from "./DiceTray.module.sass";
 
 const QUICK = [4, 6, 8, 10, 12, 20, 100];
 
 /** Bandeja de dados: dados rápidos, modificador, fórmula livre e (para o mestre) rolagem oculta. */
-export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula: string, hidden: boolean) => void }) {
+export function DiceTray({
+  master,
+  onRoll,
+  note = "Protótipo: os dados rolam no navegador. No app de verdade, o servidor rola.",
+}: {
+  master: boolean;
+  onRoll: (formula: string, hidden: boolean) => void;
+  note?: string | null;
+}) {
   const [modifier, setModifier] = useState(0);
   const [formula, setFormula] = useState("");
   const [hidden, setHidden] = useState(false);
@@ -20,7 +28,11 @@ export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula
   const withMod = (base: string) => (modifier ? `${base} ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : base);
 
   function roll(f: string) {
-    if (!rollFormula(f)) return setError("Não entendi a fórmula. Exemplos: 1d20+5, 2d20kh1 + 3, 3d6");
+    try {
+      parseRoll(f);
+    } catch {
+      return setError("Não entendi a fórmula. Exemplos: 1d20+5, 2d20kh1 + 3, 3d6");
+    }
     setError(null);
     onRoll(f, master && hidden);
   }
@@ -99,7 +111,7 @@ export function DiceTray({ master, onRoll }: { master: boolean; onRoll: (formula
           {error}
         </p>
       )}
-      <p className={styles.note}>Protótipo: os dados rolam no navegador. No app de verdade, o servidor rola.</p>
+      {note && <p className={styles.note}>{note}</p>}
     </div>
   );
 }

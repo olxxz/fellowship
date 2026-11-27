@@ -1,20 +1,21 @@
 "use client";
 
 import { Button, ColorPicker, toast } from "@fellowship/ui";
-import type { Campaign, CampaignSystem } from "@fellowship/db";
+import type { Campaign, CustomSheetTemplate } from "@fellowship/db";
+import type { SheetModel } from "@/lib/sheets/template";
+import { SheetTemplateSettings } from "./SheetTemplateSettings";
 import { useState, useTransition } from "react";
 import { ImageUploadField } from "@/components/account/ImageUploadField";
 import settings from "@/components/account/Settings.module.sass";
 import { deleteCampaignAction, updateCampaignAction } from "@/lib/app/campaign-actions";
 import styles from "./Campaign.module.sass";
 
-/** Ajustes da campanha (só o mestre): nome, descrição, cor, banner, ficha padrão, aberta ou fechada, apagar. */
-export function CampaignSettings({ spaceId, campaign }: { spaceId: string; campaign: Campaign }) {
+/** Ajustes da campanha (só o mestre): nome, descrição, cor, banner, aberta ou fechada, ficha da campanha, apagar. */
+export function CampaignSettings({ spaceId, campaign, model, myTemplates }: { spaceId: string; campaign: Campaign; model: SheetModel; myTemplates: CustomSheetTemplate[] }) {
   const [name, setName] = useState(campaign.name);
   const [description, setDescription] = useState(campaign.description ?? "");
   const [color, setColor] = useState(campaign.color);
   const [banner, setBanner] = useState(campaign.banner_url ?? "");
-  const [system, setSystem] = useState<CampaignSystem>(campaign.system);
   const [open, setOpen] = useState(campaign.open_to_join);
   const [typed, setTyped] = useState("");
   const [pending, start] = useTransition();
@@ -27,7 +28,7 @@ export function CampaignSettings({ spaceId, campaign }: { spaceId: string; campa
           onSubmit={(e) => {
             e.preventDefault();
             start(async () => {
-              const r = await updateCampaignAction(spaceId, campaign.id, { name, description, color, system, open, bannerUrl: banner });
+              const r = await updateCampaignAction(spaceId, campaign.id, { name, description, color, system: campaign.system, open, bannerUrl: banner });
               if (r.error) toast.error(r.error);
               else toast.success("Campanha salva");
             });
@@ -53,13 +54,6 @@ export function CampaignSettings({ spaceId, campaign }: { spaceId: string; campa
             preview={(url) => <div className={settings.bannerPreview} style={{ ["--player-color" as string]: color, ...(url ? { backgroundImage: `url("${url}")` } : {}) }} />}
           />
           <ColorPicker label="Cor" value={color} onChange={setColor} />
-          <label className={settings.field}>
-            <span className={settings.label}>Ficha padrão dos personagens novos</span>
-            <select className={settings.input} value={system} onChange={(e) => setSystem(e.target.value as CampaignSystem)}>
-              <option value="homebrew">Homebrew do grupo</option>
-              <option value="dnd2024">D&D 5e (2024)</option>
-            </select>
-          </label>
           <label className={settings.switchRow}>
             <input type="checkbox" checked={open} onChange={(e) => setOpen(e.target.checked)} />
             <span className={settings.field}>
@@ -73,6 +67,7 @@ export function CampaignSettings({ spaceId, campaign }: { spaceId: string; campa
             </Button>
           </div>
         </form>
+        <SheetTemplateSettings spaceId={spaceId} campaignId={campaign.id} model={model} mine={myTemplates} />
         <section className={settings.section}>
           <h3 className={settings.sectionTitle}>Apagar campanha</h3>
           <p className={settings.help}>Apaga canais, mensagens e fichas da campanha. Não tem volta.</p>

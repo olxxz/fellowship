@@ -53,8 +53,9 @@ export interface DndSheet {
   alinhamento: string;
   nivel: number;
   xp: number;
-  atributos: Record<AbilityKey, number>;
-  salvaguardas: AbilityKey[];
+  /** Valor de cada atributo pela chave (as do modelo; o padrão são as seis do D&D). */
+  atributos: Record<string, number>;
+  salvaguardas: string[];
   /** 0 = sem, 1 = proficiente, 2 = especialista. */
   pericias: Record<string, 0 | 1 | 2>;
   ca: number;
@@ -64,7 +65,7 @@ export interface DndSheet {
   mortes: { sucessos: number; falhas: number };
   inspiracao: boolean;
   ataques: DndAttack[];
-  magias: { atributo: AbilityKey; espacos: Array<{ max: number; usados: number }>; lista: DndSpell[] };
+  magias: { atributo: string; espacos: Array<{ max: number; usados: number }>; lista: DndSpell[] };
   caracteristicas: Array<{ nome: string; descricao: string }>;
   equipamento: string[];
   moedas: { pc: number; pp: number; pe: number; po: number; pl: number };
@@ -73,7 +74,7 @@ export interface DndSheet {
   notas: string;
 }
 
-export function emptyDnd(): DndSheet {
+export function emptyDnd(abilities: ReadonlyArray<{ key: string }> = ABILITIES): DndSheet {
   return {
     classe: "",
     subclasse: "",
@@ -82,7 +83,7 @@ export function emptyDnd(): DndSheet {
     alinhamento: "",
     nivel: 1,
     xp: 0,
-    atributos: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 },
+    atributos: Object.fromEntries(abilities.map((a) => [a.key, 10])),
     salvaguardas: [],
     pericias: {},
     ca: 10,
@@ -123,11 +124,13 @@ export const proficiency = (level: number) => 2 + Math.floor((Math.max(1, Math.m
 export const signed = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 export const formulaFor = (bonus: number) => (bonus === 0 ? "1d20" : `1d20${bonus > 0 ? "+" : "-"}${Math.abs(bonus)}`);
 
-export function skillBonus(sheet: DndSheet, key: string) {
-  const skill = SKILLS.find((s) => s.key === key)!;
-  return modifier(sheet.atributos[skill.attr]) + (sheet.pericias[key] ?? 0) * proficiency(sheet.nivel);
+/** Valor do atributo (10 se a ficha ainda não tem esse atributo do modelo). */
+export const score = (sheet: DndSheet, key: string) => sheet.atributos[key] ?? 10;
+
+export function skillBonus(sheet: DndSheet, skill: { key: string; attr: string }) {
+  return modifier(score(sheet, skill.attr)) + (sheet.pericias[skill.key] ?? 0) * proficiency(sheet.nivel);
 }
 
-export function saveBonus(sheet: DndSheet, attr: AbilityKey) {
-  return modifier(sheet.atributos[attr]) + (sheet.salvaguardas.includes(attr) ? proficiency(sheet.nivel) : 0);
+export function saveBonus(sheet: DndSheet, attr: string) {
+  return modifier(score(sheet, attr)) + (sheet.salvaguardas.includes(attr) ? proficiency(sheet.nivel) : 0);
 }

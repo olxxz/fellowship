@@ -61,7 +61,8 @@ export interface HomebrewSheet {
 
 const attr = (nome: string): HbAttribute => ({ nome, nivel: 0, valor: 0, bonus: 0 });
 
-export function emptyHomebrew(): HomebrewSheet {
+/** Ficha vazia; com modelo, já vem com os grupos de atributos e a fórmula dele. */
+export function emptyHomebrew(model?: { groups: Array<{ titulo: string; itens: string[] }>; formulaTeste: string }): HomebrewSheet {
   return {
     classe: "",
     tendencia: "",
@@ -69,11 +70,13 @@ export function emptyHomebrew(): HomebrewSheet {
     xp: { atual: 0, max: 100 },
     hp: { atual: 10, max: 10 },
     sp: { atual: 10, max: 10 },
-    formulaTeste: "1d20 + {total}",
-    atributos: [
-      { titulo: "Físicos", itens: ["Força", "Destreza", "Agilidade", "Resistência", "Inteligência"].map(attr) },
-      { titulo: "Mentais", itens: ["Percepção", "Carisma", "Furtividade"].map(attr) },
-    ],
+    formulaTeste: model?.formulaTeste ?? "1d20 + {total}",
+    atributos: model
+      ? model.groups.map((g) => ({ titulo: g.titulo, itens: g.itens.map(attr) }))
+      : [
+          { titulo: "Físicos", itens: ["Força", "Destreza", "Agilidade", "Resistência", "Inteligência"].map(attr) },
+          { titulo: "Mentais", itens: ["Percepção", "Carisma", "Furtividade"].map(attr) },
+        ],
     habilidades: [],
     pericias: [],
     vantagens: [],

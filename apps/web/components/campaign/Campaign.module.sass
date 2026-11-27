@@ -140,3 +140,88 @@
   border-radius: var(--radius-full)
   background: var(--bg-raised)
   @include text-caption
+
+// Editor de modelo de ficha
+.templateBlock
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  margin: 0
+  padding: var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  min-width: 0
+
+.templateRow
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  > input, > select
+    flex: 1
+    min-width: 0
+
+.templateAdd
+  @include reset-interactive
+  align-self: flex-start
+  padding: var(--space-1) 0
+  color: var(--accent-text)
+  @include text-label
+  &:focus-visible
+    @include focus-ring
+
+.templateChecks
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
+  gap: var(--space-2)
+
+.templateCheck
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  @include text-body
+  input
+    width: 16px
+    height: 16px
+    accent-color: var(--accent)
+
+// Sessões e busca
+.sessionList, .searchResults
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  margin: 0
+  padding: 0
+  list-style: none
+
+.sessionItem
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+  color: var(--text-muted)
+
+.sessionText
+  display: flex
+  flex-direction: column
+  color: var(--text)
+
+.searchResult
+  display: flex
+  flex-direction: column
+  gap: 2px
+  padding: var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-lg)
+
+.searchMeta
+  @include text-caption
+  color: var(--text-muted)
+  strong
+    color: var(--mesa-text)
+
+.searchText
+  @include text-body
+  overflow-wrap: anywhere
+  white-space: pre-wrap

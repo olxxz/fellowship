@@ -7,6 +7,8 @@ import { VoiceRoom } from "@/components/account/VoiceRoom";
 import channelStyles from "@/components/channel/Channel.module.sass";
 import { ChatRoom } from "@/components/chat/room/ChatRoom";
 import { MembersList, type MemberEntry } from "@/components/shell/MembersList";
+import { ContentHeader, MembersToggle } from "@/components/shell/ContentHeader";
+import { channelIcon } from "@/lib/app/channels";
 import type { ChatAuthor, ChatMsg } from "@/lib/chat/source";
 import { usePresenceMap } from "@/lib/presence/PresenceProvider";
 
@@ -26,6 +28,9 @@ export function CampaignChannelView(props: {
   canSend: boolean;
   canManage: boolean;
   rollAs: Array<{ id: string; name: string }>;
+  /** Nome na barra da campanha (Ingame, Outgame). */
+  title: string;
+  campaignName: string;
 }) {
   const { channel, me, profiles, members, characters } = props;
   const presence = usePresenceMap();
@@ -51,6 +56,8 @@ export function CampaignChannelView(props: {
   }, [members, profiles, characters, presence]);
 
   return (
+    <>
+    <ContentHeader icon={channelIcon(channel)} title={props.title} topic={`${props.campaignName} · ${channel.topic ?? channel.name}`} actions={<MembersToggle />} />
     <div className={channelStyles.body}>
       <main className={channelStyles.main}>
         {channel.kind === "voz" || channel.kind === "voz_dinamica" ? (
@@ -58,7 +65,7 @@ export function CampaignChannelView(props: {
         ) : (
           <ChatRoom
             key={channel.id}
-            source={{ type: "channel", id: channel.id, spaceId: props.spaceId, name: channel.name, topic: channel.topic }}
+            source={{ type: "channel", id: channel.id, spaceId: props.spaceId, name: props.title, topic: channel.topic }}
             me={me}
             authors={authors}
             initialMessages={props.initialMessages}
@@ -67,12 +74,13 @@ export function CampaignChannelView(props: {
             canSend={props.canSend}
             canManage={props.canManage}
             readOnlyReason="Quem está assistindo não escreve na mesa."
-            intro={{ title: channel.name, text: channel.topic ?? "O começo da mesa." }}
+            intro={{ title: props.title, text: channel.topic ?? "O começo da mesa." }}
             rollAs={props.rollAs}
           />
         )}
       </main>
       <MembersList groups={groups} label="Quem joga" />
     </div>
+    </>
   );
 }

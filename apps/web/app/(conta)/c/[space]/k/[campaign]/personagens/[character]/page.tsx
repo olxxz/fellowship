@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import styles from "@/components/campaign/Campaign.module.sass";
 import { CharacterSheet } from "@/components/sheet/CharacterSheet";
+import { ContentHeader } from "@/components/shell/ContentHeader";
 import { loadCampaign } from "@/lib/app/campaign-context";
 
 export default async function CharacterPage({ params }: { params: Promise<{ space: string; campaign: string; character: string }> }) {
@@ -10,6 +11,8 @@ export default async function CharacterPage({ params }: { params: Promise<{ spac
   if (!character) notFound();
   const mesa = c.channels.find((ch) => ch.kind === "texto");
   return (
+    <>
+    <ContentHeader icon="sheet" title={character.name} topic={`${c.campaign.name} · ${c.model.name}`} />
     <main className={styles.page}>
       <div className={styles.inner}>
         <CharacterSheet
@@ -22,8 +25,10 @@ export default async function CharacterPage({ params }: { params: Promise<{ spac
           isMaster={c.isMaster}
           ownerName={character.owner_id ? (c.profiles[character.owner_id]?.display_name ?? null) : null}
           mesaChannelId={mesa?.id ?? null}
+          model={c.model}
         />
       </div>
     </main>
+    </>
   );
 }

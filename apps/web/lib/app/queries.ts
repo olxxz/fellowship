@@ -1,5 +1,5 @@
 import "server-only";
-import type { Campaign, CampaignMember, Category, Channel, Character, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
+import type { Campaign, CampaignMember, CampaignRole, CampaignSession, Category, Channel, Character, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
 import { CHANNEL_COLUMNS, DM_COLUMNS, toChatMsg, type ChatMsg } from "@/lib/chat/source";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notFound, redirect } from "next/navigation";
@@ -159,19 +159,33 @@ export async function getGallery(supabase: SupabaseClient, channelId: string, li
   return { posts, counts };
 }
 
-export const CAMPAIGN_COLUMNS = "id, space_id, name, description, color, banner_url, system, open_to_join, position, created_by";
+export const CAMPAIGN_COLUMNS = "id, space_id, name, description, color, banner_url, system, open_to_join, position, created_by, template_id, scene_name, scene_url";
 export const CHARACTER_COLUMNS = "id, campaign_id, owner_id, kind, name, portrait_url, color, template, sheet, revealed, updated_at";
 
-/** Campanhas do Cenário e o papel da conta em cada uma (para a barra). */
+/** Campanhas do Cenário, o papel da conta, os canais (só de quem joga) e a sessão aberta (para a barra). */
 export const getSpaceCampaigns = cache(async (supabase: SupabaseClient, spaceId: string, meId: string) => {
   const { data: campaigns } = await supabase.from("campaigns").select(CAMPAIGN_COLUMNS).eq("space_id", spaceId).order("position");
   const list = (campaigns ?? []) as Campaign[];
-  const { data: mine } = list.length
-    ? await supabase.from("campaign_members").select("campaign_id, user_id, role").eq("user_id", meId).in("campaign_id", list.map((c) => c.id))
-    : { data: [] };
-  const roles = Object.fromEntries(((mine ?? []) as CampaignMember[]).map((m) => [m.campaign_id, m.role]));
-  return list.map((c) => ({ ...c, myRole: roles[c.id] ?? null }));
+  const ids = list.map((c) => c.id);
+  const [mine, channels, sessions] = ids.length
+    ? await Promise.all([
+        supabase.from("campaign_members").select("campaign_id, user_id, role").eq("user_id", meId).in("campaign_id", ids),
+        supabase.from("channels").select("id, space_id, category_id, kind, name, topic, icon, position, campaign_id").in("campaign_id", ids).order("position"),
+        supabase.from("campaign_sessions").select("id, campaign_id, number, title, started_at, ended_at").in("campaign_id", ids).is("ended_at", null),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+  const roles = Object.fromEntries(((mine.data ?? []) as CampaignMember[]).map((m) => [m.campaign_id, m.role]));
+  const space = await supabase.from("spaces").select("owner_id").eq("id", spaceId).maybeSingle<{ owner_id: string }>();
+  const owner = space.data?.owner_id === meId;
+  return list.map((c) => ({
+    ...c,
+    myRole: (owner ? "mestre" : (roles[c.id] ?? null)) as CampaignRole | null,
+    channels: ((channels.data ?? []) as Channel[]).filter((ch) => ch.campaign_id === c.id),
+    session: ((sessions.data ?? []) as CampaignSession[]).find((s) => s.campaign_id === c.id) ?? null,
+  }));
 });
+
+export type SpaceCampaign = Awaited<ReturnType<typeof getSpaceCampaigns>>[number];
 
 /** Tudo de uma campanha: dados, membros, canais (só aparecem para quem joga) e personagens visíveis. */
 export const getCampaignView = cache(async (supabase: SupabaseClient, campaignId: string) => {

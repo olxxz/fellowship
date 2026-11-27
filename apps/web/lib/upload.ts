@@ -7,12 +7,13 @@ import { getBrowserClient } from "@/lib/supabase/client";
 // tira os metadados da foto, como localização). GIF sobe como está, para continuar animado.
 
 /** square: avatar, ícone e figurinha (1:1). banner: perfil (3:1). spaceBanner: topo da barra do Cenário (2:1). */
-export type ImageShape = "square" | "banner" | "spaceBanner";
+export type ImageShape = "square" | "banner" | "spaceBanner" | "scene";
 
 export const SHAPES: Record<ImageShape, { w: number; h: number }> = {
   square: { w: 512, h: 512 },
   banner: { w: 1800, h: 600 },
   spaceBanner: { w: 1200, h: 600 },
+  scene: { w: 1920, h: 1080 },
 };
 
 /** Área escolhida no editor de corte, em pixels da imagem original. */

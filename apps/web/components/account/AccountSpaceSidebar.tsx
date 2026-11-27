@@ -1,24 +1,26 @@
 "use client";
 
-import { ChannelCategory, ChannelRow, Icon, playerColorStyle } from "@fellowship/ui";
+import { ChannelRow, Icon, playerColorStyle } from "@fellowship/ui";
 import { Permission } from "@fellowship/core";
-import type { Campaign, CampaignRole, Category, Channel, Space } from "@fellowship/db";
-import Link from "next/link";
+import type { Category, Channel, Space } from "@fellowship/db";
 import { PendingLink } from "@/components/nav/PendingLink";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
-import { appSpaceHref, campaignAppHref, campaignHref } from "@/lib/routes";
+import type { SpaceCampaign } from "@/lib/app/queries";
+import { appSpaceHref, campaignAppHref } from "@/lib/routes";
 import { CreateCampaignDialog } from "./CreateCampaignDialog";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
 import { SidebarChannels } from "./SidebarChannels";
+import { ctx, SidebarContextMenu } from "./SidebarMenus";
 import { SpaceMenu } from "./SpaceMenu";
 import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
 import { useChannelUnread } from "./useChannelUnread";
+import { CampaignSidebar } from "@/components/campaign/CampaignSidebar";
 
 /** Barra do Cenário real: só os canais que a conta pode ver (o banco já filtra pelo RLS). */
 export function AccountSpaceSidebar({
@@ -37,28 +39,20 @@ export function AccountSpaceSidebar({
   permissions: number;
   meId: string;
   memberIds: string[];
-  campaigns: Array<Campaign & { myRole: CampaignRole | null }>;
+  campaigns: SpaceCampaign[];
   initialUnread: Record<string, { unread: number; mentions: number }>;
 }) {
-  const { channel: activeId, campaign: activeCampaign } = useParams<{ channel?: string; campaign?: string }>();
+  const { channel: activeId, campaign: activeCampaignId } = useParams<{ channel?: string; campaign?: string }>();
   const canCreateCampaign = (permissions & Permission.CREATE_CAMPAIGNS) !== 0;
   const [creatingCampaign, setCreatingCampaign] = useState(false);
-  const addCampaignButton = (
-    <button type="button" className={styles.addChannel} aria-label="Criar campanha" title="Criar campanha" onClick={() => setCreatingCampaign(true)}>
-      <Icon name="plus" size={16} />
-    </button>
-  );
+
   const { closeDrawer } = useShell();
   const [inviting, setInviting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
   const canManageChannels = (permissions & Permission.MANAGE_CHANNELS) !== 0;
   const [creatingIn, setCreatingIn] = useState<{ open: boolean; categoryId: string | null }>({ open: false, categoryId: null });
-  const addButton = (categoryId: string | null, label: string) => (
-    <button type="button" className={styles.addChannel} aria-label={label} title={label} onClick={() => setCreatingIn({ open: true, categoryId })}>
-      <Icon name="plus" size={16} />
-    </button>
-  );
+
 
   const voice = useVoice();
   const unread = useChannelUnread(space.id, meId, activeId, initialUnread);
@@ -87,15 +81,27 @@ export function AccountSpaceSidebar({
         }}
       />
     );
-    if (!isVoice) return link;
+    if (!isVoice) return <div key={c.id} {...ctx("channel", c.id)}>{link}</div>;
     const people = voice.current?.id === c.id && voice.status === "on" ? voice.people : (presence[c.id] ?? []);
     return (
-      <div key={c.id}>
+      <div key={c.id} {...ctx("channel", c.id)}>
         {link}
         <VoicePeople people={people} />
       </div>
     );
   };
+
+  // Dentro de uma campanha, a barra da campanha entra no lugar da barra do Cenário.
+  const activeCampaign = activeCampaignId ? campaigns.find((c) => c.id === activeCampaignId) : undefined;
+  if (activeCampaign) {
+    const voiceChannel = activeCampaign.channels.find((c) => c.kind === "voz");
+    const people = voiceChannel ? (voice.current?.id === voiceChannel.id && voice.status === "on" ? voice.people : (presence[voiceChannel.id] ?? [])) : [];
+    return (
+      <div className={styles.sidebar}>
+        <CampaignSidebar spaceId={space.id} spaceName={space.name} campaign={activeCampaign} voicePeople={people} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.sidebar}>
@@ -137,48 +143,47 @@ export function AccountSpaceSidebar({
         />
       )}
       {canInvite && <InviteDialog spaceId={space.id} spaceName={space.name} open={inviting} onOpenChange={setInviting} />}
+      <SidebarContextMenu
+        spaceId={space.id}
+        categories={categories}
+        channels={channels}
+        campaigns={campaigns}
+        canManage={canManageChannels}
+        canCreateCampaign={canCreateCampaign}
+        canInvite={canInvite}
+        onCreateChannel={(categoryId) => setCreatingIn({ open: true, categoryId })}
+        onCreateCampaign={() => setCreatingCampaign(true)}
+        onInvite={() => setInviting(true)}
+      >
       <div className={styles.scroll}>
+        {/* Campanhas no topo, como canais: entrar abre a barra da campanha. */}
+        {campaigns.length > 0 && (
+          <div className={styles.campaignRows}>
+            {campaigns.map((c) => (
+              <div key={c.id} {...ctx("campaign", c.id)}>
+                <ChannelRow
+                  icon="dice"
+                  name={c.name}
+                  href={campaignAppHref(space.id, c.id)}
+                  linkAs={PendingLink}
+                  onClick={closeDrawer}
+                  meta={c.session ? `Sessão ${c.session.number}` : c.myRole === "mestre" ? "mestre" : undefined}
+                  metaTone={c.session ? "mesa" : "faint"}
+                />
+              </div>
+            ))}
+          </div>
+        )}
         <SidebarChannels
           spaceId={space.id}
           categories={categories}
           channels={channels}
           canManage={canManageChannels}
           renderRow={row}
-          categoryAction={(cat) => (canManageChannels ? addButton(cat.id, `Criar canal em ${cat.name}`) : undefined)}
         />
-        {canManageChannels && (
-          <button type="button" className={styles.addChannelRow} onClick={() => setCreatingIn({ open: true, categoryId: null })}>
-            <Icon name="plus" size={18} />
-            Criar canal
-          </button>
-        )}
-        <ChannelCategory name="Campanhas" action={canCreateCampaign ? addCampaignButton : undefined}>
-          {campaigns.length === 0 ? (
-            <p className={styles.note}>
-              Nenhuma campanha ainda.{" "}
-              {canCreateCampaign ? "Crie a primeira no + ao lado." : "Quem pode criar campanhas abre a primeira."}{" "}
-              <Link href={campaignHref("vel", "maldicao")} style={{ color: "var(--accent-text)" }}>
-                Veja a Mesa no protótipo
-              </Link>
-              .
-            </p>
-          ) : (
-            campaigns.map((c) => (
-              <ChannelRow
-                key={c.id}
-                icon="dice"
-                name={c.name}
-                active={activeCampaign === c.id}
-                href={campaignAppHref(space.id, c.id)}
-                linkAs={PendingLink}
-                onClick={closeDrawer}
-                meta={c.myRole === "mestre" ? "mestre" : c.myRole === "espectador" ? "assistindo" : undefined}
-              />
-            ))
-          )}
-        </ChannelCategory>
-        {canCreateCampaign && <CreateCampaignDialog spaceId={space.id} open={creatingCampaign} onOpenChange={setCreatingCampaign} />}
       </div>
+      </SidebarContextMenu>
+      {canCreateCampaign && <CreateCampaignDialog spaceId={space.id} open={creatingCampaign} onOpenChange={setCreatingCampaign} />}
     </div>
   );
 }

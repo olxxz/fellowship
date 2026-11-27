@@ -130,6 +130,30 @@ export interface Campaign {
   open_to_join: boolean;
   position: number;
   created_by: string | null;
+  /** Modelo de ficha próprio escolhido pelo mestre (null = o sistema pronto em `system`). */
+  template_id: string | null;
+  /** Cena atual da Mesa: nome e imagem de fundo. */
+  scene_name: string | null;
+  scene_url: string | null;
+}
+
+export interface CampaignSession {
+  id: string;
+  campaign_id: string;
+  number: number;
+  title: string | null;
+  started_at: string;
+  ended_at: string | null;
+}
+
+/** Modelo de ficha: parte de um sistema e muda atributos, perícias e seções. */
+export interface CustomSheetTemplate {
+  id: string;
+  owner_id: string;
+  name: string;
+  base: CampaignSystem;
+  config: Record<string, unknown>;
+  updated_at: string;
 }
 
 export interface CampaignMember {

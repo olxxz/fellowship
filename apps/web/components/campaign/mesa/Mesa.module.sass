@@ -1,0 +1,326 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.mesa
+  flex: 1
+  min-height: 0
+  display: grid
+  grid-template-columns: minmax(0, 1fr) 380px
+  grid-template-rows: minmax(0, 1fr) auto
+  grid-template-areas: "stage chat" "controls chat"
+  background: var(--bg-content)
+  @media (max-width: 1100px)
+    grid-template-columns: minmax(0, 1fr) 320px
+  @include mobile
+    display: flex
+    flex-direction: column
+
+.noChat
+  @include desktop
+    grid-template-columns: minmax(0, 1fr)
+    grid-template-areas: "stage" "controls"
+
+// Abas Mesa / Chat / Ficha: só no celular.
+.tabs
+  display: none
+  @include mobile
+    display: flex
+    gap: var(--space-1)
+    padding: var(--space-2) var(--space-3)
+    border-bottom: 1px solid var(--border)
+
+.tab
+  @include reset-interactive
+  flex: 1
+  min-height: 40px
+  border-radius: var(--radius-md)
+  @include text-label
+  color: var(--text-muted)
+  text-align: center
+  &[aria-pressed="true"]
+    background: var(--bg-raised)
+    color: var(--text)
+  &:focus-visible
+    @include focus-ring
+
+.stage
+  grid-area: stage
+  min-height: 0
+  overflow-y: auto
+  display: flex
+  flex-direction: column
+  gap: var(--space-4)
+  padding: var(--space-5)
+  @include mobile
+    flex: 1
+    padding: var(--space-4)
+
+.scene
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--space-3)
+  padding: var(--space-3) var(--space-4)
+  border: 1px solid var(--mesa-border)
+  border-radius: var(--radius-lg)
+  background: var(--mesa-surface)
+
+.sceneText
+  flex: 1
+  min-width: 160px
+  display: flex
+  flex-direction: column
+
+.sceneLabel
+  @include text-overline
+  text-transform: uppercase
+  color: var(--mesa-text)
+
+.sceneName
+  @include text-title
+
+.tools
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+
+.participants
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr))
+  gap: var(--space-3)
+  @include mobile
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+
+.portraits
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))
+  @include mobile
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+
+.simToggle
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  @include text-caption
+  color: var(--text-muted)
+  input
+    width: 16px
+    height: 16px
+    accent-color: var(--accent)
+
+.voiceStatus
+  @include text-caption
+  color: var(--text-muted)
+
+.voiceError
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  background: var(--danger-soft)
+  color: var(--text)
+
+.chat
+  grid-area: chat
+  min-height: 0
+  display: flex
+  flex-direction: column
+  border-left: 1px solid var(--border)
+  background: var(--bg-content)
+  --tab-accent: var(--mesa-gold)
+  @include mobile
+    flex: 1
+    border-left: none
+
+.chatTabs
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.chatPanel
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.sheetTab
+  display: none
+  @include mobile
+    flex: 1
+    min-height: 0
+    overflow-y: auto
+    padding: var(--space-4)
+
+.controls
+  grid-area: controls
+  display: flex
+  align-items: center
+  justify-content: center
+  flex-wrap: wrap
+  gap: var(--space-2)
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom))
+  border-top: 1px solid var(--border)
+  background: var(--bg-content)
+
+.leave
+  @include desktop
+    margin-left: var(--space-4)
+
+// Celular: só o painel da aba ativa aparece.
+@include mobile
+  .mesa[data-tab="mesa"] .chat, .mesa[data-tab="mesa"] .sheetTab
+    display: none
+  .mesa[data-tab="chat"] .stage, .mesa[data-tab="chat"] .sheetTab
+    display: none
+  .mesa[data-tab="ficha"] .stage, .mesa[data-tab="ficha"] .chat
+    display: none
+  .mesa[data-tab="ficha"] .sheetTab
+    display: block
+
+.hideMobile
+  @include mobile
+    display: none
+
+// ── App real: cena de fundo, dados 3D, bolhas do chat e escrever rápido ──
+.stage
+  position: relative
+  isolation: isolate
+
+// Imagem da cena atrás dos cards, escurecida para os cards continuarem legíveis.
+.backdrop
+  position: absolute
+  inset: 0
+  z-index: -1
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--bg-content) 55%, transparent), color-mix(in srgb, var(--bg-content) 88%, transparent)), var(--scene-image)
+  background-size: cover
+  background-position: center
+  pointer-events: none
+
+.sceneActions
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+
+.sceneForm
+  display: flex
+  flex-direction: column
+  gap: var(--space-3)
+  width: min(360px, 80vw)
+
+.sceneInput
+  min-height: 40px
+  padding: 0 var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  background: var(--bg-input, var(--bg-raised))
+  color: var(--text)
+  font: inherit
+  &:focus-visible
+    @include focus-ring
+
+.sessionBadge
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  @include text-caption
+  color: var(--mesa-text)
+  font-weight: 600
+
+.liveDot
+  width: 7px
+  height: 7px
+  border-radius: 50%
+  background: var(--mesa-gold)
+
+.diceStage
+  position: absolute
+  inset: 0
+  z-index: 5
+  pointer-events: none
+  opacity: 0
+  transition: opacity 300ms ease-out
+  &[data-visible]
+    opacity: 1
+  canvas
+    width: 100% !important
+    height: 100% !important
+  @include reduced-motion
+    transition: none
+
+// Bolhas do ingame sobre o palco quando o chat está fechado: aparecem e somem só com opacidade.
+.bubbles
+  position: absolute
+  left: var(--space-4)
+  bottom: var(--space-4)
+  z-index: 4
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: var(--space-2)
+  max-width: min(420px, calc(100% - 2 * var(--space-4)))
+  pointer-events: none
+
+.bubble
+  display: flex
+  flex-direction: column
+  gap: 2px
+  padding: var(--space-2) var(--space-3)
+  border: 1px solid var(--border)
+  border-left: 3px solid var(--player, var(--mesa-gold))
+  border-radius: var(--radius-lg)
+  background: color-mix(in srgb, var(--bg-content) 92%, transparent)
+  box-shadow: var(--shadow-popover)
+  animation: bubble-in 200ms ease-out both
+  &[data-leaving]
+    animation: bubble-out 400ms ease-in both
+  @include reduced-motion
+    animation: none
+
+.bubbleName
+  @include text-caption
+  font-weight: 600
+  color: var(--player, var(--mesa-text))
+
+.bubbleText
+  @include text-body
+  overflow-wrap: anywhere
+
+@keyframes bubble-in
+  from
+    opacity: 0
+  to
+    opacity: 1
+
+@keyframes bubble-out
+  from
+    opacity: 1
+  to
+    opacity: 0
+
+.quickWrite
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  input
+    width: min(320px, 50vw)
+    min-height: 40px
+    padding: 0 var(--space-3)
+    border: 1px solid var(--border)
+    border-radius: var(--radius-md)
+    background: var(--bg-raised)
+    color: var(--text)
+    font: inherit
+    &:focus-visible
+      @include focus-ring
+
+.sheetChoice
+  display: flex
+  flex-wrap: wrap
+  gap: var(--space-2)
+  margin-bottom: var(--space-4)
+
+.chatPanel > *
+  flex: 1
+  min-height: 0
+
+.emptyStage
+  @include text-body
+  color: var(--text-muted)

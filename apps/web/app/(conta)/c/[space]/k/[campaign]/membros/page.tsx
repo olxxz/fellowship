@@ -1,10 +1,13 @@
 import { CampaignMembers } from "@/components/campaign/CampaignMembers";
+import { ContentHeader } from "@/components/shell/ContentHeader";
 import { loadCampaign } from "@/lib/app/campaign-context";
 
 export default async function CampaignMembersPage({ params }: { params: Promise<{ space: string; campaign: string }> }) {
   const { space, campaign } = await params;
   const c = await loadCampaign(space, campaign, `/c/${space}/k/${campaign}/membros`);
   return (
+    <>
+    <ContentHeader icon="users" title="Membros" topic={c.campaign.name} />
     <CampaignMembers
       spaceId={space}
       campaignId={campaign}
@@ -14,5 +17,6 @@ export default async function CampaignMembersPage({ params }: { params: Promise<
       meId={c.profile.id}
       isMaster={c.isMaster}
     />
+    </>
   );
 }

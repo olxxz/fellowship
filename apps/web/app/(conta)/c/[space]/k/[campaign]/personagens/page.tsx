@@ -1,10 +1,13 @@
 import { CharacterList } from "@/components/campaign/CharacterList";
+import { ContentHeader } from "@/components/shell/ContentHeader";
 import { loadCampaign } from "@/lib/app/campaign-context";
 
 export default async function CharactersPage({ params }: { params: Promise<{ space: string; campaign: string }> }) {
   const { space, campaign } = await params;
   const c = await loadCampaign(space, campaign, `/c/${space}/k/${campaign}/personagens`);
   return (
+    <>
+    <ContentHeader icon="sheet" title="Fichas" topic={`${c.campaign.name} · ${c.model.name}`} />
     <CharacterList
       spaceId={space}
       campaign={c.campaign}
@@ -13,6 +16,8 @@ export default async function CharactersPage({ params }: { params: Promise<{ spa
       isMaster={c.isMaster}
       canCreate={c.myRole === "mestre" || c.myRole === "jogador"}
       meId={c.profile.id}
+      model={c.model}
     />
+    </>
   );
 }
