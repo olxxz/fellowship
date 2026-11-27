@@ -1,5 +1,6 @@
 import "server-only";
-import type { Category, Channel, DirectMessage, Message, Profile, Role, Space } from "@fellowship/db";
+import type { Category, Channel, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
+import { CHANNEL_COLUMNS, DM_COLUMNS, toChatMsg, type ChatMsg } from "@/lib/chat/source";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
@@ -59,13 +60,23 @@ export const getSpaceView = cache(async (supabase: SupabaseClient, spaceId: stri
 });
 
 export async function getChannelMessages(supabase: SupabaseClient, channelId: string, limit = 60) {
-  const { data } = await supabase
-    .from("messages")
-    .select("id, space_id, channel_id, author_id, scope, kind, content, created_at")
-    .eq("channel_id", channelId)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  return ((data ?? []) as Message[]).reverse();
+  const { data } = await supabase.from("messages").select(CHANNEL_COLUMNS).eq("channel_id", channelId).order("created_at", { ascending: false }).limit(limit);
+  return ((data ?? []) as unknown as ChatMsg[]).map(toChatMsg).reverse();
+}
+
+/** Reações das mensagens carregadas (canal ou conversa direta). */
+export async function getReactions(supabase: SupabaseClient, table: "message_reactions" | "direct_reactions", ids: string[]) {
+  if (!ids.length) return [];
+  const { data } = await supabase.from(table).select("message_id, user_id, emoji").in("message_id", ids);
+  return (data ?? []) as Reaction[];
+}
+
+/** Figurinhas: de um Cenário, ou de todos os Cenários da conta (nas conversas diretas). */
+export async function getStickers(supabase: SupabaseClient, spaceId?: string) {
+  let q = supabase.from("stickers").select("id, space_id, name, url").order("created_at");
+  if (spaceId) q = q.eq("space_id", spaceId);
+  const { data } = await q;
+  return (data ?? []) as Sticker[];
 }
 
 export async function getChannelPermissions(supabase: SupabaseClient, channelId: string) {
@@ -105,10 +116,25 @@ export async function getDirectMessages(supabase: SupabaseClient, me: string, ot
   const [a, b] = dmPair(me, other);
   const { data } = await supabase
     .from("direct_messages")
-    .select("id, user_a, user_b, author_id, content, created_at")
+    .select(DM_COLUMNS)
     .eq("user_a", a)
     .eq("user_b", b)
     .order("created_at", { ascending: false })
     .limit(limit);
-  return ((data ?? []) as DirectMessage[]).reverse();
+  return ((data ?? []) as unknown as ChatMsg[]).map(toChatMsg).reverse();
+}
+
+export const getSpaceUnread = cache(async (supabase: SupabaseClient) => {
+  const { data } = await supabase.rpc("space_unread");
+  return Object.fromEntries(((data ?? []) as { space_id: string; unread: number; mentions: number }[]).map((r) => [r.space_id, { unread: r.unread, mentions: r.mentions }]));
+});
+
+export async function getChannelUnread(supabase: SupabaseClient, spaceId: string) {
+  const { data } = await supabase.rpc("channel_unread", { p_space: spaceId });
+  return Object.fromEntries(((data ?? []) as { channel_id: string; unread: number; mentions: number }[]).map((r) => [r.channel_id, { unread: r.unread, mentions: r.mentions }]));
+}
+
+export async function getDirectUnread(supabase: SupabaseClient) {
+  const { data } = await supabase.rpc("direct_unread");
+  return Object.fromEntries(((data ?? []) as { other_id: string; unread: number }[]).map((r) => [r.other_id, r.unread]));
 }

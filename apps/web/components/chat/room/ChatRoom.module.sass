@@ -1,0 +1,540 @@
+@use "@fellowship/ui/styles/mixins" as *
+@use "@fellowship/ui/styles/typography" as *
+
+.chat
+  position: relative
+  flex: 1
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.log
+  flex: 1
+  min-height: 0
+  overflow-y: auto
+  margin: 0
+  padding: var(--space-2) 0 var(--space-4)
+  list-style: none
+  overscroll-behavior: contain
+
+.intro
+  display: flex
+  flex-direction: column
+  gap: var(--space-1)
+  padding: var(--space-6) var(--space-5) var(--space-2)
+
+.introTitle
+  @include text-display
+
+.introText
+  color: var(--text-muted)
+
+// ── Mensagem ──
+.item
+  position: relative
+  &:hover, &:focus-within
+    background: color-mix(in srgb, var(--bg-raised) 35%, transparent)
+  &:hover .toolbar, &:focus-within .toolbar
+    opacity: 1
+    pointer-events: auto
+
+.itemMention
+  background: color-mix(in srgb, var(--mesa-gold) 10%, transparent)
+  box-shadow: inset 3px 0 0 var(--mesa-gold)
+  &:hover, &:focus-within
+    background: color-mix(in srgb, var(--mesa-gold) 14%, transparent)
+
+.flash
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important
+  transition: background 600ms ease-out
+
+.text
+  white-space: pre-wrap
+  overflow-wrap: anywhere
+
+.edited
+  @include text-caption
+  color: var(--text-faint)
+
+.link
+  color: var(--accent-text)
+  overflow-wrap: anywhere
+
+.mention
+  padding: 0 3px
+  border-radius: var(--radius-sm)
+  background: color-mix(in srgb, var(--accent) 16%, transparent)
+  color: var(--accent-text)
+  font-weight: 600
+
+.mentionMe
+  background: color-mix(in srgb, var(--mesa-gold) 28%, transparent)
+  color: var(--text)
+
+.replyQuote
+  @include reset-interactive
+  display: flex
+  align-items: center
+  gap: 6px
+  max-width: 100%
+  padding: var(--space-2) var(--space-5) 0 calc(var(--space-5) + var(--size-avatar) + var(--space-3))
+  @include text-caption
+  color: var(--text-muted)
+  cursor: pointer
+  span
+    @include truncate
+    min-width: 0
+  strong
+    color: var(--text)
+    flex-shrink: 0
+  @include mobile
+    padding-left: var(--space-5)
+
+.sticker
+  display: block
+  width: 160px
+  height: 160px
+  object-fit: contain
+
+// Barra de ações ao passar o mouse (no toque, ao tocar na mensagem).
+.toolbar
+  position: absolute
+  top: -14px
+  right: var(--space-4)
+  z-index: 2
+  display: flex
+  gap: 2px
+  padding: 2px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  background: var(--bg-content)
+  box-shadow: var(--shadow-popover)
+  opacity: 0
+  pointer-events: none
+  transition: opacity 100ms ease-out
+  @media (hover: none)
+    .item:not(:focus-within) &
+      display: none
+
+.toolButton
+  @include reset-interactive
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 4px
+  min-width: 32px
+  height: 32px
+  padding: 0 6px
+  border-radius: var(--radius-sm)
+  color: var(--text-muted)
+  @include text-caption
+  font-weight: 600
+  flex-shrink: 0
+  &:hover
+    background: var(--bg-raised)
+    color: var(--text)
+  &:focus-visible
+    @include focus-ring
+
+.toolDanger
+  color: var(--danger)
+
+// ── Reações ──
+.reactions
+  display: flex
+  flex-wrap: wrap
+  gap: 4px
+  margin-top: var(--space-1)
+
+.reaction
+  @include reset-interactive
+  display: inline-flex
+  align-items: center
+  gap: 4px
+  min-height: 28px
+  padding: 0 8px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  font-size: 15px
+  &:hover
+    border-color: var(--border-strong)
+  &:focus-visible
+    @include focus-ring
+
+.reactionMine
+  border-color: var(--accent)
+  background: color-mix(in srgb, var(--accent) 14%, transparent)
+
+.reactionCount
+  @include text-caption
+  font-weight: 600
+  color: var(--text)
+
+.quickReactions
+  display: flex
+  align-items: center
+  gap: 2px
+
+// ── Emoji ──
+.emojiPanel
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  width: min(320px, 80vw)
+  max-height: 300px
+  overflow-y: auto
+
+.emojiGroup
+  @include text-overline
+  text-transform: uppercase
+  color: var(--text-faint)
+  margin-bottom: 4px
+
+.emojiGrid
+  display: grid
+  grid-template-columns: repeat(8, 1fr)
+
+.emojiCell
+  @include reset-interactive
+  display: grid
+  place-items: center
+  height: 36px
+  border-radius: var(--radius-sm)
+  font-size: 20px
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+
+// ── Anexos ──
+.attachments
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  margin-top: var(--space-1)
+
+.imageSingle, .imageGrid
+  display: grid
+  gap: 4px
+  max-width: min(480px, 100%)
+
+.imageGrid
+  grid-template-columns: repeat(2, 1fr)
+
+.imageButton
+  @include reset-interactive
+  display: block
+  overflow: hidden
+  border-radius: var(--radius-md)
+  background: var(--bg-raised)
+  cursor: zoom-in
+  img
+    display: block
+    width: 100%
+    height: auto
+    max-height: 360px
+    object-fit: cover
+  &:focus-visible
+    @include focus-ring
+
+.imageGrid .imageButton img
+  aspect-ratio: 1
+  height: 100%
+
+.imagePlaceholder
+  display: block
+  width: 100%
+  min-height: 120px
+
+.fileCard
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  max-width: 380px
+  padding: var(--space-2) var(--space-3)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  background: var(--bg-sidebar)
+  color: var(--text)
+  text-decoration: none
+  &:hover
+    border-color: var(--border-strong)
+
+.fileText
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+
+.fileName
+  @include text-body-sm
+  font-weight: 600
+  @include truncate
+
+.fileSize
+  @include text-caption
+  color: var(--text-muted)
+
+.lightbox
+  display: flex
+  flex-direction: column
+  gap: var(--space-2)
+  img
+    max-width: 100%
+    max-height: 70dvh
+    object-fit: contain
+    border-radius: var(--radius-md)
+  a
+    color: var(--accent-text)
+    @include text-body-sm
+
+// ── Prévia de link ──
+.preview
+  display: flex
+  gap: var(--space-3)
+  max-width: 480px
+  margin-top: var(--space-1)
+  padding: var(--space-3)
+  border-left: 4px solid var(--player-color, var(--accent))
+  border-radius: var(--radius-md)
+  background: var(--bg-sidebar)
+  color: var(--text)
+  text-decoration: none
+
+.previewText
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.previewSite
+  @include text-caption
+  color: var(--text-muted)
+
+.previewTitle
+  @include text-body-sm
+  font-weight: 600
+  color: var(--accent-text)
+
+.previewDesc
+  @include text-caption
+  color: var(--text-muted)
+  display: -webkit-box
+  -webkit-line-clamp: 3
+  -webkit-box-orient: vertical
+  overflow: hidden
+
+.previewImage
+  width: 80px
+  height: 80px
+  flex-shrink: 0
+  object-fit: cover
+  border-radius: var(--radius-sm)
+
+// ── Editar ──
+.editBox
+  display: flex
+  flex-direction: column
+  gap: 4px
+  margin-top: 2px
+
+.editInput
+  width: 100%
+  min-height: 44px
+  padding: 10px var(--space-3)
+  border: 1px solid var(--focus-ring)
+  border-radius: var(--radius-md)
+  background: var(--bg-input)
+  color: var(--text)
+  @include text-body
+  resize: none
+
+.editHint
+  @include text-caption
+  color: var(--text-muted)
+
+// ── Campo de escrever ──
+.composer
+  padding: 0 var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom))
+
+.replyBar
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  padding: 2px var(--space-1) 2px var(--space-3)
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0
+  background: var(--bg-raised)
+  @include text-caption
+  color: var(--text-muted)
+  span
+    flex: 1
+    min-width: 0
+    @include truncate
+  strong
+    color: var(--text)
+
+.tray
+  display: flex
+  gap: var(--space-2)
+  overflow-x: auto
+  margin: 0 0 var(--space-2)
+  padding: 0
+  list-style: none
+
+.trayItem
+  position: relative
+  flex-shrink: 0
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 2px
+  width: 120px
+  height: 120px
+  padding: var(--space-2)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  background: var(--bg-sidebar)
+  img
+    width: 100%
+    height: 70px
+    object-fit: cover
+    border-radius: var(--radius-sm)
+
+.trayName
+  max-width: 100%
+  @include text-caption
+  @include truncate
+
+.trayRemove
+  @include reset-interactive
+  position: absolute
+  top: 4px
+  right: 4px
+  display: grid
+  place-items: center
+  width: 24px
+  height: 24px
+  border-radius: var(--radius-full)
+  background: var(--bg-content)
+  color: var(--text)
+  box-shadow: var(--shadow-popover)
+
+.box
+  display: flex
+  align-items: flex-end
+  gap: 2px
+  padding: var(--space-1)
+  border: 1px solid transparent
+  border-radius: var(--radius-lg)
+  background: var(--bg-input)
+  &:focus-within
+    border-color: var(--focus-ring)
+  > .toolButton
+    height: var(--size-touch)
+
+.boxDragging
+  border-color: var(--accent)
+  border-style: dashed
+
+.inputWrap
+  position: relative
+  flex: 1
+  min-width: 0
+  display: flex
+
+.input
+  flex: 1
+  min-width: 0
+  min-height: var(--size-touch)
+  max-height: 160px
+  padding: 11px var(--space-2)
+  border: none
+  background: none
+  color: var(--text)
+  @include text-body
+  resize: none
+  outline: none
+  &::placeholder
+    color: var(--text-muted)
+
+.mentionList
+  position: absolute
+  left: 0
+  right: 0
+  bottom: calc(100% + 8px)
+  z-index: 3
+  margin: 0
+  padding: 4px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-md)
+  background: var(--bg-content)
+  box-shadow: var(--shadow-popover)
+  list-style: none
+  button
+    @include reset-interactive
+    display: flex
+    align-items: center
+    gap: var(--space-2)
+    width: 100%
+    min-height: 40px
+    padding: 0 var(--space-2)
+    border-radius: var(--radius-sm)
+    @include text-body-sm
+  li[aria-selected="true"] button, button:hover
+    background: var(--bg-raised)
+
+.stickerGrid
+  display: grid
+  grid-template-columns: repeat(4, 72px)
+  gap: 4px
+  max-height: 260px
+  overflow-y: auto
+
+.stickerCell
+  @include reset-interactive
+  width: 72px
+  height: 72px
+  padding: 4px
+  border-radius: var(--radius-md)
+  img
+    width: 100%
+    height: 100%
+    object-fit: contain
+  &:hover
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+
+.hint, .error, .readOnly
+  margin-top: var(--space-1)
+  padding: 0 var(--space-2)
+  @include text-caption
+  color: var(--text-muted)
+
+.error
+  color: var(--danger)
+
+.readOnly
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: var(--size-touch)
+  margin: 0
+  padding: 0 var(--space-3)
+  border-radius: var(--radius-lg)
+  background: var(--bg-raised)
+
+.floatingError
+  position: absolute
+  left: 50%
+  bottom: 110px
+  z-index: 4
+  transform: translateX(-50%)
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  background: var(--danger-soft)
+  @include text-body-sm
+  cursor: pointer

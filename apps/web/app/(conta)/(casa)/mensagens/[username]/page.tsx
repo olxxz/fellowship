@@ -3,7 +3,8 @@ import type { ProfileCard } from "@fellowship/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { DirectChat } from "@/components/account/DirectChat";
+import { ChatRoom } from "@/components/chat/room/ChatRoom";
+import { dmPair, getReactions, getStickers } from "@/lib/app/queries";
 import channelStyles from "@/components/channel/Channel.module.sass";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ContentHeader } from "@/components/shell/ContentHeader";
@@ -23,7 +24,10 @@ export default async function DirectPage({ params }: { params: Params }) {
   const other = (Array.isArray(data) ? data[0] : null) as ProfileCard | null;
   if (!other) notFound();
   if (other.friendship === "voce") redirect(myProfileHref);
-  const messages = other.friendship === "amigos" ? await getDirectMessages(supabase, profile.id, other.id) : [];
+  const friends = other.friendship === "amigos";
+  const [messages, stickers] = await Promise.all([friends ? getDirectMessages(supabase, profile.id, other.id) : [], friends ? getStickers(supabase) : []]);
+  const reactions = await getReactions(supabase, "direct_reactions", messages.map((m) => m.id));
+  const [userA, userB] = dmPair(profile.id, other.id);
 
   return (
     <>
@@ -31,7 +35,18 @@ export default async function DirectPage({ params }: { params: Params }) {
       <div className={channelStyles.body}>
         <main className={channelStyles.main}>
           {other.friendship === "amigos" ? (
-            <DirectChat key={other.id} me={profile} other={other} initialMessages={messages} />
+            <ChatRoom
+              key={other.id}
+              source={{ type: "dm", userA, userB, name: other.display_name }}
+              me={profile}
+              authors={{ [other.id]: other }}
+              initialMessages={messages}
+              initialReactions={reactions}
+              stickers={stickers}
+              canSend
+              canManage={false}
+              intro={{ title: other.display_name, text: `O começo da conversa com ${other.display_name}.` }}
+            />
           ) : (
             <EmptyState
               icon="users"

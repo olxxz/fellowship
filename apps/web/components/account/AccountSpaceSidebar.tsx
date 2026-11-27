@@ -15,6 +15,7 @@ import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
 import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
+import { useChannelUnread } from "./useChannelUnread";
 
 /** Barra do Cenário real: só os canais que a conta pode ver (o banco já filtra pelo RLS). */
 export function AccountSpaceSidebar({
@@ -22,11 +23,15 @@ export function AccountSpaceSidebar({
   categories,
   channels,
   permissions,
+  meId,
+  initialUnread,
 }: {
   space: Space;
   categories: Category[];
   channels: Channel[];
   permissions: number;
+  meId: string;
+  initialUnread: Record<string, { unread: number; mentions: number }>;
 }) {
   const { channel: activeId } = useParams<{ channel?: string }>();
   const { closeDrawer } = useShell();
@@ -44,6 +49,7 @@ export function AccountSpaceSidebar({
   );
 
   const voice = useVoice();
+  const unread = useChannelUnread(space.id, meId, activeId, initialUnread);
   const presence = useSpaceVoicePresence(space.id, voice.enabled);
 
   const row = (c: Channel) => {
@@ -54,6 +60,8 @@ export function AccountSpaceSidebar({
         icon={channelIcon(c)}
         name={c.name}
         active={c.id === activeId}
+        unread={!isVoice && c.id !== activeId && (unread[c.id]?.unread ?? 0) > 0}
+        meta={!isVoice && c.id !== activeId && unread[c.id]?.mentions ? <span className={styles.mentionBadge}>{unread[c.id]!.mentions}</span> : undefined}
         href={appSpaceHref(space.id, c.id)}
         linkAs={PendingLink}
         onClick={(e) => {

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AccountChannelView } from "@/components/account/AccountChannelView";
 import { isChatChannel } from "@/lib/app/channels";
-import { getChannelMessages, getChannelPermissions, getSpaceView, requireAccount } from "@/lib/app/queries";
+import { getChannelMessages, getChannelPermissions, getReactions, getSpaceView, getStickers, requireAccount } from "@/lib/app/queries";
 
 type Params = Promise<{ space: string; channel: string }>;
 
@@ -23,7 +23,12 @@ export default async function ChannelPage({ params }: { params: Params }) {
   if (!channel) notFound();
 
   const chat = isChatChannel(channel.kind);
-  const [messages, perms] = await Promise.all([chat ? getChannelMessages(supabase, channelId) : [], getChannelPermissions(supabase, channelId)]);
+  const [messages, perms, stickers] = await Promise.all([
+    chat ? getChannelMessages(supabase, channelId) : [],
+    getChannelPermissions(supabase, channelId),
+    chat ? getStickers(supabase, spaceId) : [],
+  ]);
+  const reactions = await getReactions(supabase, "message_reactions", messages.map((m) => m.id));
   const canSend = (perms & Permission.SEND_MESSAGES) !== 0 && (channel.kind !== "anuncios" || (perms & Permission.PUBLISH_ANNOUNCEMENTS) !== 0);
 
   return (
@@ -33,6 +38,9 @@ export default async function ChannelPage({ params }: { params: Params }) {
       roles={view.roles}
       members={view.members}
       initialMessages={messages}
+      initialReactions={reactions}
+      stickers={stickers}
+      canManage={(perms & Permission.MANAGE_MESSAGES) !== 0}
       me={profile}
       canSend={canSend}
       readOnlyReason={channel.kind === "anuncios" ? "Só quem pode publicar anúncios escreve aqui." : "Seu cargo ainda não pode escrever neste canal."}

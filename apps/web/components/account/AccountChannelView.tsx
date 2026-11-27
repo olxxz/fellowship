@@ -1,6 +1,6 @@
 "use client";
 
-import type { Channel, Message, Profile, Role, Space } from "@fellowship/db";
+import type { Channel, Profile, Reaction, Role, Space, Sticker } from "@fellowship/db";
 import { useMemo } from "react";
 import styles from "@/components/channel/Channel.module.sass";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -8,7 +8,8 @@ import { ContentHeader, MembersToggle } from "@/components/shell/ContentHeader";
 import { MembersList, type MemberEntry } from "@/components/shell/MembersList";
 import { channelIcon, isChatChannel } from "@/lib/app/channels";
 import type { SpaceMemberView } from "@/lib/app/queries";
-import { LiveChat } from "./LiveChat";
+import { ChatRoom } from "@/components/chat/room/ChatRoom";
+import type { ChatAuthor, ChatMsg } from "@/lib/chat/source";
 import { VoiceRoom } from "./VoiceRoom";
 
 const PLACEHOLDER = {
@@ -35,14 +36,17 @@ export interface AccountChannelViewProps {
   channel: Channel;
   roles: Role[];
   members: SpaceMemberView[];
-  initialMessages: Message[];
-  me: Pick<Profile, "id" | "display_name" | "avatar_url" | "color">;
+  initialMessages: ChatMsg[];
+  initialReactions: Reaction[];
+  stickers: Sticker[];
+  canManage: boolean;
+  me: Pick<Profile, "id" | "display_name" | "username" | "avatar_url" | "color">;
   canSend: boolean;
   readOnlyReason: string;
 }
 
-export function AccountChannelView({ space, channel, roles, members, initialMessages, me, canSend, readOnlyReason }: AccountChannelViewProps) {
-  const authors = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.profile])), [members]);
+export function AccountChannelView({ space, channel, roles, members, initialMessages, initialReactions, stickers, canManage, me, canSend, readOnlyReason }: AccountChannelViewProps) {
+  const authors = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.profile])) as Record<string, ChatAuthor>, [members]);
   const groups = useMemo(() => memberGroups(space, roles, members), [space, roles, members]);
 
   return (
@@ -51,7 +55,19 @@ export function AccountChannelView({ space, channel, roles, members, initialMess
       <div className={styles.body}>
         <main className={styles.main}>
           {isChatChannel(channel.kind) ? (
-            <LiveChat key={channel.id} channel={channel} initialMessages={initialMessages} authors={authors} me={me} canSend={canSend} readOnlyReason={readOnlyReason} />
+            <ChatRoom
+              key={channel.id}
+              source={{ type: "channel", id: channel.id, spaceId: space.id, name: channel.name, topic: channel.topic }}
+              me={me}
+              authors={authors}
+              initialMessages={initialMessages}
+              initialReactions={initialReactions}
+              stickers={stickers}
+              canSend={canSend}
+              canManage={canManage}
+              readOnlyReason={readOnlyReason}
+              intro={{ title: channel.name, text: channel.topic ?? `O começo do canal ${channel.name}.` }}
+            />
           ) : channel.kind === "voz" || channel.kind === "voz_dinamica" ? (
             <VoiceRoom channel={channel} profiles={authors} />
           ) : (

@@ -102,3 +102,24 @@
     @include focus-ring
   &:disabled
     cursor: not-allowed
+
+// Não lidas: o indicador da esquerda vira um ponto; menções ganham um selo com o número.
+.unread::before
+  height: 8px
+
+.badge
+  position: absolute
+  right: -4px
+  bottom: -4px
+  min-width: 20px
+  height: 20px
+  padding: 0 5px
+  border: 3px solid var(--bg-rail)
+  border-radius: var(--radius-full)
+  background: var(--danger)
+  color: #fff
+  font-family: var(--font-body)
+  font-size: 11px
+  font-weight: 700
+  line-height: 14px
+  text-align: center

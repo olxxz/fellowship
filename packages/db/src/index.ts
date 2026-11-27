@@ -47,6 +47,9 @@ export interface DirectMessage {
   author_id: string;
   content: string;
   created_at: string;
+  kind?: "texto" | "figurinha";
+  edited_at?: string | null;
+  reply_to?: string | null;
   attachments?: Attachment[];
 }
 
@@ -115,10 +118,27 @@ export interface Message {
   channel_id: string;
   author_id: string;
   scope: "ingame" | "outgame";
-  kind: "texto" | "rolagem" | "sistema";
+  kind: "texto" | "rolagem" | "sistema" | "figurinha";
   content: string;
   created_at: string;
+  edited_at?: string | null;
+  reply_to?: string | null;
+  mentions?: string[];
   attachments?: Attachment[];
+}
+
+export interface Reaction {
+  message_id: string;
+  user_id: string;
+  emoji: string;
+}
+
+/** Figurinha do Cenário (imagem pública no bucket "cenarios"). */
+export interface Sticker {
+  id: string;
+  space_id: string;
+  name: string;
+  url: string;
 }
 
 export type ChannelTemplate = "padrao" | "vazio";

@@ -1,6 +1,8 @@
 "use client";
 
 import { Avatar, ChannelCategory, ChannelRow, cx } from "@fellowship/ui";
+import { useCallback, useEffect, useState } from "react";
+import { getBrowserClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PendingLink } from "@/components/nav/PendingLink";
@@ -17,7 +19,22 @@ export interface SidebarFriend {
 }
 
 /** Barra do Início: área pessoal, Explorar, amigos e as conversas diretas. */
-export function AccountHomeSidebar({ friends, incoming }: { friends: SidebarFriend[]; incoming: number }) {
+export function AccountHomeSidebar({ friends, incoming, initialUnread }: { friends: SidebarFriend[]; incoming: number; initialUnread: Record<string, number> }) {
+  const [unread, setUnread] = useState(initialUnread);
+  const load = useCallback(async () => {
+    const { data } = await getBrowserClient().rpc("direct_unread");
+    if (data) setUnread(Object.fromEntries((data as { other_id: string; unread: number }[]).map((r) => [r.other_id, r.unread])));
+  }, []);
+  // Conversas diretas: atualiza a cada 15 s, ao voltar para a aba e ao ler uma conversa.
+  useEffect(() => {
+    const t = setInterval(() => document.visibilityState === "visible" && void load(), 15_000);
+    const onRead = () => setTimeout(() => void load(), 400);
+    window.addEventListener("fellowship:read", onRead);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("fellowship:read", onRead);
+    };
+  }, [load]);
   const path = usePathname();
   const { closeDrawer } = useShell();
   return (
@@ -47,9 +64,10 @@ export function AccountHomeSidebar({ friends, incoming }: { friends: SidebarFrie
             friends.map((f) => {
               const href = dmHref(f.username);
               return (
-                <PendingLink key={f.id} href={href} className={cx(styles.dmRow, path === href && styles.dmRowActive)} aria-current={path === href ? "page" : undefined} onClick={closeDrawer}>
+                <PendingLink key={f.id} href={href} className={cx(styles.dmRow, path === href && styles.dmRowActive, path !== href && (unread[f.id] ?? 0) > 0 && styles.dmRowUnread)} aria-current={path === href ? "page" : undefined} onClick={closeDrawer}>
                   <Avatar name={f.display_name} src={f.avatar_url ?? undefined} color={f.color} size={28} />
                   <span className={styles.dmName}>{f.display_name}</span>
+                  {path !== href && (unread[f.id] ?? 0) > 0 && <span className={styles.mentionBadge}>{unread[f.id]}</span>}
                 </PendingLink>
               );
             })

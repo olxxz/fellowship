@@ -12,6 +12,10 @@ export interface RailSpace {
   color: AccentColor;
   href: string;
   iconUrl?: string | null;
+  /** Há mensagens não lidas. */
+  unread?: boolean;
+  /** Menções a você ainda não lidas. */
+  mentions?: number;
 }
 
 export interface RailProps {
@@ -40,17 +44,22 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
         {spaces.map((space) => {
           const active = space.id === activeSpaceId;
           return (
-            <li key={space.id} className={cx(styles.item, active && styles.active)}>
+            <li key={space.id} className={cx(styles.item, active && styles.active, !active && space.unread && styles.unread)}>
               <PendingIconLink
                 href={space.href}
                 className={styles.icon}
                 style={playerColorStyle(space.color, space.iconUrl ? { backgroundImage: `url("${space.iconUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined)}
-                aria-label={space.name}
+                aria-label={`${space.name}${space.mentions ? `, ${space.mentions} ${space.mentions === 1 ? "menção" : "menções"}` : space.unread ? ", mensagens não lidas" : ""}`}
                 aria-current={active ? "page" : undefined}
                 title={space.name}
                 onClick={closeDrawer}
               >
                 {!space.iconUrl && space.short}
+                {!active && !!space.mentions && (
+                  <span className={styles.badge} aria-hidden="true">
+                    {space.mentions > 99 ? "99+" : space.mentions}
+                  </span>
+                )}
               </PendingIconLink>
             </li>
           );

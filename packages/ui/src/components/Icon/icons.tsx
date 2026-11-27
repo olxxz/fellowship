@@ -141,6 +141,20 @@ export const icons = {
     </>
   ),
   send: <path d="M4 12 20 4l-4 16-4-7zM12 13l8-9" />,
+  reply: <path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 6 6v5" />,
+  trash: (
+    <>
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+    </>
+  ),
+  pencil: <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM13.5 6.5l4 4" />,
+  smile: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 14a4 4 0 0 0 7 0M9 9.5h.01M15 9.5h.01" />
+    </>
+  ),
+  paperclip: <path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L14.5 7" />,
   screen: (
     <>
       <rect x="3" y="4" width="18" height="12" rx="2" />
