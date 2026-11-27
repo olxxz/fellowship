@@ -39,7 +39,7 @@ export default async function ContaPage() {
                 </ButtonLink>
               )}
               <form action="/auth/sair" method="post">
-                <Button type="submit" variant="danger" icon="leave">
+                <Button type="submit" variant="danger" icon="doorOpen">
                   Sair da conta
                 </Button>
               </form>

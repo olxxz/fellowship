@@ -38,11 +38,11 @@ export function DangerZone({ spaceId, spaceName, isOwner }: { spaceId: string; s
         <>
           <p className={styles.help}>Você sai do Cenário e deixa de ver os canais. Para voltar, precisa de um convite (ou, se for público, de Explorar).</p>
           {confirm ? (
-            <Button variant="danger" icon="leave" loading={pending} onClick={() => run(() => leaveSpaceAction(spaceId))}>
+            <Button variant="danger" icon="doorOpen" loading={pending} onClick={() => run(() => leaveSpaceAction(spaceId))}>
               Sair mesmo
             </Button>
           ) : (
-            <Button variant="danger" icon="leave" onClick={() => setConfirm(true)}>
+            <Button variant="danger" icon="doorOpen" onClick={() => setConfirm(true)}>
               Sair do Cenário
             </Button>
           )}

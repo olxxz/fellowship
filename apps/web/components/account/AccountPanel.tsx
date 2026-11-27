@@ -102,7 +102,7 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
               </Menu.LinkItem>
             </Menu.Group>
             <Menu.Separator />
-            <Menu.Item icon="leave" tone="danger" onClick={() => logout.current?.requestSubmit()}>
+            <Menu.Item icon="doorOpen" tone="danger" onClick={() => logout.current?.requestSubmit()}>
               Sair da conta
             </Menu.Item>
           </Menu.Popup>

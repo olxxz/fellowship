@@ -141,6 +141,13 @@ export const icons = {
     </>
   ),
   send: <path d="M4 12 20 4l-4 16-4-7zM12 13l8-9" />,
+  // Porta aberta (lucide door-open): sair da conta, sair do Cenário.
+  doorOpen: (
+    <>
+      <path d="M11 20H2M11 4.6v16.3a1 1 0 0 0 1.2 1l6-1.3a1 1 0 0 0 .8-1V5.6a2 2 0 0 0-1.6-2L12.4 2.6A1 1 0 0 0 11 3.6z" />
+      <path d="M11 4H8a2 2 0 0 0-2 2v14M14 12h.01M22 20h-3" />
+    </>
+  ),
   sun: (
     <>
       <circle cx="12" cy="12" r="4" />

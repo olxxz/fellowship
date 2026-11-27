@@ -87,7 +87,7 @@ export function SpaceMenu({
       ...(has(Permission.MANAGE_ROLES) || has(Permission.KICK_MEMBERS) ? ([{ icon: "users", label: "Membros", onSelect: settings("membros") }] as Item[]) : []),
       ...(has(Permission.MANAGE_THEME) ? ([{ icon: "gallery", label: "Figurinhas", onSelect: settings("figurinhas") }] as Item[]) : []),
     ],
-    isOwner ? [] : ([{ icon: "leave", label: "Sair do Cenário", danger: true, onSelect: settings("sair") }] as Item[]),
+    isOwner ? [] : ([{ icon: "doorOpen", label: "Sair do Cenário", danger: true, onSelect: settings("sair") }] as Item[]),
   ].filter((g) => g.length);
 
   return (
