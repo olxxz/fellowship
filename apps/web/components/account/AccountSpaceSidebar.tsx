@@ -1,12 +1,12 @@
 "use client";
 
-import { Button, ChannelCategory, ChannelRow, Icon, IconButton, playerColorStyle } from "@fellowship/ui";
+import { ChannelCategory, ChannelRow, Icon, playerColorStyle } from "@fellowship/ui";
 import { Permission } from "@fellowship/core";
 import type { Category, Channel, Space } from "@fellowship/db";
 import Link from "next/link";
 import { PendingLink } from "@/components/nav/PendingLink";
-import { useParams, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import { useShell } from "@/components/shell/ShellContext";
 import styles from "@/components/shell/Sidebar.module.sass";
 import { channelIcon } from "@/lib/app/channels";
@@ -14,6 +14,7 @@ import { appSpaceHref, campaignHref } from "@/lib/routes";
 import { CreateChannelDialog } from "./CreateChannelDialog";
 import { InviteDialog } from "./InviteDialog";
 import { SidebarChannels } from "./SidebarChannels";
+import { SpaceMenu } from "./SpaceMenu";
 import { useSpaceVoicePresence, VoicePeople } from "./VoicePeople";
 import { useVoice } from "@/lib/livekit/VoiceProvider";
 import { useChannelUnread } from "./useChannelUnread";
@@ -36,12 +37,9 @@ export function AccountSpaceSidebar({
 }) {
   const { channel: activeId } = useParams<{ channel?: string }>();
   const { closeDrawer } = useShell();
-  const router = useRouter();
   const [inviting, setInviting] = useState(false);
-  const [openingSettings, startSettings] = useTransition();
+  const [menuOpen, setMenuOpen] = useState(false);
   const canInvite = (permissions & Permission.CREATE_INVITES) !== 0;
-  // Todo membro abre as configurações (ao menos para sair do Cenário); o que aparece depende das permissões.
-  const canManage = true;
   const canManageChannels = (permissions & Permission.MANAGE_CHANNELS) !== 0;
   const [creatingIn, setCreatingIn] = useState<{ open: boolean; categoryId: string | null }>({ open: false, categoryId: null });
   const addButton = (categoryId: string | null, label: string) => (
@@ -89,27 +87,31 @@ export function AccountSpaceSidebar({
 
   return (
     <div className={styles.sidebar}>
-      <header className={`${styles.banner} ${canManage ? styles.bannerWithAction : ""}`} style={playerColorStyle(space.color, space.banner_url ? { ["--banner-image" as string]: `url("${space.banner_url}")` } : undefined)}>
-        {canManage && (
-          <IconButton
-            className={styles.bannerAction}
-            icon="settings"
-            label="Configurações do Cenário"
-            loading={openingSettings}
-            onClick={() => {
-              closeDrawer();
-              startSettings(() => router.push(`/c/${space.id}/configuracoes`));
-            }}
-          />
-        )}
-        <h2 className={styles.bannerName}>{space.name}</h2>
-        {space.description && <p className={styles.bannerSub}>{space.description}</p>}
-        {canInvite && (
-          <Button className={styles.invite} icon="userPlus" onClick={() => setInviting(true)}>
-            Convidar
-          </Button>
-        )}
-      </header>
+      {/* O banner abre o menu do Cenário (convidar, configurações, criar canal…). */}
+      <button
+        type="button"
+        className={styles.banner}
+        style={playerColorStyle(space.color, space.banner_url ? { ["--banner-image" as string]: `url("${space.banner_url}")` } : undefined)}
+        aria-expanded={menuOpen}
+        aria-haspopup="dialog"
+        onClick={() => setMenuOpen((o) => !o)}
+      >
+        <span className={styles.bannerName}>
+          {space.name}
+          <Icon name="chevronDown" size={16} className={menuOpen ? styles.bannerChevronOpen : styles.bannerChevron} />
+        </span>
+        {space.description && <span className={styles.bannerSub}>{space.description}</span>}
+      </button>
+      <SpaceMenu
+        space={space}
+        permissions={permissions}
+        isOwner={space.owner_id === meId}
+        channelIds={channels.map((c) => c.id)}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onInvite={() => setInviting(true)}
+        onCreateChannel={() => setCreatingIn({ open: true, categoryId: null })}
+      />
       {canManageChannels && (
         <CreateChannelDialog
           spaceId={space.id}

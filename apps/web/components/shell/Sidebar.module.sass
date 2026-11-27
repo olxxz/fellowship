@@ -9,8 +9,8 @@
   flex: 1
   min-height: 0
   background: var(--bg-sidebar)
+  position: relative
   @include desktop
-    position: relative
     flex: none
     border-top-left-radius: var(--radius-xl)
     // Sem banner, o canto do conteúdo ao lado fica com a cor da barra (o banner, quando existe, pinta por cima).
@@ -289,3 +289,107 @@
     background: var(--bg-input)
     color: var(--text)
     @include text-body-sm
+
+// Banner clicável: abre o menu do Cenário.
+button.banner
+  @include reset-interactive
+  width: 100%
+  text-align: left
+  cursor: pointer
+  &:focus-visible
+    @include focus-ring
+    outline-offset: -3px
+
+.bannerName
+  display: flex
+  align-items: center
+  gap: var(--space-1)
+
+.bannerChevron, .bannerChevronOpen
+  flex-shrink: 0
+  transition: transform 160ms ease-out
+  @include reduced-motion
+    transition: none
+
+.bannerChevronOpen
+  transform: rotate(180deg)
+
+// Menu do Cenário: sobe de baixo para cima e cobre a barra (só deslize, sem pulo).
+.spaceMenu
+  position: absolute
+  inset: 0
+  z-index: 5
+  display: flex
+  flex-direction: column
+  background: var(--bg-sidebar)
+  transform: translateY(100%)
+  visibility: hidden
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 220ms
+  @include desktop
+    border-top-left-radius: var(--radius-xl)
+  @include reduced-motion
+    transition: none
+
+.spaceMenuOpen
+  transform: translateY(0)
+  visibility: visible
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s
+
+.spaceMenuHeader
+  display: flex
+  align-items: center
+  gap: var(--space-2)
+  min-height: calc(64px + env(safe-area-inset-top))
+  padding: env(safe-area-inset-top) var(--space-2) 0 var(--space-4)
+  border-bottom: 1px solid var(--border)
+
+.spaceMenuName
+  flex: 1
+  min-width: 0
+  @include text-title
+  @include truncate
+
+.spaceMenuBody
+  flex: 1
+  overflow-y: auto
+  padding: var(--space-2) var(--space-2) calc(var(--dock-h, 0px) + var(--space-4))
+
+.spaceMenuGroup
+  margin: 0
+  padding: var(--space-1) 0
+  list-style: none
+  & + &
+    border-top: 1px solid var(--border)
+
+.spaceMenuItem
+  @include reset-interactive
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  width: 100%
+  min-height: 44px
+  padding: var(--space-2) var(--space-3)
+  border-radius: var(--radius-md)
+  color: var(--text)
+  text-align: left
+  @include text-body-sm
+  font-weight: 500
+  svg
+    color: var(--text-muted)
+    flex-shrink: 0
+  span
+    display: flex
+    flex-direction: column
+  small
+    @include text-caption
+    color: var(--text-muted)
+  &:hover:not(:disabled)
+    background: var(--bg-raised)
+  &:focus-visible
+    @include focus-ring
+  &:disabled
+    opacity: 0.55
+    cursor: default
+
+.spaceMenuDanger, .spaceMenuDanger svg
+  color: var(--danger)
