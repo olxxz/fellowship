@@ -97,7 +97,7 @@ export async function updateSpaceAction(spaceId: string, _prev: FormState, form:
     .select("id");
   if (error) return { error: dbMessage(error, "Não foi possível salvar agora.") };
   if (!data?.length) return { error: "Você não tem permissão para editar este Cenário." };
-  revalidatePath(`/c/${spaceId}`, "layout");
+  revalidatePath("/", "layout");
   revalidatePath("/inicio");
   return { saved: true };
 }

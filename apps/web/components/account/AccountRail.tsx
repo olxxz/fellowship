@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { Rail, type RailSpace } from "@/components/shell/Rail";
 import { getBrowserClient } from "@/lib/supabase/client";
 
 type Counts = Record<string, { unread: number; mentions: number }>;
 
 /** Barra de Cenários do app real, com não lidas e menções atualizadas (a cada 20 s, ao voltar para a aba e ao ler um canal). */
-export function AccountRail({ spaces, initial, ...rest }: { spaces: RailSpace[]; initial: Counts; homeHref: string; createHref: string; activeSpaceId?: string }) {
+export function AccountRail({ spaces, initial, ...rest }: { spaces: RailSpace[]; initial: Counts; homeHref: string; createHref: string }) {
+  // O Cenário ativo vem da URL: a barra fica montada entre as páginas e acompanha a navegação.
+  const { space: activeSpaceId } = useParams<{ space?: string }>();
   const [counts, setCounts] = useState(initial);
   const load = useCallback(async () => {
     const { data } = await getBrowserClient().rpc("space_unread");
@@ -26,5 +29,5 @@ export function AccountRail({ spaces, initial, ...rest }: { spaces: RailSpace[];
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [load]);
-  return <Rail {...rest} spaces={spaces.map((s) => ({ ...s, unread: (counts[s.id]?.unread ?? 0) > 0, mentions: counts[s.id]?.mentions ?? 0 }))} />;
+  return <Rail {...rest} activeSpaceId={activeSpaceId} spaces={spaces.map((s) => ({ ...s, unread: (counts[s.id]?.unread ?? 0) > 0, mentions: counts[s.id]?.mentions ?? 0 }))} />;
 }

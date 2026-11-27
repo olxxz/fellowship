@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAccount } from "@/lib/app/queries";
 import { appSpaceHref } from "@/lib/routes";
@@ -42,5 +43,7 @@ export async function createSpaceAction(_prev: CreateSpaceState, form: FormData)
     .order("position")
     .limit(1)
     .maybeSingle<{ id: string }>();
+  // A barra de Cenários fica no layout de cima: atualiza para mostrar o novo.
+  revalidatePath("/", "layout");
   redirect(appSpaceHref(spaceId, first?.id));
 }
