@@ -67,3 +67,8 @@
     background: color-mix(in srgb, var(--bg-raised) 60%, transparent)
   &:focus-visible
     @include focus-ring
+
+// App instalado: com os cantos de baixo mais redondos (ver AppShell), um pouco mais de respiro dentro.
+@media (display-mode: standalone) and (pointer: coarse)
+  .dock .panel
+    padding: 10px 14px 12px
