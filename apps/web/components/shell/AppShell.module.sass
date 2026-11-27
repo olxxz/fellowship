@@ -40,6 +40,16 @@
   grid-column: span 2
   display: flex
   min-height: 0
+  // Barras de navegação não são texto para copiar: segurar um canal abre o menu de contexto, sem a seleção
+  // azul nem o balão do sistema (iOS/Android). Campos de texto continuam selecionáveis.
+  user-select: none
+  -webkit-user-select: none
+  -webkit-touch-callout: none
+  -webkit-tap-highlight-color: transparent
+  input, textarea, [contenteditable="true"]
+    user-select: text
+    -webkit-user-select: text
+    -webkit-touch-callout: default
   @include mobile
     position: absolute
     top: 0
