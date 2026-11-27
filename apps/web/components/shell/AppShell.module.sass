@@ -3,7 +3,10 @@
 .shell
   display: grid
   grid-template-columns: var(--size-rail) var(--size-sidebar) minmax(0, 1fr)
-  height: 100dvh
+  // Preso às bordas da janela em vez de 100dvh: no app instalado do iPhone a altura em dvh
+  // às vezes vem sem a barra de status e sobra uma faixa embaixo.
+  position: fixed
+  inset: 0
   overflow: hidden
   background: var(--bg-rail)
   // Larguras das gavetas no celular (o conteúdo sempre deixa uma faixa visível para tocar e fechar).
