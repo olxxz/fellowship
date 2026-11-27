@@ -46,7 +46,10 @@ importers:
         version: link:../../packages/ui
       '@livekit/components-react':
         specifier: ^2.9.26
-        version: 2.9.26(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tslib@2.9.1)
+        version: 2.9.26(@livekit/krisp-noise-filter@0.4.6(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22)))(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tslib@2.9.1)
+      '@livekit/krisp-noise-filter':
+        specifier: ^0.4.6
+        version: 0.4.6(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))
       '@supabase/ssr':
         specifier: ^0.12.7
         version: 0.12.7(@supabase/supabase-js@2.119.2)
@@ -571,6 +574,11 @@ packages:
     peerDependenciesMeta:
       '@livekit/krisp-noise-filter':
         optional: true
+
+  '@livekit/krisp-noise-filter@0.4.6':
+    resolution: {integrity: sha512-NbmbeUff7m8rfQUP/VKpzqV/X0bgC+So5u1NFiPVrjkAUTvq9fS8E/WJTdpk8m2LkKkqO7CkmkfvAmNY8nZxUw==}
+    peerDependencies:
+      livekit-client: ^2.18.7
 
   '@livekit/mutex@1.1.1':
     resolution: {integrity: sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==}
@@ -2408,7 +2416,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.9.1
 
-  '@livekit/components-react@2.9.26(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tslib@2.9.1)':
+  '@livekit/components-react@2.9.26(@livekit/krisp-noise-filter@0.4.6(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22)))(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tslib@2.9.1)':
     dependencies:
       '@livekit/components-core': 0.12.17(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))(tslib@2.9.1)
       clsx: 2.1.1
@@ -2419,6 +2427,14 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.9.1
       usehooks-ts: 3.1.1(react@19.3.1)
+    optionalDependencies:
+      '@livekit/krisp-noise-filter': 0.4.6(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))
+
+  '@livekit/krisp-noise-filter@0.4.6(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))':
+    dependencies:
+      '@livekit/mutex': 1.1.1
+      '@livekit/protocol': 1.54.1
+      livekit-client: 2.25.0(@types/dom-mediacapture-record@1.0.22)
 
   '@livekit/mutex@1.1.1': {}
 

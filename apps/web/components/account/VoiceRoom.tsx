@@ -100,6 +100,7 @@ export function VoiceRoom({ channel, profiles }: { channel: Channel; profiles: R
               onClick={voice.toggleScreen}
             />
           )}
+          <IconButton icon="settings" label="Voz e vídeo" onClick={() => voice.setSettingsOpen(true)} />
           <Button variant="danger" icon="leave" onClick={voice.leave}>
             Sair da sala
           </Button>

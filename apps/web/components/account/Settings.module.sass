@@ -326,3 +326,15 @@
   padding: var(--space-3) var(--space-4) var(--space-4)
   > :last-child
     margin-top: auto
+
+.meter
+  height: 8px
+  overflow: hidden
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  span
+    display: block
+    height: 100%
+    border-radius: inherit
+    background: var(--success)
+    transition: width 60ms linear

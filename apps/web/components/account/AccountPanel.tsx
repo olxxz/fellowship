@@ -69,6 +69,7 @@ export function AccountPanel({ profile }: { profile: AccountProfile }) {
           <Menu.Popup side="top" align="end">
             <Menu.LinkItem render={<Link href={editProfileHref} />}>Editar perfil</Menu.LinkItem>
             <Menu.LinkItem render={<Link href={friendsHref} />}>Amigos</Menu.LinkItem>
+            {voice?.enabled && <Menu.Item onClick={() => voice.setSettingsOpen(true)}>Voz e vídeo</Menu.Item>}
             <Menu.Separator />
             <ThemeMenuGroup />
             <Menu.Separator />

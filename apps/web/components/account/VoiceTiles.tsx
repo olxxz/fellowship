@@ -1,7 +1,8 @@
 "use client";
 
 // Carregado sob demanda: o SDK do LiveKit só pesa quando a pessoa está numa sala.
-import { Avatar, cx, Icon, playerColorStyle } from "@fellowship/ui";
+import { Avatar, cx, Icon, playerColorStyle, Popover } from "@fellowship/ui";
+import { useVoice } from "@/lib/livekit/VoiceProvider";
 import { isTrackReference, RoomAudioRenderer, RoomContext, useSpeakingParticipants, useTracks, VideoTrack, type TrackReferenceOrPlaceholder } from "@livekit/components-react";
 import { Track, type Participant, type Room } from "livekit-client";
 import { useEffect, useRef, useState } from "react";
@@ -116,6 +117,7 @@ function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
             </span>
           )}
         </button>
+        {!screen && !p.isLocal && variant !== "strip" && <VolumeControl userId={userIdOf(p)} name={name} />}
       </li>
     );
   };
@@ -151,5 +153,40 @@ function Tiles({ profiles }: { profiles: Record<string, VoiceProfile> }) {
         )}
       </div>
     </div>
+  );
+}
+
+/** Volume de uma pessoa só para você (fica salvo neste navegador). */
+function VolumeControl({ userId, name }: { userId: string; name: string }) {
+  const voice = useVoice();
+  const [value, setValue] = useState(() => voice.volumeOf(userId));
+  return (
+    <Popover.Root>
+      <Popover.Trigger
+        className={styles.volumeButton}
+        aria-label={`Volume de ${name}: ${value}%`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Icon name="voice" size={16} />
+      </Popover.Trigger>
+      <Popover.Popup side="bottom" title={`Volume de ${name}`}>
+        <label className={styles.volumeRow} onClick={(e) => e.stopPropagation()}>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={value}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setValue(v);
+              voice.setVolumeOf(userId, v);
+            }}
+            aria-label={`Volume de ${name}`}
+          />
+          <span>{value}%</span>
+        </label>
+      </Popover.Popup>
+    </Popover.Root>
   );
 }

@@ -47,3 +47,8 @@ export function useFlag(key: string, fallback: boolean): [boolean, (value: boole
   const setFlag = useCallback((v: boolean) => set(v ? "1" : "0"), [set]);
   return [value === "1", setFlag];
 }
+
+/** Leitura fora de componente (ex.: volume por pessoa ao entrar alguém na sala). */
+export function readPref(key: string): string | null {
+  return read(key);
+}

@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@fellowship/core": "workspace:*",
+    "@fellowship/db": "workspace:*",
     "@fellowship/ui": "workspace:*",
     "@livekit/components-react": "^2.9.26",
+    "@livekit/krisp-noise-filter": "^0.4.6",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",
     "livekit-client": "^2.25.0",
@@ -22,8 +24,7 @@
     "next": "^16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "server-only": "^0.0.1",
-    "@fellowship/db": "workspace:*"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

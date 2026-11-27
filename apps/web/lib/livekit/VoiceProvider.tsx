@@ -1,10 +1,11 @@
 "use client";
 
 import { Button, Modal } from "@fellowship/ui";
-import type { Participant, Room } from "livekit-client";
+import type { LocalAudioTrack, Participant, RemoteParticipant, Room } from "livekit-client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useFlag } from "@/lib/prefs";
+import { readPref, useFlag, usePref, writePref } from "@/lib/prefs";
 import { voiceEnabled } from "./useMesaVoice";
+import { VoiceSettingsDialog } from "./VoiceSettingsDialog";
 
 export interface VoiceChannelRef {
   id: string;
@@ -37,11 +38,41 @@ interface VoiceState {
   toggleScreen: () => void;
   /** Quem está na sala conectada, ao vivo (para a barra lateral). */
   people: VoicePerson[];
+  /** Aparelhos e áudio (salvos por navegador). */
+  devices: VoiceDevices;
+  setDevice: (kind: MediaDeviceKind, deviceId: string) => void;
+  refreshDevices: () => Promise<void>;
+  krispSupported: boolean;
+  krisp: boolean;
+  setKrisp: (on: boolean) => void;
+  browserProcessing: boolean;
+  setBrowserProcessing: (on: boolean) => void;
+  /** Volume de cada pessoa para você (0–100), salvo por pessoa. */
+  volumeOf: (userId: string) => number;
+  setVolumeOf: (userId: string, volume: number) => void;
+  /** Nível do seu microfone agora (0–1), para o medidor nas configurações. */
+  micLevel: () => number;
+  settingsOpen: boolean;
+  setSettingsOpen: (open: boolean) => void;
   /** Entra direto; se já estiver em outra sala, pergunta antes de trocar. */
   requestJoin: (channel: VoiceChannelRef) => void;
   join: (channel: VoiceChannelRef) => Promise<void>;
   leave: () => void;
 }
+
+export interface VoiceDevices {
+  audioinput: MediaDeviceInfo[];
+  audiooutput: MediaDeviceInfo[];
+  videoinput: MediaDeviceInfo[];
+  selected: Record<MediaDeviceKind, string>;
+}
+
+const PREF_DEVICE: Record<MediaDeviceKind, string> = { audioinput: "voz:microfone", audiooutput: "voz:saida", videoinput: "voz:camera" };
+const volumeKey = (userId: string) => `voz:volume:${userId}`;
+const readVolume = (userId: string) => {
+  const v = Number(readPref(volumeKey(userId)));
+  return Number.isFinite(v) && readPref(volumeKey(userId)) !== null ? Math.min(100, Math.max(0, v)) : 100;
+};
 
 const VoiceContext = createContext<VoiceState | null>(null);
 
@@ -85,6 +116,21 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const [people, setPeople] = useState<VoicePerson[]>([]);
   const [pendingSwitch, setPendingSwitch] = useState<VoiceChannelRef | null>(null);
   const [muted, setMuted] = useFlag("mutado", false);
+  const [mic] = usePref("voz:microfone", "");
+  const [speaker] = usePref("voz:saida", "");
+  const [cam] = usePref("voz:camera", "");
+  const [krisp, setKrispPref] = useFlag("voz:krisp", true);
+  const [browserProcessing, setBrowserProcessingPref] = useFlag("voz:processamento", true);
+  const [krispSupported, setKrispSupported] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [lists, setLists] = useState<Omit<VoiceDevices, "selected">>({ audioinput: [], audiooutput: [], videoinput: [] });
+  const [, setVolumesVersion] = useState(0);
+  // Valores lidos dentro do join (que é memorizado): ficam em refs sincronizadas com as preferências.
+  const settingsRef = useRef({ mic, speaker, cam, krisp, browserProcessing });
+  useEffect(() => {
+    settingsRef.current = { mic, speaker, cam, krisp, browserProcessing };
+  }, [mic, speaker, cam, krisp, browserProcessing]);
+  const krispRef = useRef<{ setEnabled: (on: boolean) => Promise<unknown> } | null>(null);
   const roomRef = useRef<Room | null>(null);
   // Sala em que a pessoa quer estar (para reconectar sozinho se cair); null depois de "Sair".
   const wantedRef = useRef<VoiceChannelRef | null>(null);
@@ -106,6 +152,19 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     reset();
     void r?.disconnect();
   }, [reset]);
+
+  const applyKrisp = useCallback(async (track: LocalAudioTrack) => {
+    try {
+      const { KrispNoiseFilter, isKrispNoiseFilterSupported } = await import("@livekit/krisp-noise-filter");
+      if (!isKrispNoiseFilterSupported()) return;
+      const processor = KrispNoiseFilter();
+      await track.setProcessor(processor);
+      await processor.setEnabled(settingsRef.current.krisp);
+      krispRef.current = processor;
+    } catch (e) {
+      console.warn("Supressor de ruído indisponível", e);
+    }
+  }, []);
 
   const join = useCallback(
     async (channel: VoiceChannelRef) => {
@@ -133,12 +192,18 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           adaptiveStream: true,
           dynacast: true,
           // Câmera em 720p com camadas menores para quadros pequenos; tela nítida para texto (fichas, mapas).
-          videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
+          videoCaptureDefaults: { resolution: VideoPresets.h720.resolution, deviceId: settingsRef.current.cam || undefined },
           publishDefaults: {
             videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
             screenShareEncoding: ScreenSharePresets.h1080fps15.encoding,
           },
-          audioCaptureDefaults: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+          audioCaptureDefaults: {
+            deviceId: settingsRef.current.mic || undefined,
+            echoCancellation: settingsRef.current.browserProcessing,
+            noiseSuppression: settingsRef.current.browserProcessing,
+            autoGainControl: settingsRef.current.browserProcessing,
+          },
+          audioOutput: settingsRef.current.speaker ? { deviceId: settingsRef.current.speaker } : undefined,
         });
         const sync = () => {
           if (roomRef.current !== next) return;
@@ -156,6 +221,15 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           RoomEvent.TrackUnpublished,
         ])
           next.on(event, sync);
+        // Supressor de ruído (Krisp, do LiveKit Cloud) no microfone assim que ele é publicado.
+        next.on(RoomEvent.LocalTrackPublished, (pub) => {
+          if (pub.source !== "microphone" || !pub.track) return;
+          void applyKrisp(pub.track as LocalAudioTrack);
+        });
+        // Volume que você escolheu para cada pessoa.
+        const applyVolume = (p: RemoteParticipant) => p.setVolume(readVolume(p.attributes.userId ?? p.identity.slice(0, 36)) / 100);
+        next.on(RoomEvent.ParticipantConnected, applyVolume);
+        next.on(RoomEvent.TrackSubscribed, (_t, _pub, p) => applyVolume(p));
         next.on(RoomEvent.LocalTrackUnpublished, (pub) => {
           if (pub.source === "screen_share") setScreenOn(false);
           sync();
@@ -195,7 +269,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         setError(describe(e));
       }
     },
-    [reset],
+    [reset, applyKrisp],
   );
 
   const requestJoin = useCallback(
@@ -241,6 +315,61 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     joinRef.current = join;
   }, [join]);
 
+  useEffect(() => {
+    void import("@livekit/krisp-noise-filter")
+      .then(({ isKrispNoiseFilterSupported }) => setKrispSupported(isKrispNoiseFilterSupported()))
+      .catch(() => setKrispSupported(false));
+  }, []);
+
+  const refreshDevices = useCallback(async () => {
+    try {
+      const { Room } = await import("livekit-client");
+      const [audioinput, audiooutput, videoinput] = await Promise.all([
+        Room.getLocalDevices("audioinput", true),
+        Room.getLocalDevices("audiooutput", false),
+        Room.getLocalDevices("videoinput", false),
+      ]);
+      setLists({ audioinput, audiooutput, videoinput });
+    } catch (e) {
+      setError(describe(e));
+    }
+  }, []);
+
+  const setDevice = useCallback((kind: MediaDeviceKind, deviceId: string) => {
+    writePref(PREF_DEVICE[kind], deviceId);
+    const r = roomRef.current;
+    if (r && deviceId) void r.switchActiveDevice(kind, deviceId).catch((e: unknown) => setError(describe(e)));
+  }, []);
+
+  const setKrisp = useCallback(
+    (on: boolean) => {
+      setKrispPref(on);
+      void krispRef.current?.setEnabled(on);
+    },
+    [setKrispPref],
+  );
+
+  const setBrowserProcessing = useCallback(
+    (on: boolean) => {
+      setBrowserProcessingPref(on);
+      const track = roomRef.current?.localParticipant.getTrackPublication("microphone" as never)?.track as LocalAudioTrack | undefined;
+      void track
+        ?.restartTrack({ deviceId: settingsRef.current.mic || undefined, echoCancellation: on, noiseSuppression: on, autoGainControl: on })
+        .catch((e: unknown) => setError(describe(e)));
+    },
+    [setBrowserProcessingPref],
+  );
+
+  const setVolumeOf = useCallback((userId: string, volume: number) => {
+    writePref(volumeKey(userId), String(Math.round(volume)));
+    setVolumesVersion((v) => v + 1);
+    for (const p of roomRef.current?.remoteParticipants.values() ?? []) {
+      if ((p.attributes.userId ?? p.identity.slice(0, 36)) === userId) p.setVolume(volume / 100);
+    }
+  }, []);
+
+  const micLevel = useCallback(() => roomRef.current?.localParticipant.audioLevel ?? 0, []);
+
   // Em segundo plano o celular corta a câmera: desligamos nós mesmos (fica só a voz) e a pessoa religa ao voltar.
   useEffect(() => {
     const onVisibility = () => {
@@ -278,16 +407,30 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       screenOn,
       toggleScreen: () => void toggleScreen(),
       people,
+      devices: { ...lists, selected: { audioinput: mic, audiooutput: speaker, videoinput: cam } },
+      setDevice,
+      refreshDevices,
+      krispSupported,
+      krisp,
+      setKrisp,
+      browserProcessing,
+      setBrowserProcessing,
+      volumeOf: readVolume,
+      setVolumeOf,
+      micLevel,
+      settingsOpen,
+      setSettingsOpen,
       requestJoin,
       join,
       leave,
     }),
-    [current, room, status, error, canSpeak, muted, setMuted, cameraOn, toggleCamera, screenOn, toggleScreen, people, requestJoin, join, leave],
+    [current, room, status, error, canSpeak, muted, setMuted, cameraOn, toggleCamera, screenOn, toggleScreen, people, lists, mic, speaker, cam, setDevice, refreshDevices, krispSupported, krisp, setKrisp, browserProcessing, setBrowserProcessing, setVolumeOf, micLevel, settingsOpen, requestJoin, join, leave],
   );
 
   return (
     <VoiceContext.Provider value={value}>
       {children}
+      <VoiceSettingsDialog />
       <Modal
         open={!!pendingSwitch}
         onOpenChange={(open) => !open && setPendingSwitch(null)}

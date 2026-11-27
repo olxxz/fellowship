@@ -239,3 +239,39 @@
 // A própria câmera aparece espelhada, como num espelho (os outros veem normal).
 .mirror
   transform: scaleX(-1)
+
+// Volume por pessoa: botão no canto do quadro (aparece ao passar o mouse; sempre visível no toque).
+.volumeButton
+  @include reset-interactive
+  position: absolute
+  top: var(--space-2)
+  left: var(--space-2)
+  z-index: 1
+  display: grid
+  place-items: center
+  width: 32px
+  height: 32px
+  border-radius: var(--radius-full)
+  background: var(--bg-raised)
+  color: var(--text)
+  opacity: 0
+  transition: opacity 120ms ease-out
+  .tile:hover &, .tile:focus-within &, &[data-popup-open]
+    opacity: 1
+  @media (hover: none)
+    opacity: 1
+  &:focus-visible
+    @include focus-ring
+
+.volumeRow
+  display: flex
+  align-items: center
+  gap: var(--space-3)
+  min-width: 220px
+  input
+    flex: 1
+    accent-color: var(--accent)
+  span
+    width: 40px
+    text-align: right
+    font-variant-numeric: tabular-nums
