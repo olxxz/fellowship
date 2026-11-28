@@ -63,7 +63,6 @@ export const DiceStage = forwardRef<DiceStageHandle>(function DiceStage(_, ref) 
       const notation = toNotation(roll);
       const el = container.current;
       if (!notation || !el) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       clearTimeout(hide.current);
       el.dataset.visible = "";
       void getBox()

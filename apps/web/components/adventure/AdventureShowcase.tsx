@@ -4,14 +4,16 @@ import Link from "next/link";
 import styles from "./Adventure.module.sass";
 
 /** Vitrine de aventuras: por enquanto só as de teste, para jogar sozinho, só com texto. */
-export function AdventureShowcase({ adventures, backHref }: { adventures: Adventure[]; backHref: string }) {
+export function AdventureShowcase({ adventures, backHref, hrefBase = "/aventuras", embedded }: { adventures: Adventure[]; backHref?: string; hrefBase?: string; embedded?: boolean }) {
   return (
-    <div className={styles.page}>
-      <div className={styles.top}>
-        <Link href={backHref} className={styles.back}>
-          <Icon name="back" size={16} /> Voltar
-        </Link>
-      </div>
+    <div className={embedded ? styles.embedded : styles.page}>
+      {backHref && (
+        <div className={styles.top}>
+          <Link href={backHref} className={styles.back}>
+            <Icon name="back" size={16} /> Voltar
+          </Link>
+        </div>
+      )}
       <main className={styles.wrap}>
         <div>
           <h1 className={styles.heading}>Aventuras</h1>
@@ -20,7 +22,7 @@ export function AdventureShowcase({ adventures, backHref }: { adventures: Advent
         <ul className={styles.grid}>
           {adventures.map((a) => (
             <li key={a.id}>
-              <Link href={`/aventuras/${a.id}`} className={styles.card}>
+              <Link href={`${hrefBase}/${a.id}`} className={styles.card} style={{ ["--card-color" as string]: a.cor }}>
                 <span className={styles.cardTitle}>{a.titulo}</span>
                 <span className={styles.cardText}>{a.resumo}</span>
                 <span className={styles.tags}>

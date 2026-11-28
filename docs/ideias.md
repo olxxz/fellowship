@@ -44,3 +44,5 @@ Anotações para não esquecer. Nada aqui está decidido.
 
 - Paleta de comandos (Ctrl/⌘ K): ir para canal, Cenário, campanha, pessoa; rolar dados ("r 1d20+5").
 - Alt+↑/↓ canal anterior/próximo; Ctrl+/ lista de atalhos; M mutar; Esc fecha; na Mesa: D dados, F ficha, C chat.
+- Música junto com a chamada no iPhone: o Safari não deixa um site tocar junto com Spotify/YouTube Music enquanto o
+  microfone está ligado; só o app nativo (sessão de áudio "mix with others"), como faz o Discord.

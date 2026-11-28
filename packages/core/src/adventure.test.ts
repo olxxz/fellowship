@@ -8,6 +8,8 @@ const mini: Adventure = {
   autor: "",
   duracao: 1,
   genero: "",
+  sigla: "T",
+  cor: "#000000",
   inicio: "a",
   derrota: "morte",
   vida: 3,

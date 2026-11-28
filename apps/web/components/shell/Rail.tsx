@@ -25,16 +25,22 @@ export interface RailProps {
   activeSpaceId?: string;
   /** Página de criar Cenário. Sem ela, o botão fica desabilitado. */
   createHref?: string;
+  /** Aventuras (histórias prontas): a vitrine e as que a pessoa começou, depois dos Cenários. */
+  adventuresHref?: string;
+  adventures?: RailSpace[];
+  /** Vitrine de aventuras aberta (o Início não fica ativo). */
+  adventuresActive?: boolean;
 }
 
 /** Barra de Cenários: Início, um ícone por Cenário e o botão de criar. */
-export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps) {
+export function Rail({ homeHref, spaces, activeSpaceId, createHref, adventuresHref, adventures = [], adventuresActive }: RailProps) {
+  const homeActive = !activeSpaceId && !adventuresActive;
   const { closeDrawer } = useShell();
   return (
     <div className={styles.rail}>
       <ul className={styles.list}>
-        <li className={cx(styles.item, !activeSpaceId && styles.active)}>
-          <PendingIconLink href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={!activeSpaceId ? "page" : undefined} title="Início" onClick={keepDrawerOpen}>
+        <li className={cx(styles.item, homeActive && styles.active)}>
+          <PendingIconLink href={homeHref} className={cx(styles.icon, styles.home)} aria-label="Início" aria-current={homeActive ? "page" : undefined} title="Início" onClick={keepDrawerOpen}>
             <Icon name="home" size={22} />
           </PendingIconLink>
         </li>
@@ -65,6 +71,28 @@ export function Rail({ homeHref, spaces, activeSpaceId, createHref }: RailProps)
           );
         })}
       </ul>
+      {adventuresHref && (
+        <>
+          <span className={styles.separator} aria-hidden="true" />
+          <ul className={styles.list} aria-label="Aventuras">
+            <li className={cx(styles.item, adventuresActive && styles.active)}>
+              <PendingIconLink href={adventuresHref} className={cx(styles.icon, styles.home)} aria-label="Aventuras" aria-current={adventuresActive ? "page" : undefined} title="Aventuras" onClick={keepDrawerOpen}>
+                <Icon name="book" size={22} />
+              </PendingIconLink>
+            </li>
+            {adventures.map((a) => {
+              const active = a.id === activeSpaceId;
+              return (
+                <li key={a.id} className={cx(styles.item, active && styles.active)}>
+                  <PendingIconLink href={a.href} className={styles.icon} style={playerColorStyle(a.color)} aria-label={a.name} aria-current={active ? "page" : undefined} title={a.name} onClick={keepDrawerOpen}>
+                    {a.short}
+                  </PendingIconLink>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
       {createHref ? (
         <PendingIconLink href={createHref} className={styles.add} aria-label="Criar Cenário" title="Criar Cenário" onClick={closeDrawer}>
           <Icon name="plus" size={22} />

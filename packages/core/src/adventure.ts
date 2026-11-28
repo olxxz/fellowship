@@ -35,6 +35,10 @@ export interface AdventureScene {
   titulo: string;
   /** Parágrafos separados por linha em branco. */
   texto: string;
+  /** Imagem da cena (endereço), acima do texto. */
+  imagem?: string;
+  /** Desenho em texto (ASCII), mostrado em fonte monoespaçada. Fica a critério de quem escreve. */
+  arte?: string;
   /** Efeitos ao entrar na cena. */
   efeitos?: AdventureEffect[];
   escolhas?: AdventureChoice[];
@@ -50,6 +54,9 @@ export interface Adventure {
   /** Minutos, mais ou menos. */
   duracao: number;
   genero: string;
+  /** Duas letras para o ícone na barra e a cor dele. */
+  sigla: string;
+  cor: string;
   inicio: string;
   /** Cena para onde vai quem chega a 0 de vida. */
   derrota: string;
