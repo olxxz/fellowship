@@ -1,6 +1,7 @@
 import { ButtonLink, Icon, playerColorStyle } from "@fellowship/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { NotificationsPrompt } from "@/components/account/NotificationsPrompt";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ContentHeader } from "@/components/shell/ContentHeader";
 import { getMySpaces, requireAccount } from "@/lib/app/queries";
@@ -19,6 +20,7 @@ export default async function InicioPage() {
       <ContentHeader icon="home" title="Início" />
       <main className={styles.page}>
         <h2 className={styles.title}>Olá, {firstName}</h2>
+        <NotificationsPrompt />
         {spaces.length === 0 ? (
           <EmptyState
             icon="dice"
